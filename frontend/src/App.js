@@ -8,6 +8,10 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import CustomCursor from "./components/ui/CustomCursor";
+import ProfileSetupScreen from "./pages/onboarding/ProfileSetupScreen";
+import PhotoGalleryScreen from "./pages/onboarding/PhotoGalleryScreen";
+import InterestsValuesScreen from "./pages/onboarding/InterestsValuesScreen";
+import ProfileCompleteScreen from "./pages/onboarding/ProfileCompleteScreen";
 
 function App() {
   return (
@@ -26,6 +30,12 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        
+        {/* Onboarding Routes */}
+        <Route path="/onboarding/profile-setup" element={<ProfileSetupScreen />} />
+        <Route path="/onboarding/photos" element={<PhotoGalleryScreen />} />
+        <Route path="/onboarding/interests" element={<InterestsValuesScreen />} />
+        <Route path="/onboarding/complete" element={<ProfileCompleteScreen />} />
       </Routes>
     </Router>
   );

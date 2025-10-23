@@ -1,16 +1,13 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import LandingHeader from "../components/layout/LandingHeader";
 import authService from "../services/authService";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
+    fullName: "",
     email: "",
     password: "",
     confirmPassword: "",
-    age: "",
     agreeToTerms: false,
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -51,7 +48,8 @@ const Signup = () => {
 
     try {
       await authService.signUpWithEmail(formData);
-      navigate("/dashboard");
+      // Redirect to profile setup after successful registration
+      navigate("/onboarding/profile-setup");
     } catch (err) {
       setError(err.message || "Registration failed. Please try again.");
     } finally {
@@ -65,7 +63,8 @@ const Signup = () => {
 
     try {
       await authService.signInWithGoogle();
-      navigate("/dashboard");
+      // Redirect to profile setup for new users
+      navigate("/onboarding/profile-setup");
     } catch (err) {
       setError("Google sign up failed. Please try again.");
     } finally {
@@ -74,11 +73,10 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#F5F0E6" }}>
-      <LandingHeader />
+    <div className="min-h-screen" style={{ backgroundColor: "#F5F5F5" }}>
 
       <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8">
+        <div className="max-w-md w-full space-y-8 lg:max-w-[500px]">
           {/* Header */}
           <div className="text-center">
             <h2 className="text-3xl font-bold text-gray-900 mb-2">
@@ -98,44 +96,30 @@ const Signup = () => {
                 </div>
               )}
 
-              {/* Name Fields */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label
-                    htmlFor="firstName"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    First Name
-                  </label>
-                  <input
-                    id="firstName"
-                    name="firstName"
-                    type="text"
-                    required
-                    value={formData.firstName}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors duration-200"
-                    placeholder="First name"
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="lastName"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Last Name
-                  </label>
-                  <input
-                    id="lastName"
-                    name="lastName"
-                    type="text"
-                    required
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors duration-200"
-                    placeholder="Last name"
-                  />
-                </div>
+              {/* Full Name Field */}
+              <div>
+                <label
+                  htmlFor="fullName"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Full Name
+                </label>
+                <input
+                  id="fullName"
+                  name="fullName"
+                  type="text"
+                  required
+                  value={formData.fullName}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:border-transparent transition-colors duration-200 bg-white"
+                  style={{ 
+                    height: '56px',
+                    borderColor: '#D1D5DB'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#5D1751'}
+                  onBlur={(e) => e.target.style.borderColor = '#D1D5DB'}
+                  placeholder="Enter your full name"
+                />
               </div>
 
               <div>
@@ -152,34 +136,17 @@ const Signup = () => {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors duration-200"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:border-transparent transition-colors duration-200 bg-white"
+                  style={{ 
+                    height: '56px',
+                    borderColor: '#D1D5DB'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#5D1751'}
+                  onBlur={(e) => e.target.style.borderColor = '#D1D5DB'}
                   placeholder="Enter your email"
                 />
               </div>
 
-              <div>
-                <label
-                  htmlFor="age"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Age
-                </label>
-                <select
-                  id="age"
-                  name="age"
-                  required
-                  value={formData.age}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors duration-200"
-                >
-                  <option value="">Select your age</option>
-                  {Array.from({ length: 40 }, (_, i) => i + 21).map((age) => (
-                    <option key={age} value={age}>
-                      {age}
-                    </option>
-                  ))}
-                </select>
-              </div>
 
               <div>
                 <label
@@ -195,7 +162,13 @@ const Signup = () => {
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors duration-200"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:border-transparent transition-colors duration-200 bg-white"
+                  style={{ 
+                    height: '56px',
+                    borderColor: '#D1D5DB'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#5D1751'}
+                  onBlur={(e) => e.target.style.borderColor = '#D1D5DB'}
                   placeholder="Create a password"
                 />
                 <p className="text-xs text-gray-500 mt-1">
@@ -217,7 +190,13 @@ const Signup = () => {
                   required
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors duration-200"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:border-transparent transition-colors duration-200 bg-white"
+                  style={{ 
+                    height: '56px',
+                    borderColor: '#D1D5DB'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#5D1751'}
+                  onBlur={(e) => e.target.style.borderColor = '#D1D5DB'}
                   placeholder="Confirm your password"
                 />
               </div>
@@ -239,14 +218,14 @@ const Signup = () => {
                   I agree to the{" "}
                   <Link
                     to="/terms"
-                    className="text-teal-600 hover:text-teal-500"
+                    style={{ color: '#5D1751' }}
                   >
                     Terms of Service
                   </Link>{" "}
                   and{" "}
                   <Link
                     to="/privacy"
-                    className="text-teal-600 hover:text-teal-500"
+                    style={{ color: '#5D1751' }}
                   >
                     Privacy Policy
                   </Link>
@@ -256,7 +235,11 @@ const Signup = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                className="w-full text-white font-semibold py-3 px-4 rounded-2xl transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ 
+                  backgroundColor: '#5D1751',
+                  height: '56px'
+                }}
               >
                 {isLoading ? (
                   <div className="flex items-center justify-center">
@@ -288,7 +271,8 @@ const Signup = () => {
               <button
                 onClick={handleGoogleSignUp}
                 disabled={isLoading}
-                className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-2xl shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ height: '56px' }}
               >
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                   <path
@@ -318,7 +302,8 @@ const Signup = () => {
                 Already have an account?{" "}
                 <Link
                   to="/login"
-                  className="text-teal-600 hover:text-teal-500 font-medium"
+                  className="font-medium"
+                  style={{ color: '#5D1751' }}
                 >
                   Sign in here
                 </Link>

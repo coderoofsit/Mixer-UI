@@ -1,169 +1,322 @@
-// Google Authentication Service
-// This service handles Google OAuth integration
+// Firebase Authentication Service
+import {
+  auth,
+  googleProvider,
+  appleProvider,
+  signInWithPopup,
+  signInAnonymously,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut as firebaseSignOut,
+  updateProfile
+} from '../config/firebase';
+import { authApi } from './authApi';
 
 class AuthService {
   constructor() {
-    this.isGoogleLoaded = false;
-    this.initGoogleAuth();
-  }
-
-  // Initialize Google Auth
-  initGoogleAuth() {
-    // Load Google Identity Services script
-    if (!window.google) {
-      const script = document.createElement("script");
-      script.src = "https://accounts.google.com/gsi/client";
-      script.async = true;
-      script.defer = true;
-      script.onload = () => {
-        this.isGoogleLoaded = true;
-        this.initializeGoogleAuth();
-      };
-      document.head.appendChild(script);
-    } else {
-      this.isGoogleLoaded = true;
-      this.initializeGoogleAuth();
-    }
-  }
-
-  // Initialize Google Auth with configuration
-  initializeGoogleAuth() {
-    if (window.google && window.google.accounts) {
-      // Configure Google Identity Services
-      window.google.accounts.id.initialize({
-        client_id:
-          process.env.REACT_APP_GOOGLE_CLIENT_ID || "your-google-client-id",
-        callback: this.handleGoogleResponse.bind(this),
-        auto_select: false,
-        cancel_on_tap_outside: true,
-      });
-    }
-  }
-
-  // Handle Google authentication response
-  handleGoogleResponse(response) {
-    try {
-      // Decode the JWT token
-      const payload = JSON.parse(atob(response.credential.split(".")[1]));
-
-      // Extract user information
-      const userInfo = {
-        id: payload.sub,
-        email: payload.email,
-        name: payload.name,
-        picture: payload.picture,
-        given_name: payload.given_name,
-        family_name: payload.family_name,
-      };
-
-      // Store user info in localStorage
-      localStorage.setItem("user", JSON.stringify(userInfo));
-      localStorage.setItem("authToken", response.credential);
-
-      // Return user info for further processing
-      return userInfo;
-    } catch (error) {
-      console.error("Error processing Google response:", error);
-      throw new Error("Failed to process Google authentication");
-    }
-  }
-
-  // Trigger Google Sign In
-  async signInWithGoogle() {
-    if (!this.isGoogleLoaded) {
-      throw new Error("Google authentication not loaded");
-    }
-
-    return new Promise((resolve, reject) => {
-      try {
-        window.google.accounts.id.prompt((notification) => {
-          if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-            reject(new Error("Google sign-in was cancelled or not displayed"));
-          }
-        });
-      } catch (error) {
-        reject(error);
+    this.currentUser = null;
+    
+    // Listen for auth state changes
+    auth.onAuthStateChanged((user) => {
+      this.currentUser = user;
+      if (user) {
+        // User is signed in
+        localStorage.setItem('user', JSON.stringify({
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName,
+          photoURL: user.photoURL,
+          emailVerified: user.emailVerified,
+          isAnonymous: user.isAnonymous
+        }));
+      } else {
+        // User is signed out
+        localStorage.removeItem('user');
+        localStorage.removeItem('isAnonymous');
       }
     });
   }
 
-  // Sign out user
-  signOut() {
-    localStorage.removeItem("user");
-    localStorage.removeItem("authToken");
+  // Sign in with Email and Password
+  async signInWithEmail(email, password) {
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      
+      return {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+        emailVerified: user.emailVerified
+      };
+    } catch (error) {
+      console.error('Sign in error:', error);
+      throw this.handleAuthError(error);
+    }
+  }
 
-    if (window.google && window.google.accounts) {
-      window.google.accounts.id.disableAutoSelect();
+  // Sign up with Email and Password
+  async signUpWithEmail(userData) {
+    try {
+      const { email, password, fullName } = userData;
+      
+      // Step 1: Create Firebase user
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Update profile with display name
+      if (fullName) {
+        await updateProfile(user, {
+          displayName: fullName
+        });
+      }
+
+      // Step 2: Get Firebase ID token
+      const idToken = await user.getIdToken(true);
+
+      // Step 3: Register with backend
+      console.log('🔄 Registering user with backend...');
+      const registrationResult = await authApi.registerUser(email, idToken);
+
+      if (registrationResult.success) {
+        // Store userId in localStorage
+        localStorage.setItem('userId', registrationResult.userId);
+        console.log('✅ Registration successful! User ID:', registrationResult.userId);
+        
+        return {
+          uid: user.uid,
+          email: user.email,
+          displayName: fullName || user.displayName,
+          photoURL: user.photoURL,
+          emailVerified: user.emailVerified,
+          userId: registrationResult.userId,
+          isNewUser: true,
+        };
+      } else {
+        throw new Error(registrationResult.error || 'Backend registration failed');
+      }
+    } catch (error) {
+      console.error('Sign up error:', error);
+      throw this.handleAuthError(error);
+    }
+  }
+
+  // Sign in with Google
+  async signInWithGoogle() {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+
+      // Check if this is a new user
+      const isNewUser = result._tokenResponse?.isNewUser || false;
+
+      // Register new users with backend
+      if (isNewUser) {
+        try {
+          const idToken = await user.getIdToken(true);
+          console.log('🔄 Registering new Google user with backend...');
+          const registrationResult = await authApi.registerUser(user.email, idToken);
+          
+          if (registrationResult.success) {
+            localStorage.setItem('userId', registrationResult.userId);
+            console.log('✅ Google user registration successful! User ID:', registrationResult.userId);
+          }
+        } catch (error) {
+          console.error('⚠️ Backend registration failed for Google user:', error);
+          // Continue anyway - user is authenticated with Firebase
+        }
+      }
+
+      return {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+        emailVerified: user.emailVerified,
+        isNewUser
+      };
+    } catch (error) {
+      console.error('Google sign in error:', error);
+      throw this.handleAuthError(error);
+    }
+  }
+
+  // Sign in with Apple
+  async signInWithApple() {
+    try {
+      const result = await signInWithPopup(auth, appleProvider);
+      const user = result.user;
+
+      // Check if this is a new user
+      const isNewUser = result._tokenResponse?.isNewUser || false;
+
+      // Register new users with backend
+      if (isNewUser) {
+        try {
+          const idToken = await user.getIdToken(true);
+          console.log('🔄 Registering new Apple user with backend...');
+          const registrationResult = await authApi.registerUser(user.email, idToken);
+          
+          if (registrationResult.success) {
+            localStorage.setItem('userId', registrationResult.userId);
+            console.log('✅ Apple user registration successful! User ID:', registrationResult.userId);
+          }
+        } catch (error) {
+          console.error('⚠️ Backend registration failed for Apple user:', error);
+          // Continue anyway - user is authenticated with Firebase
+        }
+      }
+
+      return {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+        emailVerified: user.emailVerified,
+        isNewUser
+      };
+    } catch (error) {
+      console.error('Apple sign in error:', error);
+      throw this.handleAuthError(error);
+    }
+  }
+
+  // Sign in anonymously
+  async signInAnonymously() {
+    try {
+      const userCredential = await signInAnonymously(auth);
+      const user = userCredential.user;
+
+      localStorage.setItem('isAnonymous', 'true');
+
+      return {
+        uid: user.uid,
+        email: null,
+        displayName: 'Guest User',
+        photoURL: null,
+        isAnonymous: true
+      };
+    } catch (error) {
+      console.error('Anonymous sign in error:', error);
+      throw this.handleAuthError(error);
+    }
+  }
+
+  // Sign out
+  async signOut() {
+    try {
+      await firebaseSignOut(auth);
+      localStorage.removeItem('user');
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('isAnonymous');
+    } catch (error) {
+      console.error('Sign out error:', error);
+      throw error;
     }
   }
 
   // Get current user
   getCurrentUser() {
-    const user = localStorage.getItem("user");
-    return user ? JSON.parse(user) : null;
+    const user = localStorage.getItem('user');
+    return user ? JSON.parse(user) : this.currentUser;
   }
 
   // Check if user is authenticated
   isAuthenticated() {
-    return !!localStorage.getItem("authToken");
+    return !!auth.currentUser || !!localStorage.getItem('user');
   }
 
-  // Regular email/password authentication
-  async signInWithEmail(email, password) {
+  // Check if current user is anonymous
+  isAnonymousUser() {
+    return auth.currentUser?.isAnonymous || localStorage.getItem('isAnonymous') === 'true';
+  }
+
+  // Get auth token
+  async getAuthToken() {
     try {
-      // TODO: Implement actual API call to your backend
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Invalid credentials");
+      const user = auth.currentUser;
+      if (user) {
+        return await user.getIdToken();
       }
-
-      const data = await response.json();
-
-      // Store auth token
-      localStorage.setItem("authToken", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
-
-      return data.user;
+      return null;
     } catch (error) {
-      console.error("Sign in error:", error);
-      throw error;
+      console.error('Error getting auth token:', error);
+      return null;
     }
   }
 
-  // Register with email/password
-  async signUpWithEmail(userData) {
+  // Check if user profile is complete
+  async checkProfileCompletion() {
     try {
-      // TODO: Implement actual API call to your backend
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(userData),
-      });
+      console.log('🔍 Checking profile completion...');
+      const profile = await authApi.getUserProfile();
+      
+      console.log('📋 Profile data:', profile);
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Registration failed");
-      }
+      // Check if required fields are present
+      const hasName = profile.name && profile.name.trim() !== '';
+      const hasDOB = profile.dateOfBirth && profile.dateOfBirth.trim() !== '';
+      const hasGender = profile.selectedGender && profile.selectedGender.trim() !== '';
 
-      const data = await response.json();
+      const isComplete = hasName && hasDOB && hasGender;
 
-      // Store auth token
-      localStorage.setItem("authToken", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
+      console.log(`✅ Profile completion check: ${isComplete ? 'Complete' : 'Incomplete'}`);
+      console.log(`   - Name: ${hasName ? '✓' : '✗'}`);
+      console.log(`   - DOB: ${hasDOB ? '✓' : '✗'}`);
+      console.log(`   - Gender: ${hasGender ? '✓' : '✗'}`);
 
-      return data.user;
+      return {
+        isComplete,
+        profile,
+        missingFields: {
+          name: !hasName,
+          dateOfBirth: !hasDOB,
+          gender: !hasGender,
+        }
+      };
     } catch (error) {
-      console.error("Sign up error:", error);
-      throw error;
+      console.error('❌ Error checking profile completion:', error);
+      // If profile fetch fails, assume incomplete and send to onboarding
+      return {
+        isComplete: false,
+        profile: null,
+        missingFields: {
+          name: true,
+          dateOfBirth: true,
+          gender: true,
+        }
+      };
+    }
+  }
+
+  // Handle authentication errors
+  handleAuthError(error) {
+    switch (error.code) {
+      case 'auth/email-already-in-use':
+        return new Error('This email is already registered. Please sign in instead.');
+      case 'auth/invalid-email':
+        return new Error('Invalid email address.');
+      case 'auth/operation-not-allowed':
+        return new Error('This sign-in method is not enabled. Please contact support.');
+      case 'auth/weak-password':
+        return new Error('Password is too weak. Please use at least 6 characters.');
+      case 'auth/user-disabled':
+        return new Error('This account has been disabled. Please contact support.');
+      case 'auth/user-not-found':
+        return new Error('No account found with this email.');
+      case 'auth/wrong-password':
+        return new Error('Incorrect password. Please try again.');
+      case 'auth/too-many-requests':
+        return new Error('Too many failed attempts. Please try again later.');
+      case 'auth/popup-closed-by-user':
+        return new Error('Sign-in popup was closed. Please try again.');
+      case 'auth/popup-blocked':
+        return new Error('Sign-in popup was blocked. Please allow popups and try again.');
+      case 'auth/cancelled-popup-request':
+        return new Error('Sign-in was cancelled. Please try again.');
+      default:
+        return new Error(error.message || 'Authentication failed. Please try again.');
     }
   }
 }

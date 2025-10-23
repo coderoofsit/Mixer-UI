@@ -69,5 +69,7 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
-
-/event_dating-master
+*.md
+/event_dating-IAP_FIX_V1
+frontend/package-lock.json
+frontend/package-lock.json
