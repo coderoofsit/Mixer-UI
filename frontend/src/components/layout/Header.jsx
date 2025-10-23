@@ -16,21 +16,24 @@ const Header = () => {
           <nav className="hidden md:flex space-x-8">
             <Link
               to="/dashboard"
-              className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              className="relative text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors group"
             >
               Dashboard
+              <span className="absolute bottom-0 right-0 h-0.5 bg-primary-600 transition-all duration-700 ease-out w-0 group-hover:w-full"></span>
             </Link>
             <Link
               to="/matches"
-              className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              className="relative text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors group"
             >
               Matches
+              <span className="absolute bottom-0 right-0 h-0.5 bg-primary-600 transition-all duration-700 ease-out w-0 group-hover:w-full"></span>
             </Link>
             <Link
               to="/profile"
-              className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              className="relative text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors group"
             >
               Profile
+              <span className="absolute bottom-0 right-0 h-0.5 bg-primary-600 transition-all duration-700 ease-out w-0 group-hover:w-full"></span>
             </Link>
           </nav>
 

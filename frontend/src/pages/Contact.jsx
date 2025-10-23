@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from "react";
 import LandingHeader from "../components/layout/LandingHeader";
+import Footer from "../components/layout/Footer";
 
 const Contact = () => {
   const [formLoaded, setFormLoaded] = useState(false);
   const [formError, setFormError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     let script = null;
     let timeoutId = null;
+    let retryCount = 0;
+    const maxRetries = 2;
 
     const loadSmartMatchForm = () => {
       try {
@@ -26,37 +30,63 @@ const Contact = () => {
         script.src =
           "https://dsg1jgkr1b4yd.cloudfront.net/static/js/submission_form.min.js";
         script.async = true;
+        script.crossOrigin = "anonymous";
 
         script.onload = () => {
           console.log("SmartMatch script loaded successfully");
+          clearTimeout(timeoutId);
           initializeForm();
         };
 
         script.onerror = (error) => {
           console.error("Failed to load SmartMatch script:", error);
-          setFormError("Failed to load contact form. Please refresh the page.");
+          clearTimeout(timeoutId);
+
+          if (retryCount < maxRetries) {
+            retryCount++;
+            console.log(`Retrying script load (attempt ${retryCount + 1})`);
+            setTimeout(() => {
+              loadSmartMatchForm();
+            }, 2000);
+          } else {
+            setFormError(
+              "Failed to load contact form. Using fallback form instead."
+            );
+            setIsLoading(false);
+          }
         };
 
         document.head.appendChild(script);
 
         // Set a timeout to handle cases where the script doesn't load
         timeoutId = setTimeout(() => {
-          if (!formLoaded) {
-            console.warn("SmartMatch script loading timeout");
+          if (!formLoaded && retryCount < maxRetries) {
+            console.warn("SmartMatch script loading timeout, retrying...");
+            retryCount++;
+            loadSmartMatchForm();
+          } else if (!formLoaded) {
+            console.warn("SmartMatch script loading failed after retries");
             setFormError(
-              "Contact form is taking longer than expected to load. Please refresh the page."
+              "Contact form is taking longer than expected to load. Using fallback form instead."
             );
+            setIsLoading(false);
           }
-        }, 10000); // 10 second timeout
+        }, 8000); // 8 second timeout
       } catch (error) {
         console.error("Error loading SmartMatch form:", error);
-        setFormError("An error occurred while loading the contact form.");
+        setFormError(
+          "An error occurred while loading the contact form. Using fallback form instead."
+        );
+        setIsLoading(false);
       }
     };
 
     const initializeForm = () => {
       try {
-        if (window.SubmissionForm) {
+        if (
+          window.SubmissionForm &&
+          typeof window.SubmissionForm === "function"
+        ) {
           const options = {
             id: 18,
             domain: "https://mixer.smartmatchapp.com",
@@ -67,18 +97,21 @@ const Contact = () => {
           const form = new window.SubmissionForm(options);
           form.render();
           setFormLoaded(true);
+          setIsLoading(false);
           console.log("SmartMatch form initialized successfully");
         } else {
           console.warn("SubmissionForm not available on window object");
           setFormError(
-            "Contact form is not available. Please try again later."
+            "Contact form is not available. Using fallback form instead."
           );
+          setIsLoading(false);
         }
       } catch (error) {
         console.error("Error initializing SmartMatch form:", error);
         setFormError(
-          "Failed to initialize contact form. Please refresh the page."
+          "Failed to initialize contact form. Using fallback form instead."
         );
+        setIsLoading(false);
       }
     };
 
@@ -97,12 +130,7 @@ const Contact = () => {
   }, [formLoaded]);
 
   return (
-    <div
-      className="min-h-screen"
-      style={{
-        background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
-      }}
-    >
+    <div className="min-h-screen bg-white">
       <LandingHeader />
 
       <div className="py-20 px-4 sm:px-6 lg:px-8">
@@ -117,7 +145,7 @@ const Contact = () => {
 
           <div className="bg-white rounded-lg shadow-sm p-8 max-w-2xl mx-auto">
             {/* Loading State */}
-            {!formLoaded && !formError && (
+            {isLoading && !formError && (
               <div className="text-center py-8">
                 <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                 <p className="mt-4 text-gray-600">Loading contact form...</p>
@@ -125,7 +153,7 @@ const Contact = () => {
             )}
 
             {/* Error State with Fallback Form */}
-            {formError && (
+            {(formError || (!formLoaded && !isLoading)) && (
               <div className="space-y-6">
                 <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
                   <div className="flex">
@@ -224,6 +252,8 @@ const Contact = () => {
           </div>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 };

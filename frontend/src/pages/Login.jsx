@@ -49,7 +49,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#F5F0E6" }}>
+    <div className="min-h-screen bg-white">
       <LandingHeader />
 
       <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
