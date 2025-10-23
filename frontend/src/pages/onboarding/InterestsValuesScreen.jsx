@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import OnboardingLayout from "../../components/layout/OnboardingLayout";
 import CustomDropdown from "../../components/ui/CustomDropdown";
 import { authApi } from "../../services/authApi";
+import { mapProfileFieldsToBackend } from "../../utils/profileFieldMapper";
 
 const InterestsValuesScreen = () => {
   const navigate = useNavigate();
@@ -118,7 +119,7 @@ const InterestsValuesScreen = () => {
     setIsSaving(true);
 
     try {
-      const profileData = {
+      const frontendData = {
         selectedEthnicity: formData.ethnicity || null,
         selectedFamilyPlans: formData.familyPlans || null,
         selectedDrinking: formData.drinking || null,
@@ -129,6 +130,9 @@ const InterestsValuesScreen = () => {
         selectedThingsILike: formData.interests.length > 0 ? formData.interests : null,
         selectedValues: formData.values.length > 0 ? formData.values : null,
       };
+
+      // Transform to backend field names
+      const profileData = mapProfileFieldsToBackend(frontendData);
 
       console.log('📤 Sending interests/values data to backend:', profileData);
 

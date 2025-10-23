@@ -162,7 +162,7 @@ class AuthService {
             localStorage.setItem('userId', registrationResult.userId);
             console.log('✅ Apple user registration successful! User ID:', registrationResult.userId);
           }
-        } catch (error) {
+      } catch (error) {
           console.error('⚠️ Backend registration failed for Apple user:', error);
           // Continue anyway - user is authenticated with Firebase
         }
@@ -257,7 +257,7 @@ class AuthService {
       // Check if required fields are present
       const hasName = profile.name && profile.name.trim() !== '';
       const hasDOB = profile.dateOfBirth && profile.dateOfBirth.trim() !== '';
-      const hasGender = profile.selectedGender && profile.selectedGender.trim() !== '';
+      const hasGender = profile.gender && profile.gender.trim() !== ''; // Backend uses 'gender' not 'selectedGender'
 
       const isComplete = hasName && hasDOB && hasGender;
 

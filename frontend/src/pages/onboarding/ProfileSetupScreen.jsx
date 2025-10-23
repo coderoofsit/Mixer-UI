@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import OnboardingLayout from "../../components/layout/OnboardingLayout";
 import CustomDropdown from "../../components/ui/CustomDropdown";
 import { authApi } from "../../services/authApi";
+import { mapProfileFieldsToBackend } from "../../utils/profileFieldMapper";
 
 const ProfileSetupScreen = () => {
   const navigate = useNavigate();
@@ -110,7 +111,7 @@ const ProfileSetupScreen = () => {
         ? `${formData.heightFeet.replace(' ft', '')}'${formData.heightInches.replace(' in', '')}"`
         : null;
 
-      const profileData = {
+      const frontendData = {
         name: formData.name.trim(),
         dateOfBirth,
         selectedGender: formData.gender,
@@ -118,6 +119,9 @@ const ProfileSetupScreen = () => {
         aboutMe: formData.vibe.trim() || null,
         notificationPermissionGranted: true,
       };
+
+      // Transform to backend field names
+      const profileData = mapProfileFieldsToBackend(frontendData);
 
       console.log('📤 Sending profile data to backend:', profileData);
 
