@@ -1,3 +1,4 @@
+// src/pages/Signup.jsx
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import authService from "../services/authService";
@@ -39,12 +40,15 @@ const Signup = () => {
       setIsLoading(false);
       return;
     }
-
+    
+    // NOTE: Removed the check for formData.agreeToTerms as the checkbox is now removed.
+    /*
     if (!formData.agreeToTerms) {
       setError("Please agree to the Terms of Service and Privacy Policy.");
       setIsLoading(false);
       return;
     }
+    */
 
     try {
       await authService.signUpWithEmail(formData);
@@ -201,6 +205,8 @@ const Signup = () => {
                 />
               </div>
 
+              {/* REMOVED: Checkbox and 'I agree to the Terms of Service and Privacy Policy' line */}
+              {/*
               <div className="flex items-center">
                 <input
                   id="agreeToTerms"
@@ -231,6 +237,7 @@ const Signup = () => {
                   </Link>
                 </label>
               </div>
+              */}
 
               <button
                 type="submit"
@@ -309,6 +316,28 @@ const Signup = () => {
                 </Link>
               </p>
             </div>
+          </div>
+
+          {/* Legal Links Footer (Outside the white card, for consistency) */}
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-500">
+              By signing up, you agree to our{" "}
+              <Link 
+                to="/terms" 
+                style={{ color: '#5D1751' }}
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              >
+                Terms of Service
+              </Link>{" "}
+              and{" "}
+              <Link 
+                to="/privacy" 
+                style={{ color: '#5D1751' }}
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              >
+                Privacy Policy
+              </Link>
+            </p>
           </div>
 
           {/* Safety Notice */}
