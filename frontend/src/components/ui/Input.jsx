@@ -6,23 +6,40 @@ const Input = forwardRef(
     ref
   ) => {
     const baseClasses =
-      "w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200";
+      "w-full px-4 py-3 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200";
 
     const errorClasses = error
       ? "border-red-300 focus:ring-red-500"
       : "border-gray-300 focus:ring-primary-500";
 
     const iconClasses = leftIcon ? "pl-10" : rightIcon ? "pr-10" : "";
+    
+    const heightClass = "h-[56px]";
 
-    const classes = `${baseClasses} ${errorClasses} ${iconClasses} ${className}`;
+    const classes = `${baseClasses} ${errorClasses} ${iconClasses} ${heightClass} ${className}`;
+
+    // Function to render label with red asterisk
+    const renderLabel = () => {
+      if (!label) return null;
+      
+      const parts = label.split('*');
+      if (parts.length > 1) {
+        return (
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            {parts[0]}<span className="text-red-600">*</span>{parts[1] || ''}
+          </label>
+        );
+      }
+      return (
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          {label}
+        </label>
+      );
+    };
 
     return (
       <div className="w-full">
-        {label && (
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            {label}
-          </label>
-        )}
+        {renderLabel()}
 
         <div className="relative">
           {leftIcon && (

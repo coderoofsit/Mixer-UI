@@ -1,133 +1,110 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import LandingHeader from "../components/layout/LandingHeader";
 import Footer from "../components/layout/Footer";
+import Input from "../components/ui/Input";
+import CustomDropdown from "../components/ui/CustomDropdown";
+import Button from "../components/ui/Button";
+import { FaFacebookF, FaInstagram } from "react-icons/fa";
+
+// Options for dropdowns, similar to ProfileSetupScreen
+const monthOptions = [
+  "January", "February", "March", "April", "May", "June", 
+  "July", "August", "September", "October", "November", "December"
+];
+const genderOptions = ["Male", "Female", "Non-binary", "Other", "Prefer not to say"];
+
+// Country codes with flags
+const countryCodes = [
+  { code: "+1", country: "US", flag: "🇺🇸", name: "United States" },
+  { code: "+1", country: "CA", flag: "🇨🇦", name: "Canada" },
+  { code: "+44", country: "GB", flag: "🇬🇧", name: "United Kingdom" },
+  { code: "+91", country: "IN", flag: "🇮🇳", name: "India" },
+  { code: "+86", country: "CN", flag: "🇨🇳", name: "China" },
+  { code: "+81", country: "JP", flag: "🇯🇵", name: "Japan" },
+  { code: "+49", country: "DE", flag: "🇩🇪", name: "Germany" },
+  { code: "+33", country: "FR", flag: "🇫🇷", name: "France" },
+  { code: "+39", country: "IT", flag: "🇮🇹", name: "Italy" },
+  { code: "+61", country: "AU", flag: "🇦🇺", name: "Australia" },
+  { code: "+34", country: "ES", flag: "🇪🇸", name: "Spain" },
+  { code: "+7", country: "RU", flag: "🇷🇺", name: "Russia" },
+  { code: "+55", country: "BR", flag: "🇧🇷", name: "Brazil" },
+  { code: "+52", country: "MX", flag: "🇲🇽", name: "Mexico" },
+  { code: "+82", country: "KR", flag: "🇰🇷", name: "South Korea" },
+];
+
+// Format country codes for dropdown display
+const countryCodeOptions = countryCodes.map(c => `${c.flag} ${c.code}`);
 
 const Contact = () => {
-  const [formLoaded, setFormLoaded] = useState(false);
-  const [formError, setFormError] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    countryCode: "🇺🇸 +1",
+    location: "",
+    dobDay: "",
+    dobMonth: "",
+    dobYear: "",
+    gender: "",
+  });
+  const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    let script = null;
-    let timeoutId = null;
-    let retryCount = 0;
-    const maxRetries = 2;
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    // Clear error if user starts typing
+    if (errors[name]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: null,
+      }));
+    }
+  };
 
-    const loadSmartMatchForm = () => {
-      try {
-        // Check if script already exists
-        const existingScript = document.querySelector(
-          'script[src*="submission_form.min.js"]'
-        );
-        if (existingScript) {
-          initializeForm();
-          return;
-        }
+  const handleDropdownChange = (name, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    if (errors[name]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: null,
+      }));
+    }
+  };
 
-        // Create and load the script
-        script = document.createElement("script");
-        script.type = "text/javascript";
-        script.src =
-          "https://dsg1jgkr1b4yd.cloudfront.net/static/js/submission_form.min.js";
-        script.async = true;
-        script.crossOrigin = "anonymous";
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Basic validation
+    let newErrors = {};
+    if (!formData.firstName) newErrors.firstName = "First name is required";
+    if (!formData.lastName) newErrors.lastName = "Last name is required";
+    if (!formData.email) newErrors.email = "Email is required";
+    if (!formData.phone) newErrors.phone = "Phone is required";
+    if (!formData.location) newErrors.location = "Location is required";
+    if (!formData.dobDay || !formData.dobMonth || !formData.dobYear) {
+      newErrors.dob = "Full date of birth is required";
+    }
+    if (!formData.gender) newErrors.gender = "Gender is required";
 
-        script.onload = () => {
-          console.log("SmartMatch script loaded successfully");
-          clearTimeout(timeoutId);
-          initializeForm();
-        };
+    setErrors(newErrors);
 
-        script.onerror = (error) => {
-          console.error("Failed to load SmartMatch script:", error);
-          clearTimeout(timeoutId);
-
-          if (retryCount < maxRetries) {
-            retryCount++;
-            console.log(`Retrying script load (attempt ${retryCount + 1})`);
-            setTimeout(() => {
-              loadSmartMatchForm();
-            }, 2000);
-          } else {
-            setFormError(
-              "Failed to load contact form. Using fallback form instead."
-            );
-            setIsLoading(false);
-          }
-        };
-
-        document.head.appendChild(script);
-
-        // Set a timeout to handle cases where the script doesn't load
-        timeoutId = setTimeout(() => {
-          if (!formLoaded && retryCount < maxRetries) {
-            console.warn("SmartMatch script loading timeout, retrying...");
-            retryCount++;
-            loadSmartMatchForm();
-          } else if (!formLoaded) {
-            console.warn("SmartMatch script loading failed after retries");
-            setFormError(
-              "Contact form is taking longer than expected to load. Using fallback form instead."
-            );
-            setIsLoading(false);
-          }
-        }, 8000); // 8 second timeout
-      } catch (error) {
-        console.error("Error loading SmartMatch form:", error);
-        setFormError(
-          "An error occurred while loading the contact form. Using fallback form instead."
-        );
+    if (Object.keys(newErrors).length === 0) {
+      setIsLoading(true);
+      console.log("Form submitted:", formData);
+      // Simulate API call
+      setTimeout(() => {
         setIsLoading(false);
-      }
-    };
-
-    const initializeForm = () => {
-      try {
-        if (
-          window.SubmissionForm &&
-          typeof window.SubmissionForm === "function"
-        ) {
-          const options = {
-            id: 18,
-            domain: "https://mixer.smartmatchapp.com",
-            placeholder_id: "sform-placeholder",
-            styles_id: "sform-style",
-          };
-
-          const form = new window.SubmissionForm(options);
-          form.render();
-          setFormLoaded(true);
-          setIsLoading(false);
-          console.log("SmartMatch form initialized successfully");
-        } else {
-          console.warn("SubmissionForm not available on window object");
-          setFormError(
-            "Contact form is not available. Using fallback form instead."
-          );
-          setIsLoading(false);
-        }
-      } catch (error) {
-        console.error("Error initializing SmartMatch form:", error);
-        setFormError(
-          "Failed to initialize contact form. Using fallback form instead."
-        );
-        setIsLoading(false);
-      }
-    };
-
-    // Start loading the form
-    loadSmartMatchForm();
-
-    return () => {
-      // Cleanup
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-      if (script && document.head.contains(script)) {
-        document.head.removeChild(script);
-      }
-    };
-  }, [formLoaded]);
+        // Reset form or show success message
+      }, 1500);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -135,120 +112,182 @@ const Contact = () => {
 
       <div className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
-          <h4 className="text-2xl font-bold text-gray-900 mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4" style={{ fontFamily: "serif" }}>
             Contact Mixer
-          </h4>
-          <p className="text-lg text-gray-600 mb-12">
+          </h1>
+          
+          {/* Social Icons from screenshot */}
+          <div className="flex justify-center space-x-3 mb-8">
+            <a 
+              href="https://facebook.com" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="w-10 h-10 rounded-md flex items-center justify-center text-white transition-colors"
+              style={{ backgroundColor: "#A42831" }}
+            >
+              <FaFacebookF size={20} />
+            </a>
+            <a 
+              href="https://instagram.com" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="w-10 h-10 rounded-md flex items-center justify-center text-white transition-colors"
+              style={{ backgroundColor: "#A42831" }}
+            >
+              <FaInstagram size={20} />
+            </a>
+          </div>
+
+          <p className="text-lg text-gray-600 mb-12 max-w-2xl mx-auto">
             Whether you're ready to find your match, curious about how it all
             works, or just want to say hi—we'd love to hear from you!
           </p>
 
-          <div className="bg-white rounded-lg shadow-sm p-8 max-w-2xl mx-auto">
-            {/* Loading State */}
-            {isLoading && !formError && (
-              <div className="text-center py-8">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                <p className="mt-4 text-gray-600">Loading contact form...</p>
-              </div>
-            )}
+          {/* Form Container */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 max-w-2xl mx-auto text-left relative" style={{ overflow: "visible" }}>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">
+              General Information
+            </h2>
 
-            {/* Error State with Fallback Form */}
-            {(formError || (!formLoaded && !isLoading)) && (
-              <div className="space-y-6">
-                <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
-                  <div className="flex">
-                    <div className="flex-shrink-0">
-                      <svg
-                        className="h-5 w-5 text-yellow-400"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                    <div className="ml-3">
-                      <h3 className="text-sm font-medium text-yellow-800">
-                        Using Fallback Contact Form
-                      </h3>
-                      <div className="mt-2 text-sm text-yellow-700">
-                        <p>{formError}</p>
-                      </div>
-                    </div>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* First Name and Last Name */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Input
+                  label="First Name *"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  error={errors.firstName}
+                  required
+                />
+                <Input
+                  label="Last Name *"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  error={errors.lastName}
+                  required
+                />
+              </div>
+
+              {/* Email */}
+              <Input
+                label="Email *"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+                error={errors.email}
+                required
+              />
+
+              {/* Phone */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Phone <span className="text-red-600">*</span>
+                </label>
+                <div className="flex gap-2">
+                  {/* Country Code Dropdown */}
+                  <div className="w-36">
+                    <CustomDropdown
+                      value={formData.countryCode}
+                      options={countryCodeOptions}
+                      placeholder="🇺🇸 +1"
+                      onChange={(value) => handleDropdownChange("countryCode", value)}
+                      maxHeight="200px"
+                      enableScroll={true}
+                    />
+                  </div>
+                  {/* Phone Number Input */}
+                  <div className="flex-1">
+                    <input
+                      name="phone"
+                      type="tel"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      placeholder="(201) 555-0123"
+                      required
+                      className="w-full h-[56px] px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200 bg-white"
+                    />
                   </div>
                 </div>
-
-                {/* Fallback Contact Form */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium text-gray-900">
-                    Contact Us
-                  </h3>
-                  <form className="space-y-4">
-                    <div>
-                      <label
-                        htmlFor="name"
-                        className="block text-sm font-medium text-gray-700"
-                      >
-                        Name
-                      </label>
-                      <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label
-                        htmlFor="email"
-                        className="block text-sm font-medium text-gray-700"
-                      >
-                        Email
-                      </label>
-                      <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label
-                        htmlFor="message"
-                        className="block text-sm font-medium text-gray-700"
-                      >
-                        Message
-                      </label>
-                      <textarea
-                        id="message"
-                        name="message"
-                        rows={4}
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                        required
-                      ></textarea>
-                    </div>
-                    <button
-                      type="submit"
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors"
-                    >
-                      Send Message
-                    </button>
-                  </form>
-                </div>
+                {errors.phone && (
+                  <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+                )}
               </div>
-            )}
 
-            {/* SmartMatch Form Integration */}
-            <style id="sform-style"></style>
-            <div
-              id="sform-placeholder"
-              style={{ opacity: formLoaded ? 1 : 0 }}
-            ></div>
+              {/* Location */}
+              <Input
+                label="Location *"
+                name="location"
+                value={formData.location}
+                onChange={handleChange}
+                error={errors.location}
+                placeholder="City/Town*"
+                required
+              />
+
+              {/* Birthdate */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Birthdate <span className="text-red-600">*</span>
+                </label>
+                <div className="grid grid-cols-3 gap-3 items-start">
+                  <Input
+                    name="dobDay"
+                    value={formData.dobDay}
+                    onChange={handleChange}
+                    placeholder="DD"
+                    required
+                  />
+                  <CustomDropdown
+                    value={formData.dobMonth}
+                    options={monthOptions}
+                    placeholder="Month"
+                    onChange={(value) => handleDropdownChange("dobMonth", value)}
+                    maxHeight="180px"
+                    enableScroll={true}
+                  />
+                  <Input
+                    name="dobYear"
+                    value={formData.dobYear}
+                    onChange={handleChange}
+                    placeholder="YYYY"
+                    required
+                  />
+                </div>
+                {errors.dob && (
+                  <p className="mt-1 text-sm text-red-600">{errors.dob}</p>
+                )}
+              </div>
+
+              {/* Gender */}
+              <div className="relative z-10">
+                <CustomDropdown
+                  label="Gender *"
+                  value={formData.gender}
+                  options={genderOptions}
+                  placeholder="Select Gender"
+                  onChange={(value) => handleDropdownChange("gender", value)}
+                  error={errors.gender}
+                  enableScroll={false}
+                />
+                {errors.gender && (
+                  <p className="mt-1 text-sm text-red-600">{errors.gender}</p>
+                )}
+              </div>
+
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                loading={isLoading}
+                disabled={isLoading}
+                className="w-full"
+                size="lg"
+              >
+                {isLoading ? "Submitting..." : "Submit"}
+              </Button>
+            </form>
           </div>
         </div>
       </div>

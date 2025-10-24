@@ -321,11 +321,19 @@ const Login = () => {
           <div className="text-center">
             <p className="text-sm text-gray-500">
               By signing in, you agree to our{" "}
-              <Link to="/terms" style={{ color: '#5D1751' }}>
+              <Link 
+                to="/terms" 
+                style={{ color: '#5D1751' }}
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              >
                 Terms of Service
               </Link>{" "}
               and{" "}
-              <Link to="/privacy" style={{ color: '#5D1751' }}>
+              <Link 
+                to="/privacy" 
+                style={{ color: '#5D1751' }}
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              >
                 Privacy Policy
               </Link>
             </p>
