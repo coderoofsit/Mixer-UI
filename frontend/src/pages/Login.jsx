@@ -28,14 +28,8 @@ const Login = () => {
     try {
       await authService.signInWithEmail(formData.email, formData.password);
       
-      // Check if profile is complete
-      const profileCheck = await authService.checkProfileCompletion();
-      
-      if (profileCheck.isComplete) {
-        navigate("/");
-      } else {
-        navigate("/onboarding/profile-setup");
-      }
+      // Always redirect to home page after successful login
+      navigate("/");
     } catch (err) {
       setError("Invalid email or password. Please try again.");
     } finally {
@@ -48,20 +42,10 @@ const Login = () => {
     setError("");
 
     try {
-      const result = await authService.signInWithGoogle();
+      await authService.signInWithGoogle();
       
-      // New users go to onboarding, existing users check profile
-      if (result.isNewUser) {
-        navigate("/onboarding/profile-setup");
-      } else {
-        const profileCheck = await authService.checkProfileCompletion();
-        
-        if (profileCheck.isComplete) {
-          navigate("/");
-        } else {
-          navigate("/onboarding/profile-setup");
-        }
-      }
+      // Always redirect to home page after successful login
+      navigate("/");
     } catch (err) {
       setError("Google sign in failed. Please try again.");
     } finally {
@@ -73,22 +57,11 @@ const Login = () => {
     setIsLoading(true);
     setError("");
 
-
     try {
-      const result = await authService.signInWithApple();
+      await authService.signInWithApple();
       
-      // New users go to onboarding, existing users check profile
-      if (result.isNewUser) {
-        navigate("/onboarding/profile-setup");
-      } else {
-        const profileCheck = await authService.checkProfileCompletion();
-        
-        if (profileCheck.isComplete) {
-          navigate("/");
-        } else {
-          navigate("/onboarding/profile-setup");
-        }
-      }
+      // Always redirect to home page after successful login
+      navigate("/");
     } catch (err) {
       setError("Apple sign in failed. Please try again.");
     } finally {
@@ -102,8 +75,8 @@ const Login = () => {
 
     try {
       await authService.signInAnonymously();
-      // Anonymous users always go through onboarding
-      navigate("/onboarding/profile-setup");
+      // Always redirect to home page after successful login
+      navigate("/");
     } catch (err) {
       setError("Anonymous sign in failed. Please try again.");
     } finally {

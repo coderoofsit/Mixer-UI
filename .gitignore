@@ -72,7 +72,6 @@ Thumbs.db
 *.md
 /event_dating-IAP_FIX_V1
 /admin-panel
-/admin-panel - Copy
+/event-dating-backend
 frontend/package-lock.json
 frontend/package-lock.json
-

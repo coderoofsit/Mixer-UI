@@ -250,25 +250,29 @@ class AuthService {
   async checkProfileCompletion() {
     try {
       console.log('🔍 Checking profile completion...');
-      const profile = await authApi.getUserProfile();
+      const response = await authApi.getUserProfile();
       
-      console.log('📋 Profile data:', profile);
+      console.log('📋 Profile response:', response);
+
+      // Get the actual profile data from the response (nested under data.user)
+      const profileData = response?.data?.user || response?.data || response;
+      console.log('📊 Profile data object:', profileData);
 
       // Check if required fields are present
-      const hasName = profile.name && profile.name.trim() !== '';
-      const hasDOB = profile.dateOfBirth && profile.dateOfBirth.trim() !== '';
-      const hasGender = profile.gender && profile.gender.trim() !== ''; // Backend uses 'gender' not 'selectedGender'
+      const hasName = profileData.name && profileData.name.trim() !== '';
+      const hasDOB = profileData.dateOfBirth && profileData.dateOfBirth.trim() !== '';
+      const hasGender = profileData.gender && profileData.gender.trim() !== '';
 
       const isComplete = hasName && hasDOB && hasGender;
 
-      console.log(`✅ Profile completion check: ${isComplete ? 'Complete' : 'Incomplete'}`);
-      console.log(`   - Name: ${hasName ? '✓' : '✗'}`);
-      console.log(`   - DOB: ${hasDOB ? '✓' : '✗'}`);
-      console.log(`   - Gender: ${hasGender ? '✓' : '✗'}`);
+      console.log(`✅ Profile completion check: ${isComplete ? 'COMPLETE ✓' : 'INCOMPLETE ✗'}`);
+      console.log(`   - Name: ${hasName ? '✓' : '✗'} (${profileData.name || 'missing'})`);
+      console.log(`   - DOB: ${hasDOB ? '✓' : '✗'} (${profileData.dateOfBirth || 'missing'})`);
+      console.log(`   - Gender: ${hasGender ? '✓' : '✗'} (${profileData.gender || 'missing'})`);
 
       return {
         isComplete,
-        profile,
+        profile: profileData,
         missingFields: {
           name: !hasName,
           dateOfBirth: !hasDOB,

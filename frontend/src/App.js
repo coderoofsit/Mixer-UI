@@ -12,9 +12,10 @@ import Profile from "./pages/Profile";
 import Matches from "./pages/Matches";
 import CustomCursor from "./components/ui/CustomCursor";
 import ProfileSetupScreen from "./pages/onboarding/ProfileSetupScreen";
-import PhotoGalleryScreen from "./pages/onboarding/PhotoGalleryScreen";
-import InterestsValuesScreen from "./pages/onboarding/InterestsValuesScreen";
-import ProfileCompleteScreen from "./pages/onboarding/ProfileCompleteScreen";
+// Commented out - Only using first step for now
+// import PhotoGalleryScreen from "./pages/onboarding/PhotoGalleryScreen";
+// import InterestsValuesScreen from "./pages/onboarding/InterestsValuesScreen";
+// import ProfileCompleteScreen from "./pages/onboarding/ProfileCompleteScreen";
 import ErrorBoundary from "./components/ui/ErrorBoundary";
 import Terms from "./pages/Terms"; // Import the existing component
 import Privacy from "./pages/Privacy"; // Import the NEW component
@@ -97,9 +98,10 @@ function App() {
 
             {/* Onboarding Routes */}
             <Route path="/onboarding/profile-setup" element={<ProfileSetupScreen />} />
-            <Route path="/onboarding/photos" element={<PhotoGalleryScreen />} />
-            <Route path="/onboarding/interests" element={<InterestsValuesScreen />} />
-            <Route path="/onboarding/complete" element={<ProfileCompleteScreen />} />
+            {/* Commented out - Only using first step for now */}
+            {/* <Route path="/onboarding/photos" element={<PhotoGalleryScreen />} /> */}
+            {/* <Route path="/onboarding/interests" element={<InterestsValuesScreen />} /> */}
+            {/* <Route path="/onboarding/complete" element={<ProfileCompleteScreen />} /> */}
           </Routes>
         </Router>
       </div>

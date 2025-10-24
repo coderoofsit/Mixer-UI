@@ -19,6 +19,7 @@ const ProfileSetupScreen = () => {
     heightInches: "",
     vibe: "",
   });
+  const [consentChecked, setConsentChecked] = useState(false);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
@@ -98,6 +99,10 @@ const ProfileSetupScreen = () => {
       newErrors.gender = "Please select your gender";
     }
 
+    if (!consentChecked) {
+      newErrors.consent = "You must agree to the terms and conditions";
+    }
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
@@ -125,6 +130,12 @@ const ProfileSetupScreen = () => {
       // Transform to backend field names
       const profileData = mapProfileFieldsToBackend(frontendData);
 
+      // Add location field with default coordinates [0, 0] (GeoJSON Point format)
+      profileData.location = {
+        type: "Point",
+        coordinates: [0, 0]
+      };
+
       console.log('📤 Sending profile data to backend:', profileData);
 
       // Call backend API
@@ -134,7 +145,7 @@ const ProfileSetupScreen = () => {
 
       if (result.success) {
         console.log('✅ Profile updated successfully');
-        navigate("/onboarding/photos");
+        navigate("/");
       } else {
         setErrors({ submit: result.error || 'Profile update failed' });
       }
@@ -401,6 +412,54 @@ const ProfileSetupScreen = () => {
           </div>
         )}
 
+        {/* Consent Checkbox */}
+        <div
+          className="p-6 rounded-2xl shadow-md"
+          style={{ backgroundColor: "#F8F4F7" }}
+        >
+          <div className="flex items-start">
+            <input
+              type="checkbox"
+              id="consent"
+              checked={consentChecked}
+              onChange={(e) => {
+                setConsentChecked(e.target.checked);
+                if (errors.consent) {
+                  setErrors(prev => ({ ...prev, consent: "" }));
+                }
+              }}
+              className="mt-1 h-4 w-4 rounded border-gray-300 text-purple-900 focus:ring-purple-900"
+              style={{ accentColor: "#4A1342" }}
+            />
+            <label htmlFor="consent" className="ml-3 text-sm text-gray-700">
+              I agree to the{" "}
+              <a
+                href="/terms"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium underline"
+                style={{ color: "#5D1751" }}
+              >
+                Terms of Service
+              </a>{" "}
+              and{" "}
+              <a
+                href="/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium underline"
+                style={{ color: "#5D1751" }}
+              >
+                Privacy Policy
+              </a>
+              . I understand that all members undergo background checks and I consent to this process.
+            </label>
+          </div>
+          {errors.consent && (
+            <p className="text-red-500 text-xs mt-2 ml-7">{errors.consent}</p>
+          )}
+        </div>
+
         {/* Continue Button */}
         <div
           className="p-5 rounded-2xl"
@@ -408,7 +467,7 @@ const ProfileSetupScreen = () => {
         >
           <button
             onClick={handleContinue}
-            disabled={isLoading}
+            disabled={isLoading || !consentChecked}
             className="w-full text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
               backgroundColor: "#4A1342",
