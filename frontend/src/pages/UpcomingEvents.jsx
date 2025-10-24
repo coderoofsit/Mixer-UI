@@ -5,21 +5,25 @@ import Footer from "../components/layout/Footer";
 import RegisterEventModal from "../components/ui/RegisterEventModal";
 import authService from "../services/authService";
 import { stripeService } from "../services/stripeService";
+import BackgroundPending from "../components/BackgroundPending";
+import UpgradePlan from "../components/UpgradePlan";
+import BackgroundUnpaid from "../components/BackgroundUnpaid";
 
 const UpcomingEvents = () => {
 	// Local state for events
 	const [events, setEvents] = useState([]);
-	const [loading, setLoading] = useState(true);
+	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState(null);
 	const [selectedEvent, setSelectedEvent] = useState(null);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [userDetails, setUserDetails] = useState();
 
-	const handlePayForVerification = async () => {
+	const handlePayForVerification = async (productType, amount) => {
 		const response = await stripeService.createCheckoutSession(
-			1000,
+			amount,
 			"usd",
 			"ORD_001",
+			productType,
 		);
 		console.log({ response });
 		window.location.href = response?.sessionUrl;
@@ -65,8 +69,9 @@ const UpcomingEvents = () => {
 			setUserDetails(userDetails || {});
 		};
 		getProfile();
-
-		fetchEvents();
+		if (userDetails?.status === "upgraded") {
+			fetchEvents();
+		}
 	}, []); // Empty dependency array - runs only when component mounts
 
 	// Event Feed Component
@@ -82,176 +87,157 @@ const UpcomingEvents = () => {
 					<div className='flex justify-center items-center py-12'>
 						<div className='animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600'></div>
 					</div>
-				) : error ? (
-					<div className='text-center py-12'>
-						<p className='text-red-600'>{error}</p>
-					</div>
-				) : userDetails?.backgroundVerification === "unpaid" ? (
-					<div className='bg-white overflow-hidden border border-black'>
-						<div
-							className='w-full py-8 text-center'
-							style={{ backgroundColor: "#F97316" }}
-						>
-							<h3
-								className='text-2xl font-bold text-white uppercase tracking-wide'
-								style={{ fontFamily: "serif" }}
-							>
-								Background Check
-							</h3>
-						</div>
-						<div className='p-12 text-center'>
-							<div className='mb-10 flex items-baseline justify-center'>
-								<span className='text-4xl font-bold text-gray-900'>$</span>
-								<span className='text-7xl font-bold text-gray-900'>7</span>
-								<span className='text-4xl font-bold text-gray-900'>.99</span>
-								<span className='text-2xl text-gray-600 ml-3'>One Time Payment</span>
-							</div>
-
-							<button
-								onClick={handlePayForVerification}
-								className='w-100 py-4 px-10 font-semibold text-xs transition-colors duration-200 mt-16'
-								style={{
-									backgroundColor: "#E9E8E6",
-									color: "#000000",
-								}}
-							>
-								APPLY NOW
-							</button>
-						</div>
-					</div>
 				) : (
-					<div className='space-y-8'>
-						{events.map((event) => (
-							<div key={event._id} className='bg-white overflow-hidden rounded-lg'>
-								<div className='flex items-center'>
-									{/* Left Side - Date Only */}
-									<div className='w-24 p-4 flex flex-col justify-start flex-shrink-0'>
-										<div className='text-center'>
-											<div className='text-sm text-blue-800 font-medium mb-1'>
+					error && (
+						<div className='text-center py-12'>
+							<p className='text-red-600'>{error}</p>
+						</div>
+					)
+				)}
+				{userDetails?.backgroundVerification === "unpaid" &&
+					userDetails?.status === "basic" && (
+						<BackgroundUnpaid handlePayForVerification={handlePayForVerification} />
+					)}
+				{userDetails?.backgroundVerification === "pending" && <BackgroundPending />}
+				{userDetails?.backgroundVerification === "approved" &&
+					userDetails?.status === "basic" && (
+						<UpgradePlan handlePayForVerification={handlePayForVerification} />
+					)}
+				{userDetails?.backgroundVerification === "approved" &&
+					(userDetails?.status === "upgraded" ||
+						userDetails?.status === "quarterly") && (
+						<div className='space-y-8'>
+							{events.map((event) => (
+								<div key={event._id} className='bg-white overflow-hidden rounded-lg'>
+									<div className='flex items-center'>
+										{/* Left Side - Date Only */}
+										<div className='w-24 p-4 flex flex-col justify-start flex-shrink-0'>
+											<div className='text-center'>
+												<div className='text-sm text-blue-800 font-medium mb-1'>
+													{new Date(event.date)
+														.toLocaleDateString("en-US", { weekday: "short" })
+														.toUpperCase()}
+												</div>
+												<div className='text-2xl font-bold text-blue-800'>
+													{new Date(event.date).getDate()}
+												</div>
+											</div>
+										</div>
+
+										{/* Middle - All Other Content */}
+										<div className='flex-1 p-4 min-w-0'>
+											{/* Date and Time */}
+											<div className='text-xs mb-1' style={{ color: "#6f7287" }}>
 												{new Date(event.date)
-													.toLocaleDateString("en-US", { weekday: "short" })
-													.toUpperCase()}
+													.toLocaleDateString("en-US", {
+														month: "long",
+														day: "numeric",
+														year: "numeric",
+													})
+													.toUpperCase()}{" "}
+												@ {event.time}
 											</div>
-											<div className='text-2xl font-bold text-blue-800'>
-												{new Date(event.date).getDate()}
+
+											{/* Event Title */}
+											<h3 className='text-sm font-bold text-gray-900 mb-1'>
+												{event.title}
+											</h3>
+
+											{/* Location */}
+											<div
+												className='flex items-center space-x-2 mb-1'
+												style={{ color: "#6f7287" }}
+											>
+												<svg
+													className='w-4 h-4'
+													fill='none'
+													stroke='currentColor'
+													viewBox='0 0 24 24'
+												>
+													<path
+														strokeLinecap='round'
+														strokeLinejoin='round'
+														strokeWidth={2}
+														d='M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z'
+													/>
+													<path
+														strokeLinecap='round'
+														strokeLinejoin='round'
+														strokeWidth={2}
+														d='M15 11a3 3 0 11-6 0 3 3 0 016 0z'
+													/>
+												</svg>
+												<span className='text-xs'>{event.location}</span>
 											</div>
-										</div>
-									</div>
 
-									{/* Middle - All Other Content */}
-									<div className='flex-1 p-4 min-w-0'>
-										{/* Date and Time */}
-										<div className='text-xs mb-1' style={{ color: "#6f7287" }}>
-											{new Date(event.date)
-												.toLocaleDateString("en-US", {
-													month: "long",
-													day: "numeric",
-													year: "numeric",
-												})
-												.toUpperCase()}{" "}
-											@ {event.time}
-										</div>
-
-										{/* Event Title */}
-										<h3 className='text-sm font-bold text-gray-900 mb-1'>
-											{event.title}
-										</h3>
-
-										{/* Location */}
-										<div
-											className='flex items-center space-x-2 mb-1'
-											style={{ color: "#6f7287" }}
-										>
-											<svg
-												className='w-4 h-4'
-												fill='none'
-												stroke='currentColor'
-												viewBox='0 0 24 24'
+											{/* Event Description */}
+											<p
+												className='text-xs leading-tight mb-2'
+												style={{ color: "#6f7287" }}
 											>
-												<path
-													strokeLinecap='round'
-													strokeLinejoin='round'
-													strokeWidth={2}
-													d='M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z'
-												/>
-												<path
-													strokeLinecap='round'
-													strokeLinejoin='round'
-													strokeWidth={2}
-													d='M15 11a3 3 0 11-6 0 3 3 0 016 0z'
-												/>
-											</svg>
-											<span className='text-xs'>{event.location}</span>
-										</div>
+												{event.description}
+											</p>
 
-										{/* Event Description */}
-										<p
-											className='text-xs leading-tight mb-2'
-											style={{ color: "#6f7287" }}
-										>
-											{event.description}
-										</p>
-
-										{/* Tags */}
-										{event.tags && event.tags.length > 0 && (
-											<div className='flex items-center space-x-1 mb-2'>
-												{event.tags.map((tag, index) => (
-													<div
-														key={index}
-														className='border border-gray-300 rounded px-2 py-0.5'
-													>
-														<span className='text-xs' style={{ color: "#6f7287" }}>
-															{tag}
-														</span>
-													</div>
-												))}
-											</div>
-										)}
-
-										{/* Action Buttons */}
-										<div className='flex space-x-2 mt-1'>
-											<button
-												onClick={() => handleRegisterClick(event)}
-												className='bg-blue-800 text-white px-3 py-1 rounded text-xs font-bold shadow-md hover:bg-blue-900 transition-colors'
-											>
-												Register
-											</button>
-											<a
-												href={event.link}
-												target='_blank'
-												rel='noopener noreferrer'
-												className='bg-white text-blue-600 border border-blue-600 px-3 py-1 rounded text-xs font-bold shadow-md hover:bg-blue-50 transition-colors inline-block'
-											>
-												View details
-											</a>
-										</div>
-									</div>
-
-									{/* Right Side - Event Image */}
-									<div className='w-96 flex-shrink-0 p-2 ml-16'>
-										<div className='w-full h-48 relative rounded-2xl shadow-sm border-2 border-transparent overflow-hidden'>
-											{event.imageUrl ? (
-												<img
-													src={event.imageUrl}
-													alt={event.title}
-													className='w-full h-full object-cover'
-												/>
-											) : (
-												<div className='bg-gray-100 flex items-center justify-center h-full'>
-													<div className='text-center p-4'>
-														<div className='text-sm text-gray-500 font-medium'>
-															Event Image
+											{/* Tags */}
+											{event.tags && event.tags.length > 0 && (
+												<div className='flex items-center space-x-1 mb-2'>
+													{event.tags.map((tag, index) => (
+														<div
+															key={index}
+															className='border border-gray-300 rounded px-2 py-0.5'
+														>
+															<span className='text-xs' style={{ color: "#6f7287" }}>
+																{tag}
+															</span>
 														</div>
-													</div>
+													))}
 												</div>
 											)}
+
+											{/* Action Buttons */}
+											<div className='flex space-x-2 mt-1'>
+												<button
+													onClick={() => handleRegisterClick(event)}
+													className='bg-blue-800 text-white px-3 py-1 rounded text-xs font-bold shadow-md hover:bg-blue-900 transition-colors'
+												>
+													Register
+												</button>
+												<a
+													href={event.link}
+													target='_blank'
+													rel='noopener noreferrer'
+													className='bg-white text-blue-600 border border-blue-600 px-3 py-1 rounded text-xs font-bold shadow-md hover:bg-blue-50 transition-colors inline-block'
+												>
+													View details
+												</a>
+											</div>
+										</div>
+
+										{/* Right Side - Event Image */}
+										<div className='w-96 flex-shrink-0 p-2 ml-16'>
+											<div className='w-full h-48 relative rounded-2xl shadow-sm border-2 border-transparent overflow-hidden'>
+												{event.imageUrl ? (
+													<img
+														src={event.imageUrl}
+														alt={event.title}
+														className='w-full h-full object-cover'
+													/>
+												) : (
+													<div className='bg-gray-100 flex items-center justify-center h-full'>
+														<div className='text-center p-4'>
+															<div className='text-sm text-gray-500 font-medium'>
+																Event Image
+															</div>
+														</div>
+													</div>
+												)}
+											</div>
 										</div>
 									</div>
 								</div>
-							</div>
-						))}
-					</div>
-				)}
+							))}
+						</div>
+					)}
 			</div>
 		</div>
 	);

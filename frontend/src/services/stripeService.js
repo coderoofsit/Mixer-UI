@@ -2,14 +2,17 @@ import apiClient from "./apiService";
 
 export const stripeService = {
 	// Create Stripe checkout session
-	createCheckoutSession: async (amount, currency, orderId) => {
+	createCheckoutSession: async (amount, currency, orderId, productType) => {
 		try {
-			const response = await apiClient.post("/api/v1/stripe/create-checkout-session", {
-				amount,
-				currency,
-				orderId,
-				productType: "background_check",
-			});
+			const response = await apiClient.post(
+				"/api/v1/stripe/create-checkout-session",
+				{
+					amount,
+					currency,
+					orderId,
+					productType,
+				},
+			);
 			return response.data;
 		} catch (error) {
 			console.error("Create Stripe checkout session error:", error);
@@ -53,6 +56,20 @@ export const stripeService = {
 			return response.data;
 		} catch (error) {
 			console.error("Get Stripe payment intent error:", error);
+			throw error;
+		}
+	},
+	verifyPaymentInIAP: async (userId, productId, purchaseToken) => {
+		try {
+			const response = await apiClient.post("/api/v1/iap/verify", {
+				userId,
+				productId,
+				platform: "web",
+				purchaseToken,
+			});
+			return response.data;
+		} catch (error) {
+			console.error("Verify payment in IAP error:", error);
 			throw error;
 		}
 	},
