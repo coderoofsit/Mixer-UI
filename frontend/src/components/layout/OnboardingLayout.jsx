@@ -69,7 +69,7 @@ const OnboardingLayout = ({
         {/* Header Content */}
         <div className="relative px-6 py-6 flex items-center">
           {/* Back Button */}
-          {showBackButton && (
+          {/* {showBackButton && (
             <button
               onClick={handleBackClick}
               className="absolute left-6 top-6 w-10 h-10 flex items-center justify-center rounded-full"
@@ -89,7 +89,7 @@ const OnboardingLayout = ({
                 />
               </svg>
             </button>
-          )}
+          )} */}
 
           {/* Centered Title */}
           <div className="flex-1 text-center">

@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import OnboardingLayout from "../../components/layout/OnboardingLayout";
+import LandingHeader from "../../components/layout/LandingHeader";
+import Footer from "../../components/layout/Footer";
 
 const PhotoGalleryScreen = () => {
   const navigate = useNavigate();
@@ -61,10 +63,12 @@ const PhotoGalleryScreen = () => {
   };
 
   return (
-    <OnboardingLayout
-      title="Show Your Best Self"
-      subtitle="Add photos to your profile"
-    >
+    <>
+      <LandingHeader />
+      <OnboardingLayout
+        title="Show Your Best Self"
+        subtitle="Add photos to your profile"
+      >
       <div className="px-6 py-8">
         {/* Info Card */}
         <div
@@ -206,6 +210,8 @@ const PhotoGalleryScreen = () => {
         </div>
       </div>
     </OnboardingLayout>
+    <Footer />
+    </>
   );
 };
 

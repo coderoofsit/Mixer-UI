@@ -2,6 +2,8 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import authService from "../services/authService";
+import LandingHeader from "../components/layout/LandingHeader";
+import Footer from "../components/layout/Footer";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -52,7 +54,7 @@ const Signup = () => {
 
     try {
       await authService.signUpWithEmail(formData);
-      // Redirect to profile setup after successful registration
+      // Redirect new users to onboarding to complete their profile
       navigate("/onboarding/profile-setup");
     } catch (err) {
       setError(err.message || "Registration failed. Please try again.");
@@ -67,7 +69,7 @@ const Signup = () => {
 
     try {
       await authService.signInWithGoogle();
-      // Redirect to profile setup for new users
+      // Redirect new users to onboarding to complete their profile
       navigate("/onboarding/profile-setup");
     } catch (err) {
       setError("Google sign up failed. Please try again.");
@@ -78,7 +80,7 @@ const Signup = () => {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#F5F5F5" }}>
-
+      <LandingHeader />
       <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8 lg:max-w-[500px]">
           {/* Header */}
@@ -369,6 +371,7 @@ const Signup = () => {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

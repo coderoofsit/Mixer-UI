@@ -8,7 +8,8 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
-  updateProfile
+  updateProfile,
+  sendPasswordResetEmail
 } from '../config/firebase';
 import { authApi } from './authApi';
 
@@ -217,6 +218,21 @@ class AuthService {
     }
   }
 
+  // Send password reset email
+  async resetPassword(email) {
+    try {
+      await sendPasswordResetEmail(auth, email);
+      console.log('Password reset email sent to:', email);
+      return {
+        success: true,
+        message: 'Password reset email sent successfully'
+      };
+    } catch (error) {
+      console.error('Password reset error:', error);
+      throw this.handleAuthError(error);
+    }
+  }
+
   // Get current user
   getCurrentUser() {
     const user = localStorage.getItem('user');
@@ -250,20 +266,30 @@ class AuthService {
   // Check if user profile is complete
   async checkProfileCompletion() {
     try {
-      const profile = await authApi.getUserProfile();
+      console.log('🔍 Checking profile completion...');
+      const response = await authApi.getUserProfile();
       
-      console.log('📋 Profile data:', profile);
+      console.log('📋 Profile response:', response);
+
+      // Get the actual profile data from the response (nested under data.user)
+      const profileData = response?.data?.user || response?.data || response;
+      console.log('📊 Profile data object:', profileData);
 
       // Check if required fields are present
-      const hasName = profile?.data?.user?.name && profile.data.user.name.trim() !== '';
-      const hasDOB = profile?.data?.user?.dateOfBirth && profile.data.user.dateOfBirth.trim() !== '';
-      const hasGender = profile?.data?.user?.gender && profile.data.user.gender.trim() !== ''; // Backend uses 'gender' not 'selectedGender'
+      const hasName = profileData.name && profileData.name.trim() !== '';
+      const hasDOB = profileData.dateOfBirth && profileData.dateOfBirth.trim() !== '';
+      const hasGender = profileData.gender && profileData.gender.trim() !== '';
 
       const isComplete = hasName && hasDOB && hasGender;
 
+      console.log(`✅ Profile completion check: ${isComplete ? 'COMPLETE ✓' : 'INCOMPLETE ✗'}`);
+      console.log(`   - Name: ${hasName ? '✓' : '✗'} (${profileData.name || 'missing'})`);
+      console.log(`   - DOB: ${hasDOB ? '✓' : '✗'} (${profileData.dateOfBirth || 'missing'})`);
+      console.log(`   - Gender: ${hasGender ? '✓' : '✗'} (${profileData.gender || 'missing'})`);
+
       return {
         isComplete,
-        profile,
+        profile: profileData,
         missingFields: {
           name: !hasName,
           dateOfBirth: !hasDOB,

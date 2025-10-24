@@ -7,14 +7,16 @@ import BlindMixers from "./pages/BlindMixers";
 import UpcomingEvents from "./pages/UpcomingEvents";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import Matches from "./pages/Matches";
 import CustomCursor from "./components/ui/CustomCursor";
 import ProfileSetupScreen from "./pages/onboarding/ProfileSetupScreen";
-import PhotoGalleryScreen from "./pages/onboarding/PhotoGalleryScreen";
-import InterestsValuesScreen from "./pages/onboarding/InterestsValuesScreen";
-import ProfileCompleteScreen from "./pages/onboarding/ProfileCompleteScreen";
+// Commented out - Only using first step for now
+// import PhotoGalleryScreen from "./pages/onboarding/PhotoGalleryScreen";
+// import InterestsValuesScreen from "./pages/onboarding/InterestsValuesScreen";
+// import ProfileCompleteScreen from "./pages/onboarding/ProfileCompleteScreen";
 import ErrorBoundary from "./components/ui/ErrorBoundary";
 import Terms from "./pages/Terms"; // Import the existing component
 import Privacy from "./pages/Privacy"; // Import the NEW component
@@ -87,6 +89,7 @@ function App() {
             <Route path="/blind-mixers" element={<BlindMixers />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/matches" element={<Matches />} />
@@ -103,6 +106,10 @@ function App() {
             <Route path="/onboarding/interests" element={<InterestsValuesScreen />} />
             <Route path="/onboarding/complete" element={<ProfileCompleteScreen />} />
             <Route path="/payment/success" element={<PaymentSuccess />} />
+            {/* Commented out - Only using first step for now */}
+            {/* <Route path="/onboarding/photos" element={<PhotoGalleryScreen />} /> */}
+            {/* <Route path="/onboarding/interests" element={<InterestsValuesScreen />} /> */}
+            {/* <Route path="/onboarding/complete" element={<ProfileCompleteScreen />} /> */}
           </Routes>
         </Router>
       </div>

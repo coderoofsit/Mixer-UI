@@ -1,8 +1,15 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import LandingHeader from "../components/layout/LandingHeader";
 import Footer from "../components/layout/Footer";
 
 const BlindMixers = () => {
+  const navigate = useNavigate();
+
+  const handleGetStarted = () => {
+    navigate("/contact");
+  };
+
   return (
     <div
       className="min-h-screen bg-white"
@@ -41,6 +48,7 @@ const BlindMixers = () => {
             </div>
             <div className="text-center">
               <span
+                onClick={handleGetStarted}
                 className="text-gray-800 underline cursor-pointer hover:text-teal-600 transition-colors"
                 style={{
                   fontSize: "14px",

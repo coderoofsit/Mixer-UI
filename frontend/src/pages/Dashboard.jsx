@@ -1,6 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import authService from "../services/authService";
+import LandingHeader from "../components/layout/LandingHeader";
+import Footer from "../components/layout/Footer";
 
 const Dashboard = () => {
   const user = authService.getCurrentUser();
@@ -11,7 +13,9 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <>
+      <LandingHeader />
+      <div className="min-h-screen bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <div className="text-center">
@@ -75,6 +79,8 @@ const Dashboard = () => {
         </div>
       </div>
     </div>
+    <Footer />
+    </>
   );
 };
 
