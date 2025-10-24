@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import authService from "../services/authService";
+import LandingHeader from "../components/layout/LandingHeader";
+import Footer from "../components/layout/Footer";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -30,7 +32,7 @@ const Login = () => {
       const profileCheck = await authService.checkProfileCompletion();
       
       if (profileCheck.isComplete) {
-        navigate("/dashboard");
+        navigate("/");
       } else {
         navigate("/onboarding/profile-setup");
       }
@@ -55,7 +57,7 @@ const Login = () => {
         const profileCheck = await authService.checkProfileCompletion();
         
         if (profileCheck.isComplete) {
-          navigate("/dashboard");
+          navigate("/");
         } else {
           navigate("/onboarding/profile-setup");
         }
@@ -82,7 +84,7 @@ const Login = () => {
         const profileCheck = await authService.checkProfileCompletion();
         
         if (profileCheck.isComplete) {
-          navigate("/dashboard");
+          navigate("/");
         } else {
           navigate("/onboarding/profile-setup");
         }
@@ -111,6 +113,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#F5F5F5" }}>
+      <LandingHeader />
       <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8 lg:max-w-[500px]">
           {/* Header */}
@@ -329,6 +332,7 @@ const Login = () => {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 import LoadingSpinner from "../components/ui/LoadingSpinner";
+import LandingHeader from "../components/layout/LandingHeader";
+import Footer from "../components/layout/Footer";
 
 const Profile = () => {
   const [loading, setLoading] = useState(false);
@@ -74,7 +76,9 @@ const Profile = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <>
+      <LandingHeader />
+      <div className="min-h-screen bg-white">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -270,6 +274,8 @@ const Profile = () => {
         </form>
       </div>
     </div>
+    <Footer />
+    </>
   );
 };
 

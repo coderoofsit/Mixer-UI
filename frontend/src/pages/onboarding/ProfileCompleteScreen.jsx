@@ -1,18 +1,22 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import LandingHeader from "../../components/layout/LandingHeader";
+import Footer from "../../components/layout/Footer";
 
 const ProfileCompleteScreen = () => {
   const navigate = useNavigate();
 
   const handleComplete = () => {
-    navigate("/dashboard");
+    navigate("/");
   };
 
   return (
-    <div
-      className="min-h-screen flex flex-col"
-      style={{ backgroundColor: "#5D1751" }}
-    >
+    <>
+      <LandingHeader />
+      <div
+        className="min-h-screen flex flex-col"
+        style={{ backgroundColor: "#5D1751" }}
+      >
       {/* Header */}
       <div
         className="px-6 py-6 text-center"
@@ -170,6 +174,8 @@ const ProfileCompleteScreen = () => {
         </div>
       </div>
     </div>
+    <Footer />
+    </>
   );
 };
 

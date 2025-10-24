@@ -4,6 +4,8 @@ import OnboardingLayout from "../../components/layout/OnboardingLayout";
 import CustomDropdown from "../../components/ui/CustomDropdown";
 import { authApi } from "../../services/authApi";
 import { mapProfileFieldsToBackend } from "../../utils/profileFieldMapper";
+import LandingHeader from "../../components/layout/LandingHeader";
+import Footer from "../../components/layout/Footer";
 
 const InterestsValuesScreen = () => {
   const navigate = useNavigate();
@@ -186,10 +188,12 @@ const InterestsValuesScreen = () => {
   );
 
   return (
-    <OnboardingLayout
-      title="Complete Your Profile"
-      subtitle="Help us understand you better"
-    >
+    <>
+      <LandingHeader />
+      <OnboardingLayout
+        title="Complete Your Profile"
+        subtitle="Help us understand you better"
+      >
       <div className="px-6 py-8 lg:px-8">
         {/* Info Card */}
         <div
@@ -455,6 +459,8 @@ const InterestsValuesScreen = () => {
         </div>
       </div>
     </OnboardingLayout>
+    <Footer />
+    </>
   );
 };
 

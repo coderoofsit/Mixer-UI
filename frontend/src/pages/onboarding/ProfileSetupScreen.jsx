@@ -4,6 +4,8 @@ import OnboardingLayout from "../../components/layout/OnboardingLayout";
 import CustomDropdown from "../../components/ui/CustomDropdown";
 import { authApi } from "../../services/authApi";
 import { mapProfileFieldsToBackend } from "../../utils/profileFieldMapper";
+import LandingHeader from "../../components/layout/LandingHeader";
+import Footer from "../../components/layout/Footer";
 
 const ProfileSetupScreen = () => {
   const navigate = useNavigate();
@@ -147,10 +149,12 @@ const ProfileSetupScreen = () => {
   };
 
   return (
-    <OnboardingLayout
-      title="Mixer Starts with"
-      subtitle="Your Personal Touch"
-    >
+    <>
+      <LandingHeader />
+      <OnboardingLayout
+        title="Mixer Starts with"
+        subtitle="Your Personal Touch"
+      >
       <div className="px-6 py-8 space-y-6 lg:px-8">
         {/* Name Field */}
         <div
@@ -423,6 +427,8 @@ const ProfileSetupScreen = () => {
         </div>
       </div>
     </OnboardingLayout>
+    <Footer />
+    </>
   );
 };
 
