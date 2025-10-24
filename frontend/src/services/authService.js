@@ -8,7 +8,8 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
-  updateProfile
+  updateProfile,
+  sendPasswordResetEmail
 } from '../config/firebase';
 import { authApi } from './authApi';
 
@@ -213,6 +214,21 @@ class AuthService {
     } catch (error) {
       console.error('Sign out error:', error);
       throw error;
+    }
+  }
+
+  // Send password reset email
+  async resetPassword(email) {
+    try {
+      await sendPasswordResetEmail(auth, email);
+      console.log('Password reset email sent to:', email);
+      return {
+        success: true,
+        message: 'Password reset email sent successfully'
+      };
+    } catch (error) {
+      console.error('Password reset error:', error);
+      throw this.handleAuthError(error);
     }
   }
 

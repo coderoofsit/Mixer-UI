@@ -54,8 +54,8 @@ const Signup = () => {
 
     try {
       await authService.signUpWithEmail(formData);
-      // Always redirect to home page after successful registration
-      navigate("/");
+      // Redirect new users to onboarding to complete their profile
+      navigate("/onboarding/profile-setup");
     } catch (err) {
       setError(err.message || "Registration failed. Please try again.");
     } finally {
@@ -69,8 +69,8 @@ const Signup = () => {
 
     try {
       await authService.signInWithGoogle();
-      // Always redirect to home page after successful registration
-      navigate("/");
+      // Redirect new users to onboarding to complete their profile
+      navigate("/onboarding/profile-setup");
     } catch (err) {
       setError("Google sign up failed. Please try again.");
     } finally {
