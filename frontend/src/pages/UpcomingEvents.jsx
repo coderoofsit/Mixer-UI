@@ -208,23 +208,24 @@ const UpcomingEvents = () => {
 											</div>
 										)}
 
-										{/* Action Buttons */}
-										<div className='flex space-x-2 mt-1'>
-											<button
-												onClick={() => handleRegisterClick(event)}
-												className='bg-blue-800 text-white px-3 py-1 rounded text-xs font-bold shadow-md hover:bg-blue-900 transition-colors'
-											>
-												Register
-											</button>
-											<a
-												href={event.link}
-												target='_blank'
-												rel='noopener noreferrer'
-												className='bg-white text-blue-600 border border-blue-600 px-3 py-1 rounded text-xs font-bold shadow-md hover:bg-blue-50 transition-colors inline-block'
-											>
-												View details
-											</a>
-										</div>
+									{/* Action Buttons */}
+									<div className='flex space-x-2 mt-1'>
+										{/* Register button - Hidden (In Development) */}
+										{/* <button
+											onClick={() => handleRegisterClick(event)}
+											className='bg-blue-800 text-white px-3 py-1 rounded text-xs font-bold shadow-md hover:bg-blue-900 transition-colors'
+										>
+											Register
+										</button> */}
+										<a
+											href={event.link}
+											target='_blank'
+											rel='noopener noreferrer'
+											className='bg-blue-800 text-white px-3 py-1 rounded text-xs font-bold shadow-md hover:bg-blue-900 transition-colors inline-block'
+										>
+											View details
+										</a>
+									</div>
 									</div>
 
 									{/* Right Side - Event Image */}
