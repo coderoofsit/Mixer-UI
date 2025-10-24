@@ -16,9 +16,46 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
   async (config) => {
     try {
-      const user = auth.currentUser;
-      if (user) {
-        const token = await user.getIdToken(true);
+      // Try to get token from localStorage first
+      let token = localStorage.getItem('firebaseIdToken');
+      const tokenTimestamp = localStorage.getItem('tokenTimestamp');
+      
+      // Check if token exists and is still valid (less than 55 minutes old)
+      if (token && tokenTimestamp) {
+        const tokenAge = Date.now() - parseInt(tokenTimestamp);
+        const fiftyFiveMinutes = 55 * 60 * 1000;
+        
+        if (tokenAge >= fiftyFiveMinutes) {
+          // Token expired, get fresh token from Firebase
+          console.log('🔄 Token expired, fetching fresh token...');
+          const user = auth.currentUser;
+          if (user) {
+            token = await user.getIdToken(true);
+            const refreshToken = user.refreshToken;
+            
+            // Update localStorage with new tokens
+            localStorage.setItem('firebaseIdToken', token);
+            localStorage.setItem('firebaseRefreshToken', refreshToken);
+            localStorage.setItem('tokenTimestamp', Date.now().toString());
+          }
+        } else {
+          console.log('🔑 Using cached token from localStorage');
+        }
+      } else {
+        // No token in localStorage, get from Firebase
+        const user = auth.currentUser;
+        if (user) {
+          token = await user.getIdToken(true);
+          const refreshToken = user.refreshToken;
+          
+          // Store tokens in localStorage
+          localStorage.setItem('firebaseIdToken', token);
+          localStorage.setItem('firebaseRefreshToken', refreshToken);
+          localStorage.setItem('tokenTimestamp', Date.now().toString());
+        }
+      }
+      
+      if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
     } catch (error) {
