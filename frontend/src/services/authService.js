@@ -42,7 +42,8 @@ class AuthService {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      
+      console.log({user});
+      localStorage.setItem('accessToken', user?.accessToken);
       return {
         uid: user.uid,
         email: user.email,
@@ -249,22 +250,16 @@ class AuthService {
   // Check if user profile is complete
   async checkProfileCompletion() {
     try {
-      console.log('🔍 Checking profile completion...');
       const profile = await authApi.getUserProfile();
       
       console.log('📋 Profile data:', profile);
 
       // Check if required fields are present
-      const hasName = profile.name && profile.name.trim() !== '';
-      const hasDOB = profile.dateOfBirth && profile.dateOfBirth.trim() !== '';
-      const hasGender = profile.gender && profile.gender.trim() !== ''; // Backend uses 'gender' not 'selectedGender'
+      const hasName = profile?.data?.user?.name && profile.data.user.name.trim() !== '';
+      const hasDOB = profile?.data?.user?.dateOfBirth && profile.data.user.dateOfBirth.trim() !== '';
+      const hasGender = profile?.data?.user?.gender && profile.data.user.gender.trim() !== ''; // Backend uses 'gender' not 'selectedGender'
 
       const isComplete = hasName && hasDOB && hasGender;
-
-      console.log(`✅ Profile completion check: ${isComplete ? 'Complete' : 'Incomplete'}`);
-      console.log(`   - Name: ${hasName ? '✓' : '✗'}`);
-      console.log(`   - DOB: ${hasDOB ? '✓' : '✗'}`);
-      console.log(`   - Gender: ${hasGender ? '✓' : '✗'}`);
 
       return {
         isComplete,

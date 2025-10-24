@@ -18,6 +18,8 @@ import ProfileCompleteScreen from "./pages/onboarding/ProfileCompleteScreen";
 import ErrorBoundary from "./components/ui/ErrorBoundary";
 import Terms from "./pages/Terms"; // Import the existing component
 import Privacy from "./pages/Privacy"; // Import the NEW component
+import CheckoutWrapper from "./pages/Payment";
+import PaymentSuccess from "./pages/PaymentSuccess";
 
 function App() {
   useEffect(() => {
@@ -100,6 +102,7 @@ function App() {
             <Route path="/onboarding/photos" element={<PhotoGalleryScreen />} />
             <Route path="/onboarding/interests" element={<InterestsValuesScreen />} />
             <Route path="/onboarding/complete" element={<ProfileCompleteScreen />} />
+            <Route path="/payment/success" element={<PaymentSuccess />} />
           </Routes>
         </Router>
       </div>
