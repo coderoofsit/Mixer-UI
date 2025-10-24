@@ -2,11 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap');
 
 @layer base {
   html {
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Montserrat', system-ui, sans-serif;
   }
   
   body {
@@ -80,5 +80,60 @@
   .custom-cursor.hover {
     transform: translate(-50%, -50%) scale(1.5);
     border-color: #ea580c; /* Orange-600 for hover state */
+  }
+
+  /* Fluid Gradient Background Animation */
+  .bg-fluid-gradient {
+    background: #f3f0ff;
+    position: relative;
+    overflow: hidden;
+  }
+
+  @keyframes gradientShift {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px) rotate(0deg);
+    }
+    33% {
+      transform: translateY(-20px) rotate(1deg);
+    }
+    66% {
+      transform: translateY(10px) rotate(-1deg);
+    }
+  }
+
+  /* Right-to-left underline animation */
+  .nav-link-underline {
+    @apply relative;
+  }
+  
+  .nav-link-underline::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    height: 2px;
+    background-color: currentColor;
+    transition: width 0.7s ease-out;
+    width: 0;
+  }
+  
+  .nav-link-underline:hover::after {
+    width: 100%;
+  }
+  
+  .nav-link-underline.active::after {
+    width: 100%;
   }
 }

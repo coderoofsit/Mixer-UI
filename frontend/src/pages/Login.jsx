@@ -71,6 +71,7 @@ const Login = () => {
     setIsLoading(true);
     setError("");
 
+
     try {
       const result = await authService.signInWithApple();
       

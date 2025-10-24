@@ -6,7 +6,7 @@ const LandingHeader = () => {
   const location = useLocation();
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50">
+    <header className="bg-white shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div
           className="flex justify-between items-center py-5"
@@ -33,39 +33,67 @@ const LandingHeader = () => {
           <nav className="hidden md:flex space-x-8">
             <Link
               to="/"
-              className="hover:text-teal-600 transition-colors font-medium"
-              style={{ fontSize: "16px", color: "#000000B3" }}
+              className={`relative font-medium transition-all duration-500 ${
+                location.pathname === "/"
+                  ? "text-black"
+                  : "text-gray-700 hover:text-black"
+              }`}
+              style={{ fontSize: "16px" }}
             >
               Home
+              <span
+                className={`absolute bottom-0 right-0 h-0.5 bg-black transition-all duration-700 ease-out ${
+                  location.pathname === "/" ? "w-full" : "w-0"
+                }`}
+              ></span>
             </Link>
             <Link
               to="/events"
-              className={`transition-colors font-medium ${
+              className={`relative font-medium transition-all duration-500 ${
                 location.pathname === "/events"
-                  ? "text-teal-600 underline"
-                  : "hover:text-teal-600"
+                  ? "text-black"
+                  : "text-gray-700 hover:text-black"
               }`}
-              style={{ fontSize: "16px", color: "#000000B3" }}
+              style={{ fontSize: "16px" }}
             >
               Upcoming Events
+              <span
+                className={`absolute bottom-0 right-0 h-0.5 bg-black transition-all duration-700 ease-out ${
+                  location.pathname === "/events" ? "w-full" : "w-0"
+                }`}
+              ></span>
             </Link>
             <Link
               to="/blind-mixers"
-              className={`transition-colors font-medium ${
+              className={`relative font-medium transition-all duration-500 ${
                 location.pathname === "/blind-mixers"
-                  ? "text-teal-600 underline"
-                  : "hover:text-teal-600"
+                  ? "text-black"
+                  : "text-gray-700 hover:text-black"
               }`}
-              style={{ fontSize: "16px", color: "#000000B3" }}
+              style={{ fontSize: "16px" }}
             >
               Blind Mixers
+              <span
+                className={`absolute bottom-0 right-0 h-0.5 bg-black transition-all duration-700 ease-out ${
+                  location.pathname === "/blind-mixers" ? "w-full" : "w-0"
+                }`}
+              ></span>
             </Link>
             <Link
               to="/contact"
-              className="hover:text-teal-600 transition-colors font-medium"
-              style={{ fontSize: "16px", color: "#000000B3" }}
+              className={`relative font-medium transition-all duration-500 ${
+                location.pathname === "/contact"
+                  ? "text-black"
+                  : "text-gray-700 hover:text-black"
+              }`}
+              style={{ fontSize: "16px" }}
             >
               Contact
+              <span
+                className={`absolute bottom-0 right-0 h-0.5 bg-black transition-all duration-700 ease-out ${
+                  location.pathname === "/contact" ? "w-full" : "w-0"
+                }`}
+              ></span>
             </Link>
           </nav>
 
@@ -126,39 +154,67 @@ const LandingHeader = () => {
             <nav className="flex flex-col space-y-4">
               <Link
                 to="/"
-                className="text-gray-700 hover:text-teal-600 transition-colors font-medium"
+                className={`relative font-medium transition-all duration-500 ${
+                  location.pathname === "/"
+                    ? "text-black"
+                    : "text-gray-700 hover:text-black"
+                }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Home
+                <span
+                  className={`absolute bottom-0 right-0 h-0.5 bg-black transition-all duration-700 ease-out ${
+                    location.pathname === "/" ? "w-full" : "w-0"
+                  }`}
+                ></span>
               </Link>
               <Link
                 to="/events"
-                className={`transition-colors font-medium ${
+                className={`relative font-medium transition-all duration-500 ${
                   location.pathname === "/events"
-                    ? "text-teal-600 underline"
-                    : "text-gray-700 hover:text-teal-600"
+                    ? "text-black"
+                    : "text-gray-700 hover:text-black"
                 }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Upcoming Events
+                <span
+                  className={`absolute bottom-0 right-0 h-0.5 bg-black transition-all duration-700 ease-out ${
+                    location.pathname === "/events" ? "w-full" : "w-0"
+                  }`}
+                ></span>
               </Link>
               <Link
                 to="/blind-mixers"
-                className={`transition-colors font-medium ${
+                className={`relative font-medium transition-all duration-500 ${
                   location.pathname === "/blind-mixers"
-                    ? "text-teal-600 underline"
-                    : "text-gray-700 hover:text-teal-600"
+                    ? "text-black"
+                    : "text-gray-700 hover:text-black"
                 }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Blind Mixers
+                <span
+                  className={`absolute bottom-0 right-0 h-0.5 bg-black transition-all duration-700 ease-out ${
+                    location.pathname === "/blind-mixers" ? "w-full" : "w-0"
+                  }`}
+                ></span>
               </Link>
               <Link
                 to="/contact"
-                className="text-gray-700 hover:text-teal-600 transition-colors font-medium"
+                className={`relative font-medium transition-all duration-500 ${
+                  location.pathname === "/contact"
+                    ? "text-black"
+                    : "text-gray-700 hover:text-black"
+                }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Contact
+                <span
+                  className={`absolute bottom-0 right-0 h-0.5 bg-black transition-all duration-700 ease-out ${
+                    location.pathname === "/contact" ? "w-full" : "w-0"
+                  }`}
+                ></span>
               </Link>
 
               {/* Mobile Auth Buttons */}
@@ -182,6 +238,15 @@ const LandingHeader = () => {
           </div>
         )}
       </div>
+
+      {/* Decorative Border */}
+      <div
+        className="w-full h-3"
+        style={{
+          background:
+            "linear-gradient(90deg, #FDF6F0 0%, #FEF9E7 50%, #FDF6F0 100%)",
+        }}
+      ></div>
     </header>
   );
 };

@@ -1,27 +1,56 @@
 import React from "react";
 import LandingHeader from "../components/layout/LandingHeader";
+import Footer from "../components/layout/Footer";
 
 const BlindMixers = () => {
   return (
-    <div className="min-h-screen bg-white">
+    <div
+      className="min-h-screen bg-white"
+      style={{ fontFamily: "Times New Roman, serif" }}
+    >
       <LandingHeader />
 
       {/* Hero Section */}
       <div className="bg-white py-16 lg:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-4xl lg:text-6xl font-bold text-teal-600 mb-8 leading-tight">
+            <h1
+              className="font-bold text-teal-600 mb-8 leading-tight"
+              style={{ fontSize: "32px" }}
+            >
               Tired of bad dates—or worse, no dates at all?
             </h1>
-            <p className="text-lg lg:text-xl text-gray-700 leading-relaxed mb-12">
-              Maybe you've been told you're just choosing the wrong partner, or
-              maybe you're simply over the endless swiping, awkward small talk,
-              and wasted time. At Mixer, we do things differently. We'll match
-              you with the right person and curate the perfect date—no apps, no
-              stress, no guesswork. All you have to do is show up and have FUN!
-            </p>
+            <div style={{ width: "80%", margin: "0 auto" }}>
+              <p
+                className="text-gray-700 mb-12"
+                style={{
+                  fontSize: "16px",
+                  fontWeight: "300",
+                  lineHeight: "2em",
+                  letterSpacing: "0px",
+                  wordSpacing: "0px",
+                }}
+              >
+                Maybe you've been told you're just choosing the wrong partner,
+                or maybe you're simply over the endless swiping, awkward small
+                talk, and wasted time. At Mixer, we do things differently. We'll
+                match you with the right person and curate the perfect date—no
+                apps, no stress, no guesswork. All you have to do is show up and
+                have FUN!
+              </p>
+            </div>
             <div className="text-center">
-              <span className="text-xl font-bold text-gray-800 underline cursor-pointer hover:text-teal-600 transition-colors">
+              <span
+                className="text-gray-800 underline cursor-pointer hover:text-teal-600 transition-colors"
+                style={{
+                  fontSize: "14px",
+                  fontWeight: "600",
+                  textTransform: "uppercase",
+                  lineHeight: "0px",
+                  letterSpacing: "2px",
+                  fontFamily: "Arial, sans-serif",
+                }}
+              >
                 LET'S GET STARTED
               </span>
             </div>
@@ -30,18 +59,23 @@ const BlindMixers = () => {
       </div>
 
       {/* Coming Soon Banner */}
-      <div className="bg-teal-600 text-white py-3">
-        <div className="max-w-7xl mx-auto text-center">
-          <p className="text-sm font-medium">
-            COMING SOON: SINGLES NIGHT DETAILS
-          </p>
-        </div>
+      <div className="flex justify-center py-8">
+        <button
+          className="text-white px-10 py-5 rounded-full font-semibold text-base uppercase tracking-wide transition-colors duration-200"
+          style={{
+            fontFamily: "Arial, sans-serif",
+            backgroundColor: "#038386",
+            hover: { backgroundColor: "#027373" },
+          }}
+        >
+          COMING SOON: SINGLES NIGHT DETAILS
+        </button>
       </div>
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto">
-        <div className="grid lg:grid-cols-3 gap-0 min-h-screen">
-          {/* Left Side - Image (2/3 width) */}
+        <div className="grid lg:grid-cols-5 gap-8 min-h-screen">
+          {/* Left Side - Image (40% width) */}
           <div className="lg:col-span-2 relative">
             <div
               className="h-full w-full bg-cover bg-center bg-no-repeat"
@@ -53,7 +87,7 @@ const BlindMixers = () => {
               <div className="absolute inset-0 bg-black bg-opacity-10"></div>
 
               {/* Speech Bubble Overlay */}
-              <div className="absolute bottom-8 left-8">
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                 <div className="bg-white rounded-2xl px-6 py-4 shadow-lg max-w-xs">
                   <p className="text-gray-800 text-sm font-medium">
                     This fall, I'm looking for...{" "}
@@ -64,24 +98,33 @@ const BlindMixers = () => {
             </div>
           </div>
 
-          {/* Right Side - Content (1/3 width) */}
-          <div className="lg:col-span-1 bg-white p-8 lg:p-12 flex flex-col justify-center">
-            <div className="max-w-lg">
+          {/* Right Side - Content (60% width) */}
+          <div className="lg:col-span-3 bg-white p-8 lg:p-12 flex flex-col justify-center">
+            <div className="w-full">
               {/* Skip the Swipe */}
               <p className="text-red-600 font-medium text-sm mb-2">
                 SKIP THE SWIPE
               </p>
 
               {/* Main Title */}
-              <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-12 leading-tight">
+              <h1
+                className="text-gray-900 mb-12 leading-tight"
+                style={{
+                  fontSize: "65px",
+                  fontWeight: "600",
+                }}
+              >
                 HOW OUR BLIND MIXER WORKS
               </h1>
 
               {/* Steps */}
-              <div className="space-y-8">
+              <div className="space-y-10">
                 {/* Step 1 */}
                 <div>
-                  <h3 className="text-lg font-bold text-teal-600 mb-3">
+                  <h3
+                    className="text-lg font-bold mb-3"
+                    style={{ color: "#038386" }}
+                  >
                     STEP 1 | WE LEARN ABOUT YOU
                   </h3>
                   <p className="text-gray-700 leading-relaxed text-sm">
@@ -94,7 +137,10 @@ const BlindMixers = () => {
 
                 {/* Step 2 */}
                 <div>
-                  <h3 className="text-lg font-bold text-teal-600 mb-3">
+                  <h3
+                    className="text-lg font-bold mb-3"
+                    style={{ color: "#A42831" }}
+                  >
                     STEP 2 | WE SET THE SCENE
                   </h3>
                   <p className="text-gray-700 leading-relaxed text-sm">
@@ -106,7 +152,10 @@ const BlindMixers = () => {
 
                 {/* Step 3 */}
                 <div>
-                  <h3 className="text-lg font-bold text-teal-600 mb-3">
+                  <h3
+                    className="text-lg font-bold mb-3"
+                    style={{ color: "#D59331" }}
+                  >
                     STEP 3 | YOU ENJOY THE DATE
                   </h3>
                   <p className="text-gray-700 leading-relaxed text-sm">
@@ -117,59 +166,15 @@ const BlindMixers = () => {
                   </p>
                 </div>
               </div>
-
-              {/* Scroll to top button */}
-              <div className="mt-12 flex justify-end">
-                <button className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300 transition-colors">
-                  <svg
-                    className="w-5 h-5 text-gray-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 10l7-7m0 0l7 7m-7-7v18"
-                    />
-                  </svg>
-                </button>
-              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="bg-red-800 text-white py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row justify-between items-center">
-            <div className="text-xs text-center lg:text-left mb-4 lg:mb-0">
-              © Copyright 2025 | Mixer | All Rights Reserved | Privacy Policy |
-              Terms & Conditions | Contact Support | Powered by Mountain Air
-              Marketing
-            </div>
+      {/* Spacing between content and footer */}
+      <div className="py-8"></div>
 
-            {/* Scroll to top button */}
-            <button className="w-6 h-6 bg-red-700 rounded flex items-center justify-center hover:bg-red-600 transition-colors">
-              <svg
-                className="w-3 h-3 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 10l7-7m0 0l7 7m-7-7v18"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };
