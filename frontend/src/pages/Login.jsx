@@ -31,7 +31,20 @@ const Login = () => {
 			// Always redirect to home page after successful login
 			navigate("/");
 		} catch (err) {
-			setError("Invalid email or password. Please try again.");
+			console.error('Login error:', err);
+			// Extract only the message, not the full error object
+			let errorMessage = "Invalid Credentials";
+			
+			if (err?.message) {
+				errorMessage = err.message;
+				// Remove "Firebase: Error (auth/...)" prefix if present
+				errorMessage = errorMessage.replace(/^Firebase:\s*Error\s*\(auth\/[^)]+\)\.\s*/i, '').trim();
+				// Remove any remaining "Firebase:" prefix
+				errorMessage = errorMessage.replace(/^Firebase:\s*/i, '').trim();
+			}
+			
+			// If message is empty after cleaning, use default
+			setError(errorMessage || "Invalid Credentials");
 		} finally {
 			setIsLoading(false);
 		}
@@ -47,7 +60,20 @@ const Login = () => {
 			// Always redirect to home page after successful login
 			navigate("/");
 		} catch (err) {
-			setError("Google sign in failed. Please try again.");
+			console.error('Google login error:', err);
+			// Extract only the message, not the full error object
+			let errorMessage = "Google Sign-in Failed";
+			
+			if (err?.message) {
+				errorMessage = err.message;
+				// Remove "Firebase: Error (auth/...)" prefix if present
+				errorMessage = errorMessage.replace(/^Firebase:\s*Error\s*\(auth\/[^)]+\)\.\s*/i, '').trim();
+				// Remove any remaining "Firebase:" prefix
+				errorMessage = errorMessage.replace(/^Firebase:\s*/i, '').trim();
+			}
+			
+			// If message is empty after cleaning, use default
+			setError(errorMessage || "Google Sign-in Failed");
 		} finally {
 			setIsLoading(false);
 		}
@@ -63,7 +89,20 @@ const Login = () => {
 			// Always redirect to home page after successful login
 			navigate("/");
 		} catch (err) {
-			setError("Apple sign in failed. Please try again.");
+			console.error('Apple login error:', err);
+			// Extract only the message, not the full error object
+			let errorMessage = "Apple Sign-in Failed";
+			
+			if (err?.message) {
+				errorMessage = err.message;
+				// Remove "Firebase: Error (auth/...)" prefix if present
+				errorMessage = errorMessage.replace(/^Firebase:\s*Error\s*\(auth\/[^)]+\)\.\s*/i, '').trim();
+				// Remove any remaining "Firebase:" prefix
+				errorMessage = errorMessage.replace(/^Firebase:\s*/i, '').trim();
+			}
+			
+			// If message is empty after cleaning, use default
+			setError(errorMessage || "Apple Sign-in Failed");
 		} finally {
 			setIsLoading(false);
 		}
@@ -78,7 +117,20 @@ const Login = () => {
 			// Always redirect to home page after successful login
 			navigate("/");
 		} catch (err) {
-			setError("Anonymous sign in failed. Please try again.");
+			console.error('Anonymous login error:', err);
+			// Extract only the message, not the full error object
+			let errorMessage = "Sign-in Failed";
+			
+			if (err?.message) {
+				errorMessage = err.message;
+				// Remove "Firebase: Error (auth/...)" prefix if present
+				errorMessage = errorMessage.replace(/^Firebase:\s*Error\s*\(auth\/[^)]+\)\.\s*/i, '').trim();
+				// Remove any remaining "Firebase:" prefix
+				errorMessage = errorMessage.replace(/^Firebase:\s*/i, '').trim();
+			}
+			
+			// If message is empty after cleaning, use default
+			setError(errorMessage || "Sign-in Failed");
 		} finally {
 			setIsLoading(false);
 		}

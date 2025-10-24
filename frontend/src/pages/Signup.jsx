@@ -57,7 +57,20 @@ const Signup = () => {
       // Redirect new users to onboarding to complete their profile
       navigate("/onboarding/profile-setup");
     } catch (err) {
-      setError(err.message || "Registration failed. Please try again.");
+      console.error('Signup error:', err);
+      // Extract only the message, not the full error object
+      let errorMessage = "Registration Failed";
+      
+      if (err?.message) {
+        errorMessage = err.message;
+        // Remove "Firebase: Error (auth/...)" prefix if present
+        errorMessage = errorMessage.replace(/^Firebase:\s*Error\s*\(auth\/[^)]+\)\.\s*/i, '').trim();
+        // Remove any remaining "Firebase:" prefix
+        errorMessage = errorMessage.replace(/^Firebase:\s*/i, '').trim();
+      }
+      
+      // If message is empty after cleaning, use default
+      setError(errorMessage || "Registration Failed");
     } finally {
       setIsLoading(false);
     }
@@ -72,7 +85,20 @@ const Signup = () => {
       // Redirect new users to onboarding to complete their profile
       navigate("/onboarding/profile-setup");
     } catch (err) {
-      setError("Google sign up failed. Please try again.");
+      console.error('Google signup error:', err);
+      // Extract only the message, not the full error object
+      let errorMessage = "Google Sign-up Failed";
+      
+      if (err?.message) {
+        errorMessage = err.message;
+        // Remove "Firebase: Error (auth/...)" prefix if present
+        errorMessage = errorMessage.replace(/^Firebase:\s*Error\s*\(auth\/[^)]+\)\.\s*/i, '').trim();
+        // Remove any remaining "Firebase:" prefix
+        errorMessage = errorMessage.replace(/^Firebase:\s*/i, '').trim();
+      }
+      
+      // If message is empty after cleaning, use default
+      setError(errorMessage || "Google Sign-up Failed");
     } finally {
       setIsLoading(false);
     }

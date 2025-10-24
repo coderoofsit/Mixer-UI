@@ -84,6 +84,8 @@ class AuthService {
       // Step 1: Create Firebase user
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
+      console.log({user});
+      localStorage.setItem('accessToken', user?.accessToken);
 
       // Update profile with display name
       if (fullName) {
@@ -97,27 +99,39 @@ class AuthService {
 
       // Step 3: Register with backend
       console.log('🔄 Registering user with backend...');
-      const registrationResult = await authApi.registerUser(email, idToken);
+      try {
+        const registrationResult = await authApi.registerUser(email, idToken);
 
-      if (registrationResult.success) {
-        // Store userId in localStorage
-        localStorage.setItem('userId', registrationResult.userId);
-        console.log('✅ Registration successful! User ID:', registrationResult.userId);
-        
-        return {
-          uid: user.uid,
-          email: user.email,
-          displayName: fullName || user.displayName,
-          photoURL: user.photoURL,
-          emailVerified: user.emailVerified,
-          userId: registrationResult.userId,
-          isNewUser: true,
-        };
-      } else {
-        throw new Error(registrationResult.error || 'Backend registration failed');
+        if (registrationResult.success) {
+          // Store userId in localStorage
+          localStorage.setItem('userId', registrationResult.userId);
+          console.log('✅ Registration successful! User ID:', registrationResult.userId);
+          
+          return {
+            uid: user.uid,
+            email: user.email,
+            displayName: fullName || user.displayName,
+            photoURL: user.photoURL,
+            emailVerified: user.emailVerified,
+            userId: registrationResult.userId,
+            isNewUser: true,
+          };
+        } else {
+          throw new Error(registrationResult.error || 'Backend registration failed');
+        }
+      } catch (backendError) {
+        // Backend registration failed - delete the Firebase user and throw error
+        console.error('❌ Backend registration failed, cleaning up Firebase user...');
+        await user.delete();
+        throw backendError;
       }
     } catch (error) {
       console.error('Sign up error:', error);
+      // If it's already an Error object with a message, throw it as is
+      if (error instanceof Error) {
+        throw error;
+      }
+      // Otherwise, handle as Firebase error
       throw this.handleAuthError(error);
     }
   }
@@ -143,8 +157,11 @@ class AuthService {
             console.log('✅ Google user registration successful! User ID:', registrationResult.userId);
           }
         } catch (error) {
-          console.error('⚠️ Backend registration failed for Google user:', error);
-          // Continue anyway - user is authenticated with Firebase
+          console.error('❌ Backend registration failed for Google user:', error);
+          // Delete Firebase user and throw error
+          await user.delete();
+          await firebaseSignOut(auth);
+          throw error;
         }
       }
 
@@ -182,9 +199,12 @@ class AuthService {
             localStorage.setItem('userId', registrationResult.userId);
             console.log('✅ Apple user registration successful! User ID:', registrationResult.userId);
           }
-      } catch (error) {
-          console.error('⚠️ Backend registration failed for Apple user:', error);
-          // Continue anyway - user is authenticated with Firebase
+        } catch (error) {
+          console.error('❌ Backend registration failed for Apple user:', error);
+          // Delete Firebase user and throw error
+          await user.delete();
+          await firebaseSignOut(auth);
+          throw error;
         }
       }
 
@@ -384,33 +404,35 @@ class AuthService {
     }
   }
 
-  // Handle authentication errors
+  // Handle authentication errors - return simple, user-friendly messages
   handleAuthError(error) {
     switch (error.code) {
       case 'auth/email-already-in-use':
-        return new Error('This email is already registered. Please sign in instead.');
+        return new Error('Email Already Exists. Please Login');
       case 'auth/invalid-email':
-        return new Error('Invalid email address.');
+        return new Error('Invalid Email Address');
       case 'auth/operation-not-allowed':
-        return new Error('This sign-in method is not enabled. Please contact support.');
+        return new Error('Sign-in Method Not Available');
       case 'auth/weak-password':
-        return new Error('Password is too weak. Please use at least 6 characters.');
+        return new Error('Password Too Weak');
       case 'auth/user-disabled':
-        return new Error('This account has been disabled. Please contact support.');
+        return new Error('Account Disabled');
       case 'auth/user-not-found':
-        return new Error('No account found with this email.');
+        return new Error('Account Not Found');
       case 'auth/wrong-password':
-        return new Error('Incorrect password. Please try again.');
+        return new Error('Incorrect Password');
       case 'auth/too-many-requests':
-        return new Error('Too many failed attempts. Please try again later.');
+        return new Error('Too Many Attempts. Try Again Later');
       case 'auth/popup-closed-by-user':
-        return new Error('Sign-in popup was closed. Please try again.');
+        return new Error('Sign-in Cancelled');
       case 'auth/popup-blocked':
-        return new Error('Sign-in popup was blocked. Please allow popups and try again.');
+        return new Error('Popup Blocked. Please Allow Popups');
       case 'auth/cancelled-popup-request':
-        return new Error('Sign-in was cancelled. Please try again.');
+        return new Error('Sign-in Cancelled');
+      case 'auth/network-request-failed':
+        return new Error('Network Error. Please Try Again');
       default:
-        return new Error(error.message || 'Authentication failed. Please try again.');
+        return new Error('Authentication Failed. Please Try Again');
     }
   }
 }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import OnboardingLayout from "../../components/layout/OnboardingLayout";
 import CustomDropdown from "../../components/ui/CustomDropdown";
@@ -22,6 +22,12 @@ const ProfileSetupScreen = () => {
   const [consentChecked, setConsentChecked] = useState(false);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+
+  // Refs for scrolling to error fields
+  const nameRef = useRef(null);
+  const dobRef = useRef(null);
+  const genderRef = useRef(null);
+  const consentRef = useRef(null);
 
   // Generate month, day, year options
   const months = [
@@ -105,6 +111,18 @@ const ProfileSetupScreen = () => {
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
+      
+      // Scroll to first error field
+      if (newErrors.name && nameRef.current) {
+        nameRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else if (newErrors.dob && dobRef.current) {
+        dobRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else if (newErrors.gender && genderRef.current) {
+        genderRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else if (newErrors.consent && consentRef.current) {
+        consentRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      
       return;
     }
 
@@ -147,12 +165,12 @@ const ProfileSetupScreen = () => {
         console.log('✅ Profile updated successfully');
         navigate("/");
       } else {
-        setErrors({ submit: result.error || 'Profile update failed' });
+        setErrors({ submit: 'Profile Update Failed' });
       }
     } catch (error) {
       console.error('❌ Failed to update profile:', error);
       setErrors({ 
-        submit: error.response?.data?.message || error.message || 'Failed to update profile. Please try again.' 
+        submit: error.message || 'Profile Update Failed' 
       });
     } finally {
       setIsLoading(false);
@@ -169,6 +187,7 @@ const ProfileSetupScreen = () => {
       <div className="px-6 py-8 space-y-6 lg:px-8">
         {/* Name Field */}
         <div
+          ref={nameRef}
           className="p-6 rounded-2xl shadow-md"
           style={{ backgroundColor: "#F8F4F7" }}
         >
@@ -220,6 +239,7 @@ const ProfileSetupScreen = () => {
 
         {/* Date of Birth */}
         <div
+          ref={dobRef}
           className="p-6 rounded-2xl shadow-md"
           style={{ backgroundColor: "#F8F4F7" }}
         >
@@ -277,6 +297,7 @@ const ProfileSetupScreen = () => {
 
         {/* Gender */}
         <div
+          ref={genderRef}
           className="p-6 rounded-2xl shadow-md"
           style={{ backgroundColor: "#F8F4F7" }}
         >
@@ -414,6 +435,7 @@ const ProfileSetupScreen = () => {
 
         {/* Consent Checkbox */}
         <div
+          ref={consentRef}
           className="p-6 rounded-2xl shadow-md"
           style={{ backgroundColor: "#F8F4F7" }}
         >
