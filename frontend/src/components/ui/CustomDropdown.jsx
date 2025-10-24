@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 
 const CustomDropdown = ({
   value,
@@ -7,9 +7,28 @@ const CustomDropdown = ({
   onChange,
   multiSelect = false,
   label,
-  maxHeight = "300px",
+  maxHeight = "200px",
+  enableScroll = true,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsExpanded(false);
+      }
+    };
+
+    if (isExpanded) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isExpanded]);
 
   const handleSelect = (option) => {
     if (multiSelect) {
@@ -39,14 +58,30 @@ const CustomDropdown = ({
     return value || placeholder;
   };
 
+  // Function to render label with red asterisk
+  const renderLabel = () => {
+    if (!label) return null;
+    
+    const parts = label.split('*');
+    if (parts.length > 1) {
+      return (
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          {parts[0]}<span className="text-red-600">*</span>{parts[1] || ''}
+        </label>
+      );
+    }
+    return (
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        {label}
+      </label>
+    );
+  };
+
   return (
     <div className="w-full">
-      {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          {label}
-        </label>
-      )}
+      {renderLabel()}
       <div
+        ref={dropdownRef}
         className="relative border rounded-2xl bg-white"
         style={{ borderColor: "#D1D5DB" }}
       >
@@ -60,7 +95,7 @@ const CustomDropdown = ({
             color: value ? "#000" : "#9CA3AF"
           }}
         >
-          <span className="text-base">{displayText()}</span>
+          <span className="text-sm">{displayText()}</span>
           <svg
             className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${
               isExpanded ? "transform rotate-180" : ""
@@ -81,14 +116,17 @@ const CustomDropdown = ({
         {/* Dropdown Menu */}
         {isExpanded && (
           <div
-            className="absolute z-10 w-full bg-white border border-gray-300 rounded-2xl shadow-lg mt-1 overflow-y-auto"
-            style={{ maxHeight }}
+            className={`relative z-50 w-full bg-white border border-gray-300 rounded-2xl shadow-lg mt-1 ${enableScroll ? 'overflow-y-auto' : ''}`}
+            style={{ 
+              maxHeight: enableScroll ? maxHeight : "auto",
+              overflow: enableScroll ? undefined : "hidden"
+            }}
           >
             {options.map((option, index) => (
               <div
                 key={index}
                 onClick={() => handleSelect(option)}
-                className={`px-4 py-3 cursor-pointer transition-colors duration-150 flex items-center justify-between ${
+                className={`px-3 py-2 cursor-pointer transition-colors duration-150 flex items-center justify-between ${
                   isSelected(option)
                     ? "bg-purple-50"
                     : "hover:bg-gray-50"
@@ -98,7 +136,7 @@ const CustomDropdown = ({
                 }}
               >
                 <span
-                  className={`text-base ${
+                  className={`text-sm ${
                     isSelected(option)
                       ? "font-semibold"
                       : "font-normal"
@@ -109,7 +147,7 @@ const CustomDropdown = ({
                 </span>
                 {isSelected(option) && (
                   <svg
-                    className="w-5 h-5"
+                    className="w-4 h-4"
                     style={{ color: "#5D1751" }}
                     fill="currentColor"
                     viewBox="0 0 20 20"

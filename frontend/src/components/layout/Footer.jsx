@@ -20,7 +20,7 @@ const Footer = () => {
             Terms & Conditions
           </a>{" "}
           |{" "}
-          <a href="/support" className="text-white hover:text-teal-400">
+          <a href="/contact" className="text-white hover:text-teal-400">
             Contact Support
           </a>{" "}
           | Powered by Mountain Air Marketing
