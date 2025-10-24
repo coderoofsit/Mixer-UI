@@ -228,12 +228,12 @@ const Profile = () => {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* Debug Info - Remove after testing */}
-            <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+            {/* <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
               <p className="text-sm font-semibold text-blue-800 mb-2">Debug - Profile Data:</p>
               <pre className="text-xs text-blue-700 overflow-auto">
                 {JSON.stringify(profileData, null, 2)}
               </pre>
-            </div>
+            </div> */}
 
             {/* Success Message */}
             {successMessage && (
