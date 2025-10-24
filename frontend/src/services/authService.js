@@ -18,22 +18,40 @@ class AuthService {
     this.currentUser = null;
     
     // Listen for auth state changes
-    auth.onAuthStateChanged((user) => {
+    auth.onAuthStateChanged(async (user) => {
       this.currentUser = user;
       if (user) {
-        // User is signed in
-        localStorage.setItem('user', JSON.stringify({
-          uid: user.uid,
-          email: user.email,
-          displayName: user.displayName,
-          photoURL: user.photoURL,
-          emailVerified: user.emailVerified,
-          isAnonymous: user.isAnonymous
-        }));
+        // User is signed in - store user data and tokens
+        try {
+          const idToken = await user.getIdToken(true);
+          const refreshToken = user.refreshToken;
+          
+          // Store user data
+          localStorage.setItem('user', JSON.stringify({
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName,
+            photoURL: user.photoURL,
+            emailVerified: user.emailVerified,
+            isAnonymous: user.isAnonymous
+          }));
+          
+          // Store Firebase tokens
+          localStorage.setItem('firebaseIdToken', idToken);
+          localStorage.setItem('firebaseRefreshToken', refreshToken);
+          localStorage.setItem('tokenTimestamp', Date.now().toString());
+          
+          console.log('🔑 Tokens stored in localStorage');
+        } catch (error) {
+          console.error('Error storing tokens:', error);
+        }
       } else {
-        // User is signed out
+        // User is signed out - clear all auth data
         localStorage.removeItem('user');
         localStorage.removeItem('isAnonymous');
+        localStorage.removeItem('firebaseIdToken');
+        localStorage.removeItem('firebaseRefreshToken');
+        localStorage.removeItem('tokenTimestamp');
       }
     });
   }
@@ -212,6 +230,11 @@ class AuthService {
       localStorage.removeItem('user');
       localStorage.removeItem('authToken');
       localStorage.removeItem('isAnonymous');
+      localStorage.removeItem('firebaseIdToken');
+      localStorage.removeItem('firebaseRefreshToken');
+      localStorage.removeItem('tokenTimestamp');
+      localStorage.removeItem('userId');
+      console.log('🚪 User signed out and tokens cleared');
     } catch (error) {
       console.error('Sign out error:', error);
       throw error;
@@ -250,17 +273,67 @@ class AuthService {
   }
 
   // Get auth token
-  async getAuthToken() {
+  async getAuthToken(forceRefresh = false) {
     try {
+      // Try to get from localStorage first if not forcing refresh
+      if (!forceRefresh) {
+        const storedToken = localStorage.getItem('firebaseIdToken');
+        const tokenTimestamp = localStorage.getItem('tokenTimestamp');
+        
+        if (storedToken && tokenTimestamp) {
+          // Check if token is less than 55 minutes old (Firebase tokens expire in 60 minutes)
+          const tokenAge = Date.now() - parseInt(tokenTimestamp);
+          const fiftyFiveMinutes = 55 * 60 * 1000;
+          
+          if (tokenAge < fiftyFiveMinutes) {
+            console.log('🔑 Using cached token from localStorage');
+            return storedToken;
+          } else {
+            console.log('🔄 Token expired, refreshing...');
+          }
+        }
+      }
+      
+      // Get fresh token from Firebase
       const user = auth.currentUser;
       if (user) {
-        return await user.getIdToken();
+        const token = await user.getIdToken(true);
+        const refreshToken = user.refreshToken;
+        
+        // Store the new tokens
+        localStorage.setItem('firebaseIdToken', token);
+        localStorage.setItem('firebaseRefreshToken', refreshToken);
+        localStorage.setItem('tokenTimestamp', Date.now().toString());
+        
+        console.log('🔑 Fresh token retrieved and stored');
+        return token;
       }
       return null;
     } catch (error) {
       console.error('Error getting auth token:', error);
       return null;
     }
+  }
+
+  // Get refresh token
+  getRefreshToken() {
+    return localStorage.getItem('firebaseRefreshToken');
+  }
+
+  // Check if token is valid (not expired)
+  isTokenValid() {
+    const token = localStorage.getItem('firebaseIdToken');
+    const tokenTimestamp = localStorage.getItem('tokenTimestamp');
+    
+    if (!token || !tokenTimestamp) {
+      return false;
+    }
+    
+    // Check if token is less than 55 minutes old
+    const tokenAge = Date.now() - parseInt(tokenTimestamp);
+    const fiftyFiveMinutes = 55 * 60 * 1000;
+    
+    return tokenAge < fiftyFiveMinutes;
   }
 
   // Check if user profile is complete

@@ -103,7 +103,7 @@ const Signup = () => {
               )}
 
               {/* Full Name Field */}
-              <div>
+              {/* <div>
                 <label
                   htmlFor="fullName"
                   className="block text-sm font-medium text-gray-700 mb-2"
@@ -126,7 +126,7 @@ const Signup = () => {
                   onBlur={(e) => e.target.style.borderColor = '#D1D5DB'}
                   placeholder="Enter your full name"
                 />
-              </div>
+              </div> */}
 
               <div>
                 <label
