@@ -3,6 +3,8 @@ import apiClient from "../services/apiService";
 import LandingHeader from "../components/layout/LandingHeader";
 import Footer from "../components/layout/Footer";
 import RegisterEventModal from "../components/ui/RegisterEventModal";
+import authService from "../services/authService";
+import { stripeService } from "../services/stripeService";
 
 const UpcomingEvents = () => {
 	// Local state for events
@@ -11,6 +13,17 @@ const UpcomingEvents = () => {
 	const [error, setError] = useState(null);
 	const [selectedEvent, setSelectedEvent] = useState(null);
 	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [userDetails, setUserDetails] = useState();
+
+	const handlePayForVerification = async () => {
+		const response = await stripeService.createCheckoutSession(
+			1000,
+			"usd",
+			"ORD_001",
+		);
+		console.log({ response });
+		window.location.href = response?.sessionUrl;
+	};
 
 	const handleRegisterClick = (event) => {
 		setSelectedEvent(event);
@@ -44,6 +57,15 @@ const UpcomingEvents = () => {
 			}
 		};
 
+		const getProfile = async () => {
+			const profileCheck = await authService.checkProfileCompletion();
+			console.log({ profileCheck });
+			const userDetails = profileCheck?.profile || {};
+			console.log({ userDetails });
+			setUserDetails(userDetails || {});
+		};
+		getProfile();
+
 		fetchEvents();
 	}, []); // Empty dependency array - runs only when component mounts
 
@@ -63,6 +85,39 @@ const UpcomingEvents = () => {
 				) : error ? (
 					<div className='text-center py-12'>
 						<p className='text-red-600'>{error}</p>
+					</div>
+				) : userDetails?.backgroundVerification === "unpaid" ? (
+					<div className='bg-white overflow-hidden border border-black'>
+						<div
+							className='w-full py-8 text-center'
+							style={{ backgroundColor: "#F97316" }}
+						>
+							<h3
+								className='text-2xl font-bold text-white uppercase tracking-wide'
+								style={{ fontFamily: "serif" }}
+							>
+								Background Check
+							</h3>
+						</div>
+						<div className='p-12 text-center'>
+							<div className='mb-10 flex items-baseline justify-center'>
+								<span className='text-4xl font-bold text-gray-900'>$</span>
+								<span className='text-7xl font-bold text-gray-900'>7</span>
+								<span className='text-4xl font-bold text-gray-900'>.99</span>
+								<span className='text-2xl text-gray-600 ml-3'>One Time Payment</span>
+							</div>
+
+							<button
+								onClick={handlePayForVerification}
+								className='w-100 py-4 px-10 font-semibold text-xs transition-colors duration-200 mt-16'
+								style={{
+									backgroundColor: "#E9E8E6",
+									color: "#000000",
+								}}
+							>
+								APPLY NOW
+							</button>
+						</div>
 					</div>
 				) : (
 					<div className='space-y-8'>

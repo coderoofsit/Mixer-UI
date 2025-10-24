@@ -14,9 +14,9 @@ import Matches from "./pages/Matches";
 import CustomCursor from "./components/ui/CustomCursor";
 import ProfileSetupScreen from "./pages/onboarding/ProfileSetupScreen";
 // Commented out - Only using first step for now
-// import PhotoGalleryScreen from "./pages/onboarding/PhotoGalleryScreen";
-// import InterestsValuesScreen from "./pages/onboarding/InterestsValuesScreen";
-// import ProfileCompleteScreen from "./pages/onboarding/ProfileCompleteScreen";
+import PhotoGalleryScreen from "./pages/onboarding/PhotoGalleryScreen";
+import InterestsValuesScreen from "./pages/onboarding/InterestsValuesScreen";
+import ProfileCompleteScreen from "./pages/onboarding/ProfileCompleteScreen";
 import ErrorBoundary from "./components/ui/ErrorBoundary";
 import Terms from "./pages/Terms"; // Import the existing component
 import Privacy from "./pages/Privacy"; // Import the NEW component
