@@ -72,6 +72,7 @@ class AuthService {
       };
     } catch (error) {
       console.error('Sign in error:', error);
+      // Always pass Firebase errors through handleAuthError
       throw this.handleAuthError(error);
     }
   }
@@ -127,7 +128,11 @@ class AuthService {
       }
     } catch (error) {
       console.error('Sign up error:', error);
-      // If it's already an Error object with a message, throw it as is
+      // Check if it's a Firebase error (has a 'code' property like 'auth/email-already-in-use')
+      if (error?.code && error.code.startsWith('auth/')) {
+        throw this.handleAuthError(error);
+      }
+      // If it's already a processed Error object (from backend), throw it as is
       if (error instanceof Error) {
         throw error;
       }
@@ -175,7 +180,12 @@ class AuthService {
       };
     } catch (error) {
       console.error('Google sign in error:', error);
-      throw this.handleAuthError(error);
+      // Check if it's a Firebase error (has a 'code' property like 'auth/...')
+      if (error?.code && error.code.startsWith('auth/')) {
+        throw this.handleAuthError(error);
+      }
+      // If it's already a processed Error object (from backend), throw it as is
+      throw error;
     }
   }
 
@@ -218,7 +228,12 @@ class AuthService {
       };
     } catch (error) {
       console.error('Apple sign in error:', error);
-      throw this.handleAuthError(error);
+      // Check if it's a Firebase error (has a 'code' property like 'auth/...')
+      if (error?.code && error.code.startsWith('auth/')) {
+        throw this.handleAuthError(error);
+      }
+      // If it's already a processed Error object (from backend), throw it as is
+      throw error;
     }
   }
 
