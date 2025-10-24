@@ -2,12 +2,25 @@ import React, { useState, useEffect } from "react";
 import apiClient from "../services/apiService";
 import LandingHeader from "../components/layout/LandingHeader";
 import Footer from "../components/layout/Footer";
+import RegisterEventModal from "../components/ui/RegisterEventModal";
 
 const UpcomingEvents = () => {
   // Local state for events
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleRegisterClick = (event) => {
+    setSelectedEvent(event);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedEvent(null);
+  };
 
   // Fetch events when component mounts
   useEffect(() => {
@@ -142,14 +155,12 @@ const UpcomingEvents = () => {
 
                     {/* Action Buttons */}
                     <div className="flex space-x-2 mt-1">
-                      <a
-                        href={event.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="bg-blue-800 text-white px-3 py-1 rounded text-xs font-bold shadow-md hover:bg-blue-900 transition-colors inline-block"
+                      <button
+                        onClick={() => handleRegisterClick(event)}
+                        className="bg-blue-800 text-white px-3 py-1 rounded text-xs font-bold shadow-md hover:bg-blue-900 transition-colors"
                       >
-                        Buy tickets
-                      </a>
+                        Register
+                      </button>
                       <a
                         href={event.link}
                         target="_blank"
@@ -306,6 +317,15 @@ const UpcomingEvents = () => {
       <div className="py-8"></div>
 
       <Footer />
+
+      {/* Register Event Modal */}
+      {selectedEvent && (
+        <RegisterEventModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          event={selectedEvent}
+        />
+      )}
     </div>
   );
 };
