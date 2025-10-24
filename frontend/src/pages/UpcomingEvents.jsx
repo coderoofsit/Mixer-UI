@@ -1,89 +1,38 @@
 import React, { useState, useEffect } from "react";
+import apiClient from "../services/apiService";
 import LandingHeader from "../components/layout/LandingHeader";
 import Footer from "../components/layout/Footer";
 
 const UpcomingEvents = () => {
-  // Event feed state management
+  // Local state for events
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Event feed configuration (for future API integration)
-  // const feedId = 536;
-  // const uid = "68fa54e37ab5e";
-  // const apiUrl = "https://mixerltd.com/wp-json/";
-
-  // Fetch events from API
+  // Fetch events when component mounts
   useEffect(() => {
     const fetchEvents = async () => {
       try {
         setLoading(true);
-        // Simulate API call - replace with actual Eventbrite API integration
-        const mockEvents = [
-          {
-            id: 1,
-            title: "Puppy Love Singles Mixer",
-            date: "2025-11-08",
-            time: "11:00 AM - 12:30 PM",
-            location: "1684 21st Street, Colorado Springs, CO 80904",
-            price: "FREE",
-            ticketsLeft: 19,
-            description:
-              "Sip coffee, meet fellow dog lovers, and let tails (and hearts) wag! Bring your pup—or just your love for them. Free & Fun!",
-            eventType: "puppy-love",
-          },
-          {
-            id: 2,
-            title: "November Mixer: where real people meet, not just profiles",
-            date: "2025-11-13",
-            time: "7:00 PM - 10:00 PM",
-            location: "4 South 28th Street, Colorado Springs, CO 80904",
-            price: "$28.52",
-            ticketsLeft: 95,
-            description:
-              "November Mixer! Cocktails, music & curated connections — meet face-to-face, not screen-to-screen.",
-            eventType: "november-mixer",
-          },
-          {
-            id: 3,
-            title: "Flirt & Fall: Speed dating with a twist of Mixer",
-            date: "2025-11-18",
-            time: "5:30 PM - 7:30 PM",
-            location: "To be announced",
-            price: "$25.00",
-            ticketsLeft: 40,
-            description:
-              "Our Flirt and fall series is a twist on Speed Dating. We're incorporating conversational Jenga because you know we like to mix things up!",
-            eventType: "flirt-fall",
-            availability: "UNAVAILABLE",
-          },
-          {
-            id: 4,
-            title: "Flirt & Fall: Speed dating with a twist of Mixer",
-            date: "2025-11-18",
-            time: "7:45 PM - 9:45 PM",
-            location: "To be announced",
-            price: "$25.00",
-            ticketsLeft: 40,
-            description:
-              "Our Flirt and fall series is a twist on Speed Dating. We're incorporating conversational Jenga because you know we like to mix things up!",
-            eventType: "flirt-fall",
-            availability: "UNAVAILABLE",
-          },
-        ];
+        setError(null);
 
-        // Simulate API delay
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        setEvents(mockEvents);
-        setLoading(false);
+        const response = await apiClient.get('/api/v1/events');
+
+        if (response.data.success) {
+          setEvents(response.data.data.events);
+        } else {
+          setError("Failed to fetch events");
+        }
       } catch (err) {
-        setError("Failed to fetch events");
+        setError(err.response?.data?.message || "Failed to fetch events");
+        console.error("Error fetching events:", err);
+      } finally {
         setLoading(false);
       }
     };
 
     fetchEvents();
-  }, []);
+  }, []); // Empty dependency array - runs only when component mounts
 
   // Event Feed Component
   const EventFeed = () => (
@@ -106,12 +55,12 @@ const UpcomingEvents = () => {
           <div className="space-y-8">
             {events.map((event) => (
               <div
-                key={event.id}
+                key={event._id}
                 className="bg-white overflow-hidden rounded-lg"
               >
-                <div className="flex">
+                <div className="flex items-center">
                   {/* Left Side - Date Only */}
-                  <div className="w-24 p-4 flex flex-col justify-start">
+                  <div className="w-24 p-4 flex flex-col justify-start flex-shrink-0">
                     <div className="text-center">
                       <div className="text-sm text-blue-800 font-medium mb-1">
                         {new Date(event.date)
@@ -124,8 +73,8 @@ const UpcomingEvents = () => {
                     </div>
                   </div>
 
-                  {/* Right Side - All Other Content */}
-                  <div className="flex-1 p-4">
+                  {/* Middle - All Other Content */}
+                  <div className="flex-1 p-4 min-w-0">
                     {/* Date and Time */}
                     <div className="text-xs mb-1" style={{ color: "#6f7287" }}>
                       {new Date(event.date)
@@ -178,62 +127,58 @@ const UpcomingEvents = () => {
                       {event.description}
                     </p>
 
-                    {/* Ticket Info */}
-                    <div className="flex items-center space-x-1 mb-2">
-                      {event.availability !== "UNAVAILABLE" && (
-                        <div className="border border-gray-300 rounded px-0.5 py-0.5">
-                          <span
-                            className="text-xs"
-                            style={{ color: "#6f7287" }}
-                          >
-                            {event.price}
-                          </span>
-                        </div>
-                      )}
-                      {event.availability && (
-                        <div className="border border-gray-300 rounded px-0.5 py-0.5">
-                          <span
-                            className="text-xs"
-                            style={{ color: "#6f7287" }}
-                          >
-                            {event.availability}
-                          </span>
-                        </div>
-                      )}
-                      <div className="border border-gray-300 rounded px-0.5 py-0.5">
-                        <span className="text-xs" style={{ color: "#6f7287" }}>
-                          {event.ticketsLeft} TICKETS LEFT
-                        </span>
+                    {/* Tags */}
+                    {event.tags && event.tags.length > 0 && (
+                      <div className="flex items-center space-x-1 mb-2">
+                        {event.tags.map((tag, index) => (
+                          <div key={index} className="border border-gray-300 rounded px-2 py-0.5">
+                            <span className="text-xs" style={{ color: "#6f7287" }}>
+                              {tag}
+                            </span>
+                          </div>
+                        ))}
                       </div>
-                    </div>
+                    )}
 
                     {/* Action Buttons */}
                     <div className="flex space-x-2 mt-1">
-                      {event.availability === "UNAVAILABLE" ? (
-                        <button className="bg-white text-blue-600 border border-blue-600 px-3 py-1 rounded text-xs font-bold shadow-md hover:bg-blue-50 transition-colors">
-                          View details
-                        </button>
-                      ) : (
-                        <>
-                          <button className="bg-blue-800 text-white px-3 py-1 rounded text-xs font-bold shadow-md hover:bg-blue-900 transition-colors">
-                            {event.price === "FREE"
-                              ? "Register"
-                              : "Buy tickets"}
-                          </button>
-                          <button className="bg-white text-blue-600 border border-blue-600 px-3 py-1 rounded text-xs font-bold shadow-md hover:bg-blue-50 transition-colors">
-                            View details
-                          </button>
-                        </>
-                      )}
+                      <a
+                        href={event.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-blue-800 text-white px-3 py-1 rounded text-xs font-bold shadow-md hover:bg-blue-900 transition-colors inline-block"
+                      >
+                        Buy tickets
+                      </a>
+                      <a
+                        href={event.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-white text-blue-600 border border-blue-600 px-3 py-1 rounded text-xs font-bold shadow-md hover:bg-blue-50 transition-colors inline-block"
+                      >
+                        View details
+                      </a>
                     </div>
                   </div>
 
-                  {/* Right Side - Event Image/Graphic */}
-                  <div className="w-96 h-40 relative rounded-2xl shadow-sm border-2 border-transparent bg-gray-100 flex items-center justify-center">
-                    <div className="text-center p-4">
-                      <div className="text-sm text-gray-500 font-medium">
-                        Event Image
-                      </div>
+                  {/* Right Side - Event Image */}
+                  <div className="w-96 flex-shrink-0 p-2 ml-16">
+                    <div className="w-full h-48 relative rounded-2xl shadow-sm border-2 border-transparent overflow-hidden">
+                      {event.imageUrl ? (
+                        <img
+                          src={event.imageUrl}
+                          alt={event.title}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="bg-gray-100 flex items-center justify-center h-full">
+                          <div className="text-center p-4">
+                            <div className="text-sm text-gray-500 font-medium">
+                              Event Image
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
