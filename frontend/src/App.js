@@ -22,7 +22,7 @@ import Terms from "./pages/Terms"; // Import the existing component
 import Privacy from "./pages/Privacy"; // Import the NEW component
 import CheckoutWrapper from "./pages/Payment";
 import PaymentSuccess from "./pages/PaymentSuccess";
-import GuestRoute from "./components/GuestRoute";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   useEffect(() => {
@@ -89,14 +89,16 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/blind-mixers" element={<BlindMixers />} />
             
-            {/* Auth Routes - Only accessible to non-authenticated users */}
-            <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
-            <Route path="/signup" element={<GuestRoute><Signup /></GuestRoute>} />
-            <Route path="/forgot-password" element={<GuestRoute><ForgotPassword /></GuestRoute>} />
+            {/* Auth Routes - Accessible to all users */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/matches" element={<Matches />} />
+            {/* Protected Routes - Require authentication */}
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+            <Route path="/matches" element={<ProtectedRoute><Matches /></ProtectedRoute>} />
+            <Route path="/payment" element={<ProtectedRoute><CheckoutWrapper /></ProtectedRoute>} />
             
             {/* Legal Routes - Updated to use Privacy component */}
             <Route path="/terms" element={<Terms />} />
@@ -104,11 +106,11 @@ function App() {
             <Route path="/terms-conditions" element={<Terms />} />
             <Route path="/privacy-policy" element={<Privacy />} />
 
-            {/* Onboarding Routes - Only accessible to non-authenticated users */}
-            <Route path="/onboarding/profile-setup" element={<GuestRoute><ProfileSetupScreen /></GuestRoute>} />
-            <Route path="/onboarding/photos" element={<GuestRoute><PhotoGalleryScreen /></GuestRoute>} />
-            <Route path="/onboarding/interests" element={<GuestRoute><InterestsValuesScreen /></GuestRoute>} />
-            <Route path="/onboarding/complete" element={<GuestRoute><ProfileCompleteScreen /></GuestRoute>} />
+            {/* Onboarding Routes - Accessible to all users */}
+            <Route path="/onboarding/profile-setup" element={<ProfileSetupScreen />} />
+            <Route path="/onboarding/photos" element={<PhotoGalleryScreen />} />
+            <Route path="/onboarding/interests" element={<InterestsValuesScreen />} />
+            <Route path="/onboarding/complete" element={<ProfileCompleteScreen />} />
             <Route path="/payment/success" element={<PaymentSuccess />} />
             {/* Commented out - Only using first step for now */}
             {/* <Route path="/onboarding/photos" element={<PhotoGalleryScreen />} /> */}

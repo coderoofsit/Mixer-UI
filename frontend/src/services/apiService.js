@@ -95,9 +95,10 @@ apiClient.interceptors.response.use(
 			
 			// Handle 401/403 - Unauthorized/Forbidden
 			if (error.response.status === 401 || error.response.status === 403) {
-				console.warn('🔒 Unauthorized access - clearing tokens and redirecting to login');
+				console.warn('🔒 Unauthorized access - clearing tokens');
 				
-				// Clear all auth data
+				// Clear all auth data but DON'T redirect
+				// Let individual pages handle auth requirements
 				localStorage.removeItem('user');
 				localStorage.removeItem('firebaseIdToken');
 				localStorage.removeItem('firebaseRefreshToken');
@@ -105,8 +106,8 @@ apiClient.interceptors.response.use(
 				localStorage.removeItem('userId');
 				localStorage.removeItem('isAnonymous');
 				
-				// Redirect to login page
-				window.location.href = '/login';
+				// Note: Removed automatic redirect to /login
+				// Pages that require auth should check and redirect themselves
 			}
 		} else if (error.request) {
 			// Request made but no response

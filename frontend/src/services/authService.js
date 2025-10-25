@@ -273,14 +273,26 @@ class AuthService {
   async signOut() {
     try {
       await firebaseSignOut(auth);
-      // Clear all auth data from localStorage
-      localStorage.removeItem('user');
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('isAnonymous');
-      localStorage.removeItem('firebaseIdToken');
-      localStorage.removeItem('firebaseRefreshToken');
-      localStorage.removeItem('tokenTimestamp');
-      localStorage.removeItem('userId');
+      
+      // Clear all auth-related data from localStorage
+      // Remove all possible authentication tokens and user data
+      const authKeys = [
+        'user',
+        'authToken',
+        'token',  // Used by AuthContext
+        'isAnonymous',
+        'firebaseIdToken',
+        'firebaseRefreshToken',
+        'tokenTimestamp',
+        'userId'
+      ];
+      
+      authKeys.forEach(key => localStorage.removeItem(key));
+      
+      // Alternatively, to be extra safe, you could clear ALL localStorage:
+      // localStorage.clear();
+      // But this might remove other app data you want to keep
+      
     } catch (error) {
       console.error('Sign out error');
       throw error;

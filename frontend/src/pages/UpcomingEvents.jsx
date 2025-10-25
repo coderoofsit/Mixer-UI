@@ -46,32 +46,50 @@ const UpcomingEvents = () => {
 				setLoading(true);
 				setError(null);
 
-				// Step 1: Fetch user profile first
-				const profileCheck = await authService.checkProfileCompletion();
-				console.log({ profileCheck });
-				const userData = profileCheck?.profile || {};
-				console.log({ userData });
-				setUserDetails(userData);
+				// Check if user is authenticated
+				const isAuthenticated = authService.isAuthenticated();
+				
+				if (isAuthenticated) {
+					// Step 1: Fetch user profile for authenticated users
+					try {
+						const profileCheck = await authService.checkProfileCompletion();
+						console.log({ profileCheck });
+						const userData = profileCheck?.profile || {};
+						console.log({ userData });
+						setUserDetails(userData);
 
-				// Step 2: Check the fetched userData (not state!) for plan
-				if (userData.currentPlan) {
-					console.log('✅ User has plan:', userData.currentPlan);
-					
-					// Step 3: Fetch events only if plan exists
-					const response = await apiClient.get("/api/v1/events");
+						// Step 2: Check the fetched userData (not state!) for plan
+						if (userData.currentPlan) {
+							console.log('✅ User has plan:', userData.currentPlan);
+							
+							// Step 3: Fetch events only if plan exists
+							const response = await apiClient.get("/api/v1/events");
 
-					if (response.data.success) {
-						setEvents(response.data.data.events);
-						console.log('✅ Events loaded');
-					} else {
-						setError("Failed to fetch events");
+							if (response.data.success) {
+								setEvents(response.data.data.events);
+								console.log('✅ Events loaded');
+							} else {
+								setError("Failed to fetch events");
+							}
+						} else {
+							console.log('ℹ️ No plan found - skipping events');
+						}
+					} catch (profileErr) {
+						console.log('⚠️ Profile check failed:', profileErr);
+						// User authentication might have expired, set userDetails to null
+						setUserDetails(null);
 					}
 				} else {
-					console.log('ℹ️ No plan found - skipping events');
+					// User is not authenticated - show public content
+					console.log('ℹ️ User not authenticated - showing public content');
+					setUserDetails(null);
 				}
 			} catch (err) {
-				setError(err.response?.data?.message || "Failed to load data");
 				console.error("Error:", err);
+				// Don't show error for unauthenticated users
+				if (authService.isAuthenticated()) {
+					setError(err.response?.data?.message || "Failed to load data");
+				}
 			} finally {
 				setLoading(false);
 			}
@@ -99,6 +117,31 @@ const UpcomingEvents = () => {
 							<p className='text-red-600'>{error}</p>
 						</div>
 					)
+				)}
+				{/* Show login CTA for non-authenticated users */}
+				{!userDetails && !loading && (
+					<div className='text-center py-12 bg-gradient-to-r from-teal-50 to-blue-50 rounded-lg'>
+						<h3 className='text-2xl font-bold text-gray-900 mb-4'>
+							Ready to Join Our Events?
+						</h3>
+						<p className='text-gray-700 mb-6'>
+							Sign up or log in to register for upcoming mixer events and start making meaningful connections.
+						</p>
+						<div className='flex justify-center space-x-4'>
+							<a
+								href='/signup'
+								className='bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white font-medium py-3 px-8 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg'
+							>
+								Sign Up
+							</a>
+							<a
+								href='/login'
+								className='bg-white text-teal-600 border-2 border-teal-600 font-medium py-3 px-8 rounded-lg hover:bg-teal-50 transition-colors'
+							>
+								Log In
+							</a>
+						</div>
+					</div>
 				)}
 				{userDetails?.backgroundVerification === "unpaid" && (
 					<BackgroundUnpaid handlePayForVerification={handlePayForVerification} />

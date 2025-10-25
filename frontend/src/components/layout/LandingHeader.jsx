@@ -23,6 +23,9 @@ const LandingHeader = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Hide auth buttons on login, signup, and forgot-password pages
+  const isAuthPage = ['/login', '/signup', '/forgot-password'].includes(location.pathname);
+
   return (
     <header className="bg-white shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -119,7 +122,7 @@ const LandingHeader = () => {
           <div className="hidden md:flex items-center space-x-4">
             {isAuthenticated ? (
               <ProfileDropdown />
-            ) : (
+            ) : !isAuthPage ? (
               <>
                 <Link
                   to="/login"
@@ -136,7 +139,7 @@ const LandingHeader = () => {
                   Sign Up
                 </Link>
               </>
-            )}
+            ) : null}
           </div>
 
           {/* Mobile menu button */}
@@ -269,7 +272,7 @@ const LandingHeader = () => {
                       Logout
                     </button>
                   </>
-                ) : (
+                ) : !isAuthPage ? (
                   <>
                     <Link
                       to="/login"
@@ -286,7 +289,7 @@ const LandingHeader = () => {
                       Sign Up
                     </Link>
                   </>
-                )}
+                ) : null}
               </div>
             </nav>
           </div>
