@@ -26,10 +26,12 @@ const ProfileDropdown = () => {
           email: userData.email || firebaseUser?.email,
         });
         
-        // Set profile image from backend (first image in array) or Firebase
+        // Set profile image from backend (primary image or first) or Firebase
         if (userData.images && userData.images.length > 0) {
-          setProfileImage(userData.images[0]);
-          console.log('📸 Using backend profile image');
+          // Find primary image where isPrimary is true
+          const primaryImg = userData.images.find(img => img.isPrimary);
+          setProfileImage(primaryImg?.url || userData.images[0]?.url);
+          console.log('📸 Using backend profile image', primaryImg ? '(primary)' : '(first)');
         } else if (firebaseUser?.photoURL) {
           setProfileImage(firebaseUser.photoURL);
           console.log('📸 Using Firebase profile image');

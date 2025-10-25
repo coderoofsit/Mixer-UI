@@ -37,63 +37,58 @@ export const SEXUALITY_OPTIONS = [
 export const RELATIONSHIP_OPTIONS = [
   'Looking for a long-term partner',
   'Just here for fun',
-  'still figuring it out'
+  'Still figuring it out'
 ];
 
 export const ETHNICITY_OPTIONS = [
   'Asian',
-  'Black/African Descent',
+  'Black/African',
   'Hispanic/Latino',
-  'White/Caucasian',
   'Middle Eastern',
-  'Native American',
-  'Pacific Islander',
-  'Mixed/Multiple',
-  'Other',
-  'Prefer not to say'
+  'Native American'
 ];
 
 export const FAMILY_PLANS_OPTIONS = [
-  'Want children',
-  "Don't want children",
-  'Have children',
-  'Open to children',
-  'Not sure yet'
+  "Don't want kids",
+  'Wants kids someday',
+  'Have kids already',
+  'Open to kids',
+  'Not decided yet'
 ];
 
 export const DRINKING_OPTIONS = [
   'Never',
-  'Socially',
-  'Regularly',
-  'Prefer not to say'
+  'Rarely',
+  'Sometimes',
+  'Often'
 ];
 
 export const SMOKING_OPTIONS = [
   'Never',
-  'Socially',
-  'Regularly',
-  'Trying to quit',
-  'Prefer not to say'
+  'Rarely',
+  'Sometimes',
+  'Often'
 ];
 
 export const RELIGION_OPTIONS = [
+  'Christianity',
+  'Islam',
+  'Judaism',
+  'Hinduism',
+  'Buddhism',
   'Agnostic',
   'Atheist',
-  'Buddhist',
-  'Catholic',
-  'Christian',
-  'Hindu',
-  'Jewish',
-  'Muslim',
-  'Spiritual',
+  'Spiritual, but not religious',
   'Other',
   'Prefer not to say'
 ];
 
 export const POLITICS_OPTIONS = [
   'Liberal',
-  'Moderate',
   'Conservative',
+  'Moderate',
+  'Progressive',
+  'Libertarian',
   'Not Political',
   'Prefer not to say'
 ];
@@ -143,35 +138,15 @@ export const INTERESTS_OPTIONS = [
 ];
 
 export const VALUES_OPTIONS = [
-  'Honesty',
-  'Loyalty',
-  'Respect',
-  'Communication',
-  'Trust',
-  'Kindness',
-  'Humor',
-  'Adventure',
-  'Ambition',
-  'Family',
-  'Career',
-  'Health',
-  'Spirituality',
+  'Family-oriented',
+  'Career-Focused',
   'Creativity',
-  'Intelligence',
-  'Compassion',
-  'Independence',
-  'Stability',
-  'Fun',
-  'Growth',
-  'Open-mindedness',
+  'Adventure & Travel',
   'Authenticity',
-  'Passion',
-  'Balance',
-  'Courage',
-  'Patience',
-  'Generosity',
-  'Mindfulness',
-  'Responsibility',
-  'Optimism'
+  'Ambition',
+  'Kindness & Empathy',
+  'Sense of Humor',
+  'Health & Fitness',
+  'Continuous Learning'
 ];
 

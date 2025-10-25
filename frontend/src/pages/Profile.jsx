@@ -5,6 +5,8 @@ import LandingHeader from "../components/layout/LandingHeader";
 import Footer from "../components/layout/Footer";
 import ImageUpload from "../components/ui/ImageUpload";
 import LoadingOverlay from "../components/ui/LoadingOverlay";
+import DatePicker from "../components/ui/DatePicker";
+import CustomDropdown from "../components/ui/CustomDropdown";
 import { authApi } from "../services/authApi";
 import authService from "../services/authService";
 import {
@@ -18,7 +20,6 @@ import {
   SMOKING_OPTIONS,
   RELIGION_OPTIONS,
   POLITICS_OPTIONS,
-  HEIGHT_OPTIONS,
   INTERESTS_OPTIONS,
   VALUES_OPTIONS,
 } from "../utils/profileOptions";
@@ -30,12 +31,17 @@ const Profile = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [pendingFiles, setPendingFiles] = useState([]);
   const [profileData, setProfileData] = useState({
+    name: "",
+    email: "",
     lookingFor: "",
     gender: "",
     images: [],
     dateOfBirth: "",
+    displayDateOfBirth: "", // For MM-DD-YYYY display in edit mode
     height: "",
-    interestedIn: [],
+    heightFeet: "",
+    heightInches: "",
+    interestedIn: "", // Changed from array to string for single select
     sexuality: "",
     relationshipType: "",
     ethnicity: "",
@@ -51,15 +57,28 @@ const Profile = () => {
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState("");
 
-  // Helper function to format date
+  // Helper function to format date to MM-DD-YYYY for display
   const formatDate = (dateString) => {
     if (!dateString) return "";
     const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", { 
-      year: "numeric", 
-      month: "long", 
-      day: "numeric" 
-    });
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${month}-${day}-${year}`;
+  };
+
+  // Helper function to convert YYYY-MM-DD to MM-DD-YYYY
+  const convertToDisplayDate = (isoDate) => {
+    if (!isoDate) return "";
+    const [year, month, day] = isoDate.split("-");
+    return `${month}-${day}-${year}`;
+  };
+
+  // Helper function to convert MM-DD-YYYY to YYYY-MM-DD
+  const convertToISODate = (displayDate) => {
+    if (!displayDate) return "";
+    const [month, day, year] = displayDate.split("-");
+    return `${year}-${month}-${day}`;
   };
 
   // Helper function to calculate age
@@ -73,6 +92,27 @@ const Profile = () => {
       age--;
     }
     return `${age} years old`;
+  };
+
+  // Helper function to parse height string (e.g., "5'10"") into feet and inches
+  const parseHeight = (heightString) => {
+    if (!heightString) return { feet: "", inches: "" };
+    const match = heightString.match(/^(\d+)'(\d+)"$/);
+    if (match) {
+      return {
+        feet: `${match[1]} ft`,
+        inches: `${match[2]} in`
+      };
+    }
+    return { feet: "", inches: "" };
+  };
+
+  // Helper function to combine feet and inches into height string (e.g., "5'10"")
+  const combineHeight = (feet, inches) => {
+    if (!feet || !inches) return "";
+    const feetNum = feet.replace(' ft', '');
+    const inchesNum = inches.replace(' in', '');
+    return `${feetNum}'${inchesNum}"`;
   };
 
   // Helper function to format array
@@ -97,13 +137,28 @@ const Profile = () => {
           formattedDOB = date.toISOString().split('T')[0];
         }
 
+        const parsedHeight = parseHeight(userData.height || "");
+        
+        // Convert interestedIn from array to string (take first element if array)
+        let interestedInValue = "";
+        if (Array.isArray(userData.interestedIn) && userData.interestedIn.length > 0) {
+          interestedInValue = userData.interestedIn[0];
+        } else if (typeof userData.interestedIn === 'string') {
+          interestedInValue = userData.interestedIn;
+        }
+
         setProfileData({
+          name: userData.name || "",
+          email: userData.email || "",
           lookingFor: userData.lookingFor || "",
           gender: userData.gender || "",
           images: userData.images || [],
           dateOfBirth: formattedDOB,
+          displayDateOfBirth: convertToDisplayDate(formattedDOB),
           height: userData.height || "",
-          interestedIn: userData.interestedIn || [],
+          heightFeet: parsedHeight.feet,
+          heightInches: parsedHeight.inches,
+          interestedIn: interestedInValue,
           sexuality: userData.sexuality || "",
           relationshipType: userData.relationshipType || "",
           ethnicity: userData.ethnicity || "",
@@ -130,6 +185,7 @@ const Profile = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    
     setProfileData((prev) => ({
       ...prev,
       [name]: value,
@@ -274,16 +330,22 @@ const Profile = () => {
   const validateForm = () => {
     const newErrors = {};
 
-    if (profileData.dateOfBirth) {
-      const birthDate = new Date(profileData.dateOfBirth);
-      const today = new Date();
-      let age = today.getFullYear() - birthDate.getFullYear();
-      const monthDiff = today.getMonth() - birthDate.getMonth();
-      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
-      }
-      if (age < 18) {
-        newErrors.dateOfBirth = "You must be at least 18 years old";
+    // Validate date format and age
+    if (profileData.displayDateOfBirth) {
+      const dateRegex = /^(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])-(\d{4})$/;
+      if (!dateRegex.test(profileData.displayDateOfBirth)) {
+        newErrors.dateOfBirth = "Invalid date format. Use MM-DD-YYYY (e.g., 01-15-1990)";
+      } else if (profileData.dateOfBirth) {
+        const birthDate = new Date(profileData.dateOfBirth);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+          age--;
+        }
+        if (age < 21) {
+          newErrors.dateOfBirth = "You must be at least 21 years old";
+        }
       }
     }
 
@@ -307,12 +369,19 @@ const Profile = () => {
     setSuccessMessage("");
 
     try {
+      // Combine height feet and inches
+      const combinedHeight = combineHeight(profileData.heightFeet, profileData.heightInches);
+      
+      // Convert interestedIn string to array for backend (backend expects array)
+      const interestedInArray = profileData.interestedIn ? [profileData.interestedIn] : [];
+
       const updateData = {
+        name: profileData.name,
         lookingFor: profileData.lookingFor,
         gender: profileData.gender,
         dateOfBirth: profileData.dateOfBirth,
-        height: profileData.height,
-        interestedIn: profileData.interestedIn,
+        height: combinedHeight,
+        interestedIn: interestedInArray,
         sexuality: profileData.sexuality,
         relationshipType: profileData.relationshipType,
         ethnicity: profileData.ethnicity,
@@ -484,12 +553,14 @@ const Profile = () => {
               )}
 
               {/* Basic Details */}
-              {(profileData.gender || profileData.dateOfBirth || profileData.height) && (
+              {(profileData.name || profileData.email || profileData.gender || profileData.dateOfBirth || profileData.height) && (
                 <Card>
                   <Card.Header>
                     <Card.Title>Basic Details</Card.Title>
                   </Card.Header>
                   <Card.Content>
+                    {renderViewField("Name", profileData.name)}
+                    {renderViewField("Email", profileData.email)}
                     {renderViewField("Gender", profileData.gender)}
                     {profileData.dateOfBirth && renderViewField("Birthday", formatDate(profileData.dateOfBirth))}
                     {profileData.dateOfBirth && renderViewField("Age", calculateAge(profileData.dateOfBirth))}
@@ -499,13 +570,13 @@ const Profile = () => {
               )}
 
               {/* Dating Preferences */}
-              {(profileData.interestedIn.length > 0 || profileData.sexuality || profileData.relationshipType) && (
+              {(profileData.interestedIn || profileData.sexuality || profileData.relationshipType) && (
                 <Card>
                   <Card.Header>
                     <Card.Title>Dating Preferences</Card.Title>
                   </Card.Header>
                   <Card.Content>
-                    {renderChips(profileData.interestedIn, "Interested In")}
+                    {renderViewField("Interested In", profileData.interestedIn)}
                     {/* {renderViewField("Sexuality", profileData.sexuality)} */}
                     {renderViewField("Relationship Type", profileData.relationshipType)}
                   </Card.Content>
@@ -645,6 +716,22 @@ const Profile = () => {
                   <Card.Description>Tell us about yourself</Card.Description>
                 </Card.Header>
                 <Card.Content className="space-y-6">
+                  {/* Name */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Name
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={profileData.name}
+                      onChange={handleChange}
+                      placeholder="Enter your full name"
+                      maxLength={50}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors duration-200"
+                    />
+                  </div>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Gender */}
                     <div>
@@ -671,12 +758,21 @@ const Profile = () => {
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Birthday
                       </label>
-                      <input
-                        type="date"
-                        name="dateOfBirth"
-                        value={profileData.dateOfBirth}
-                        onChange={handleChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors duration-200"
+                      <DatePicker
+                        value={profileData.displayDateOfBirth}
+                        onChange={(newDate) => {
+                          setProfileData(prev => ({
+                            ...prev,
+                            displayDateOfBirth: newDate,
+                            dateOfBirth: convertToISODate(newDate)
+                          }));
+                          if (errors.dateOfBirth) {
+                            setErrors(prev => ({ ...prev, dateOfBirth: '' }));
+                          }
+                        }}
+                        placeholder="MM-DD-YYYY"
+                        minAge={21}
+                        className="w-full"
                       />
                       {errors.dateOfBirth && (
                         <p className="text-sm text-red-600 mt-1">{errors.dateOfBirth}</p>
@@ -688,19 +784,20 @@ const Profile = () => {
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Height
                       </label>
-                      <select
-                        name="height"
-                        value={profileData.height}
-                        onChange={handleChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors duration-200"
-                      >
-                        <option value="">Select height</option>
-                        {HEIGHT_OPTIONS.map((option) => (
-                          <option key={option} value={option}>
-                            {option}
-                          </option>
-                        ))}
-                      </select>
+                      <div className="grid grid-cols-2 gap-2">
+                        <CustomDropdown
+                          value={profileData.heightFeet}
+                          options={["3 ft", "4 ft", "5 ft", "6 ft", "7 ft", "8 ft"]}
+                          placeholder="Feet"
+                          onChange={(value) => setProfileData(prev => ({ ...prev, heightFeet: value }))}
+                        />
+                        <CustomDropdown
+                          value={profileData.heightInches}
+                          options={Array.from({ length: 12 }, (_, i) => `${i} in`)}
+                          placeholder="Inches"
+                          onChange={(value) => setProfileData(prev => ({ ...prev, heightInches: value }))}
+                        />
+                      </div>
                     </div>
                   </div>
                 </Card.Content>
@@ -722,13 +819,19 @@ const Profile = () => {
                       {INTERESTED_IN_OPTIONS.map((option) => (
                         <label
                           key={option}
-                          className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                          className={`flex items-center p-3 border-2 rounded-lg cursor-pointer transition-colors ${
+                            profileData.interestedIn === option
+                              ? 'border-teal-600 bg-teal-50'
+                              : 'border-gray-200 hover:bg-gray-50'
+                          }`}
                         >
                           <input
-                            type="checkbox"
-                            checked={profileData.interestedIn.includes(option)}
-                            onChange={() => handleCheckboxChange('interestedIn', option)}
-                            className="h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded"
+                            type="radio"
+                            name="interestedIn"
+                            value={option}
+                            checked={profileData.interestedIn === option}
+                            onChange={(e) => setProfileData(prev => ({ ...prev, interestedIn: e.target.value }))}
+                            className="h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300"
                           />
                           <span className="ml-3 text-sm text-gray-700">{option}</span>
                         </label>

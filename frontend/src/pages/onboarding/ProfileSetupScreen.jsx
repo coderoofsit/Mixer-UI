@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import OnboardingLayout from "../../components/layout/OnboardingLayout";
 import CustomDropdown from "../../components/ui/CustomDropdown";
+import DatePicker from "../../components/ui/DatePicker";
 import { authApi } from "../../services/authApi";
 import { mapProfileFieldsToBackend } from "../../utils/profileFieldMapper";
 import LandingHeader from "../../components/layout/LandingHeader";
@@ -11,9 +12,7 @@ const ProfileSetupScreen = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
-    month: "",
-    day: "",
-    year: "",
+    dateOfBirth: "", // MM-DD-YYYY format
     gender: "",
     heightFeet: "",
     heightInches: "",
@@ -29,30 +28,6 @@ const ProfileSetupScreen = () => {
   const genderRef = useRef(null);
   const consentRef = useRef(null);
 
-  // Generate month, day, year options
-  const months = [
-    { value: "01", label: "January" },
-    { value: "02", label: "February" },
-    { value: "03", label: "March" },
-    { value: "04", label: "April" },
-    { value: "05", label: "May" },
-    { value: "06", label: "June" },
-    { value: "07", label: "July" },
-    { value: "08", label: "August" },
-    { value: "09", label: "September" },
-    { value: "10", label: "October" },
-    { value: "11", label: "November" },
-    { value: "12", label: "December" },
-  ];
-
-  const days = Array.from({ length: 31 }, (_, i) => 
-    (i + 1).toString().padStart(2, '0')
-  );
-
-  const years = Array.from({ length: 100 }, (_, i) => 
-    (2024 - i).toString()
-  );
-
   const genders = ["Male", "Female", "Other Gender"];
 
   const heightFeet = ["3 ft", "4 ft", "5 ft", "6 ft", "7 ft", "8 ft"];
@@ -66,16 +41,28 @@ const ProfileSetupScreen = () => {
     }
   };
 
+  // Parse MM-DD-YYYY to local Date
+  const parseDate = (dateString) => {
+    if (!dateString) return null;
+    const [month, day, year] = dateString.split('-');
+    if (!month || !day || !year) return null;
+    return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+  };
+
+  // Convert MM-DD-YYYY to YYYY-MM-DD
+  const convertToISODate = (displayDate) => {
+    if (!displayDate) return "";
+    const [month, day, year] = displayDate.split("-");
+    return `${year}-${month}-${day}`;
+  };
+
   const validateAge = () => {
-    if (!formData.month || !formData.day || !formData.year) {
+    if (!formData.dateOfBirth) {
       return false;
     }
 
-    const birthDate = new Date(
-      parseInt(formData.year),
-      parseInt(formData.month) - 1,
-      parseInt(formData.day)
-    );
+    const birthDate = parseDate(formData.dateOfBirth);
+    if (!birthDate) return false;
 
     const today = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();
@@ -95,7 +82,7 @@ const ProfileSetupScreen = () => {
       newErrors.name = "Please enter your name";
     }
 
-    if (!formData.month || !formData.day || !formData.year) {
+    if (!formData.dateOfBirth) {
       newErrors.dob = "Please select your date of birth";
     } else if (!validateAge()) {
       newErrors.dob = "You must be at least 21 years old";
@@ -130,8 +117,8 @@ const ProfileSetupScreen = () => {
     setErrors({});
 
     try {
-      // Format data for backend
-      const dateOfBirth = `${formData.year}-${formData.month}-${formData.day}`;
+      // Convert MM-DD-YYYY to YYYY-MM-DD for backend
+      const dateOfBirth = convertToISODate(formData.dateOfBirth);
       const height = formData.heightFeet && formData.heightInches
         ? `${formData.heightFeet.replace(' ft', '')}'${formData.heightInches.replace(' in', '')}"`
         : null;
@@ -267,29 +254,13 @@ const ProfileSetupScreen = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-1 sm:gap-2">
-            <CustomDropdown
-              value={formData.month}
-              options={months.map(m => m.label)}
-              placeholder="Month"
-              onChange={(value) => {
-                const month = months.find(m => m.label === value);
-                handleChange("month", month?.value || "");
-              }}
-            />
-            <CustomDropdown
-              value={formData.day}
-              options={days}
-              placeholder="Day"
-              onChange={(value) => handleChange("day", value)}
-            />
-            <CustomDropdown
-              value={formData.year}
-              options={years}
-              placeholder="Year"
-              onChange={(value) => handleChange("year", value)}
-            />
-          </div>
+          <DatePicker
+            value={formData.dateOfBirth}
+            onChange={(value) => handleChange("dateOfBirth", value)}
+            placeholder="Select your birthday"
+            minAge={21}
+            className="w-full"
+          />
           {errors.dob && (
             <p className="text-red-500 text-xs mt-2">{errors.dob}</p>
           )}
