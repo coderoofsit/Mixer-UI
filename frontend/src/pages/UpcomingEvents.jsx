@@ -41,37 +41,43 @@ const UpcomingEvents = () => {
 
 	// Fetch events when component mounts
 	useEffect(() => {
-		const fetchEvents = async () => {
+		const initializeData = async () => {
 			try {
 				setLoading(true);
 				setError(null);
 
-				const response = await apiClient.get("/api/v1/events");
+				// Step 1: Fetch user profile first
+				const profileCheck = await authService.checkProfileCompletion();
+				console.log({ profileCheck });
+				const userData = profileCheck?.profile || {};
+				console.log({ userData });
+				setUserDetails(userData);
 
-				if (response.data.success) {
-					setEvents(response.data.data.events);
+				// Step 2: Check the fetched userData (not state!) for plan
+				if (userData.currentPlan) {
+					console.log('✅ User has plan:', userData.currentPlan);
+					
+					// Step 3: Fetch events only if plan exists
+					const response = await apiClient.get("/api/v1/events");
+
+					if (response.data.success) {
+						setEvents(response.data.data.events);
+						console.log('✅ Events loaded');
+					} else {
+						setError("Failed to fetch events");
+					}
 				} else {
-					setError("Failed to fetch events");
+					console.log('ℹ️ No plan found - skipping events');
 				}
 			} catch (err) {
-				setError(err.response?.data?.message || "Failed to fetch events");
-				console.error("Error fetching events:", err);
+				setError(err.response?.data?.message || "Failed to load data");
+				console.error("Error:", err);
 			} finally {
 				setLoading(false);
 			}
 		};
 
-		const getProfile = async () => {
-			const profileCheck = await authService.checkProfileCompletion();
-			console.log({ profileCheck });
-			const userDetails = profileCheck?.profile || {};
-			console.log({ userDetails });
-			setUserDetails(userDetails || {});
-		};
-		getProfile();
-		if (userDetails?.status === "upgraded") {
-			fetchEvents();
-		}
+		initializeData();
 	}, []); // Empty dependency array - runs only when component mounts
 
 	// Event Feed Component
@@ -94,18 +100,16 @@ const UpcomingEvents = () => {
 						</div>
 					)
 				)}
-				{userDetails?.backgroundVerification === "unpaid" &&
-					userDetails?.status === "basic" && (
-						<BackgroundUnpaid handlePayForVerification={handlePayForVerification} />
-					)}
+				{userDetails?.backgroundVerification === "unpaid" && (
+					<BackgroundUnpaid handlePayForVerification={handlePayForVerification} />
+				)}
 				{userDetails?.backgroundVerification === "pending" && <BackgroundPending />}
 				{userDetails?.backgroundVerification === "approved" &&
-					userDetails?.status === "basic" && (
+					!userDetails?.currentPlan && (
 						<UpgradePlan handlePayForVerification={handlePayForVerification} />
 					)}
 				{userDetails?.backgroundVerification === "approved" &&
-					(userDetails?.status === "upgraded" ||
-						userDetails?.status === "quarterly") && (
+					userDetails?.currentPlan && (
 						<div className='space-y-8'>
 							{events.map((event) => (
 								<div key={event._id} className='bg-white overflow-hidden rounded-lg'>
