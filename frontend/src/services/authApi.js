@@ -77,5 +77,44 @@ export const authApi = {
       throw new Error(userMessage);
     }
   },
+
+  // Upload multiple profile images to Cloudinary (batch upload)
+  uploadProfileImages: async (imageFiles) => {
+    try {
+      const formData = new FormData();
+      
+      // Append all images to the form data
+      imageFiles.forEach((file) => {
+        formData.append('media', file); // Backend expects 'media' field for multiple files
+      });
+      
+      formData.append('folder', 'profile-images'); // Optional: organize in folder
+
+      const response = await apiClient.post('/api/v1/upload/images', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      
+      // Returns array of cloudinary upload results with url, public_id, etc.
+      return response.data;
+    } catch (error) {
+      console.error('Upload profile images error:', error);
+      const userMessage = getUserFriendlyMessage(error, 'Failed to Upload Images');
+      throw new Error(userMessage);
+    }
+  },
+
+  // Delete profile image from Cloudinary
+  deleteProfileImage: async (publicId) => {
+    try {
+      const response = await apiClient.delete(`/api/v1/upload/image/${encodeURIComponent(publicId)}`);
+      return response.data;
+    } catch (error) {
+      console.error('Delete profile image error:', error);
+      const userMessage = getUserFriendlyMessage(error, 'Failed to Delete Image');
+      throw new Error(userMessage);
+    }
+  },
 };
 
