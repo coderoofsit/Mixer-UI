@@ -22,6 +22,7 @@ import Terms from "./pages/Terms"; // Import the existing component
 import Privacy from "./pages/Privacy"; // Import the NEW component
 import CheckoutWrapper from "./pages/Payment";
 import PaymentSuccess from "./pages/PaymentSuccess";
+import GuestRoute from "./components/GuestRoute";
 
 function App() {
   useEffect(() => {
@@ -87,9 +88,12 @@ function App() {
             <Route path="/events" element={<UpcomingEvents />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/blind-mixers" element={<BlindMixers />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
+            
+            {/* Auth Routes - Only accessible to non-authenticated users */}
+            <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
+            <Route path="/signup" element={<GuestRoute><Signup /></GuestRoute>} />
+            <Route path="/forgot-password" element={<GuestRoute><ForgotPassword /></GuestRoute>} />
+            
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/matches" element={<Matches />} />
@@ -100,11 +104,11 @@ function App() {
             <Route path="/terms-conditions" element={<Terms />} />
             <Route path="/privacy-policy" element={<Privacy />} />
 
-            {/* Onboarding Routes */}
-            <Route path="/onboarding/profile-setup" element={<ProfileSetupScreen />} />
-            <Route path="/onboarding/photos" element={<PhotoGalleryScreen />} />
-            <Route path="/onboarding/interests" element={<InterestsValuesScreen />} />
-            <Route path="/onboarding/complete" element={<ProfileCompleteScreen />} />
+            {/* Onboarding Routes - Only accessible to non-authenticated users */}
+            <Route path="/onboarding/profile-setup" element={<GuestRoute><ProfileSetupScreen /></GuestRoute>} />
+            <Route path="/onboarding/photos" element={<GuestRoute><PhotoGalleryScreen /></GuestRoute>} />
+            <Route path="/onboarding/interests" element={<GuestRoute><InterestsValuesScreen /></GuestRoute>} />
+            <Route path="/onboarding/complete" element={<GuestRoute><ProfileCompleteScreen /></GuestRoute>} />
             <Route path="/payment/success" element={<PaymentSuccess />} />
             {/* Commented out - Only using first step for now */}
             {/* <Route path="/onboarding/photos" element={<PhotoGalleryScreen />} /> */}
