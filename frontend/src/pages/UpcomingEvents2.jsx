@@ -2,17 +2,18 @@ import React, { useState, useEffect } from "react";
 import apiClient from "../services/apiService";
 import LandingHeader from "../components/layout/LandingHeader";
 import Footer from "../components/layout/Footer";
-
-import authService from "../services/authService";
+import { useProfile } from "../contexts/ProfileContext";
 import { Link } from "react-router-dom";
 import { stripeService } from "../services/stripeService";
 
 const UpcomingEvents = () => {
+	// Get profile data from context (no API call needed!)
+	const { profileData, loading: profileLoading } = useProfile();
+	
 	// Event feed state management
 	const [events, setEvents] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
-	const [userDetails, setUserDetails] = useState();
 
 	// Event feed configuration (for future API integration)
 	// const feedId = 536;
@@ -88,13 +89,6 @@ const UpcomingEvents = () => {
 			}
 		};
 
-		const getProfile = async () => {
-			const profileCheck = await authService.checkProfileCompletion();
-			const userDetails = profileCheck?.profile?.data?.user || {};
-			console.log({ userDetails });
-			setUserDetails(userDetails || {});
-		};
-		getProfile();
 		fetchEvents();
 	}, []);
 
@@ -116,7 +110,7 @@ const UpcomingEvents = () => {
 			data-feed='536'
 			data-uid='68fa54e37ab5e'
 		>
-			{userDetails?.backgroundVerification === "unpaid" && (
+			{profileData?.backgroundVerification === "unpaid" && (
 				<div className='bg-white overflow-hidden border border-black'>
 					<div
 						className='w-full py-8 text-center'
@@ -150,7 +144,7 @@ const UpcomingEvents = () => {
 					</div>
 				</div>
 			)}
-			{userDetails?.isVerified && (
+			{profileData?.isVerified && (
 				<div
 					className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16'
 					style={{ border: "1px solid red" }}

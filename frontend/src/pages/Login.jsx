@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import authService from "../services/authService";
+import { useProfile } from "../contexts/ProfileContext";
 import LandingHeader from "../components/layout/LandingHeader";
 import Footer from "../components/layout/Footer";
 
@@ -13,6 +14,7 @@ const Login = () => {
 	const [error, setError] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
 	const navigate = useNavigate();
+	const { fetchProfile } = useProfile();
 
 	const handleChange = (e) => {
 		setFormData({
@@ -47,6 +49,10 @@ const Login = () => {
 			
 			await authService.signInWithEmail(sanitizedEmail, formData.password);
 
+			// Fetch profile immediately after successful login
+			console.log('✅ Login successful, fetching profile...');
+			await fetchProfile(true); // Force fetch to ensure fresh data
+
 			// Always redirect to home page after successful login
 			navigate("/");
 		} catch (err) {
@@ -75,6 +81,10 @@ const Login = () => {
 
 		try {
 			await authService.signInWithGoogle();
+
+			// Fetch profile immediately after successful login
+			console.log('✅ Google login successful, fetching profile...');
+			await fetchProfile(true); // Force fetch to ensure fresh data
 
 			// Always redirect to home page after successful login
 			navigate("/");

@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import authService from "../services/authService";
+import { useProfile } from "../contexts/ProfileContext";
 import LandingHeader from "../components/layout/LandingHeader";
 import Footer from "../components/layout/Footer";
 
@@ -18,6 +19,7 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
+  const { fetchProfile } = useProfile();
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -87,6 +89,11 @@ const Signup = () => {
       };
 
       await authService.signUpWithEmail(sanitizedData);
+      
+      // Fetch profile immediately after successful signup
+      console.log('✅ Signup successful, fetching profile...');
+      await fetchProfile(true); // Force fetch to ensure fresh data
+      
       // Redirect new users to onboarding to complete their profile
       navigate("/onboarding/profile-setup");
     } catch (err) {
@@ -115,6 +122,11 @@ const Signup = () => {
 
     try {
       await authService.signInWithGoogle();
+      
+      // Fetch profile immediately after successful signup
+      console.log('✅ Google signup successful, fetching profile...');
+      await fetchProfile(true); // Force fetch to ensure fresh data
+      
       // Redirect new users to onboarding to complete their profile
       navigate("/onboarding/profile-setup");
     } catch (err) {

@@ -2,48 +2,28 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Logo from "../ui/Logo";
 import authService from "../../services/authService";
-import { authApi } from "../../services/authApi";
+import { useProfile } from "../../contexts/ProfileContext";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [profileImage, setProfileImage] = useState(null);
-  const [userName, setUserName] = useState("");
+  const { profileData, primaryImage, clearProfile, loading } = useProfile();
   const navigate = useNavigate();
 
+  // Check authentication based on authService AND profileData
+  const isAuthenticated = authService.isAuthenticated() || profileData !== null;
+
+  // Debug log
   useEffect(() => {
-    const checkAuth = async () => {
-      const authenticated = authService.isAuthenticated();
-      setIsAuthenticated(authenticated);
-
-      if (authenticated) {
-        try {
-          const response = await authApi.getUserProfile();
-          if (response.success && response.data) {
-            const userData = response.data.user || response.data;
-            setUserName(userData.name || "User");
-            
-            // Find primary image
-            if (userData.images && userData.images.length > 0) {
-              const primaryImg = userData.images.find(img => img.isPrimary);
-              setProfileImage(primaryImg?.url || userData.images[0]?.url);
-            }
-          }
-        } catch (error) {
-          console.error('Failed to fetch profile:', error);
-        }
-      }
-    };
-
-    checkAuth();
-  }, []);
+    console.log('📍 Header - profileData:', profileData);
+    console.log('📍 Header - primaryImage:', primaryImage);
+    console.log('📍 Header - isAuthenticated:', isAuthenticated);
+  }, [profileData, primaryImage, isAuthenticated]);
 
   const handleSignOut = async () => {
     try {
       await authService.signOut();
+      clearProfile();
       setIsAuthenticated(false);
-      setProfileImage(null);
-      setUserName("");
       navigate("/");
     } catch (error) {
       console.error('Sign out error:', error);
@@ -89,15 +69,15 @@ const Header = () => {
             {isAuthenticated ? (
               <div className="flex items-center space-x-3">
                 <Link to="/profile" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-                  {profileImage ? (
+                  {primaryImage ? (
                     <img
-                      src={profileImage}
-                      alt={userName}
+                      src={primaryImage}
+                      alt={profileData?.name || "User"}
                       className="w-10 h-10 rounded-full object-cover border-2 border-primary-600"
                     />
                   ) : (
                     <div className="w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center text-white font-semibold border-2 border-primary-600">
-                      {userName.charAt(0).toUpperCase() || "U"}
+                      {profileData?.name?.charAt(0).toUpperCase() || "U"}
                     </div>
                   )}
                 </Link>
@@ -194,18 +174,18 @@ const Header = () => {
                       className="flex items-center space-x-3 py-2.5 px-4 rounded-lg hover:bg-gray-50"
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      {profileImage ? (
+                      {primaryImage ? (
                         <img
-                          src={profileImage}
-                          alt={userName}
+                          src={primaryImage}
+                          alt={profileData?.name || "User"}
                           className="w-10 h-10 rounded-full object-cover border-2 border-primary-600"
                         />
                       ) : (
                         <div className="w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center text-white font-semibold border-2 border-primary-600">
-                          {userName.charAt(0).toUpperCase() || "U"}
+                          {profileData?.name?.charAt(0).toUpperCase() || "U"}
                         </div>
                       )}
-                      <span className="text-gray-900 font-medium">{userName}</span>
+                      <span className="text-gray-900 font-medium">{profileData?.name || "User"}</span>
                     </Link>
                     <button
                       onClick={() => {

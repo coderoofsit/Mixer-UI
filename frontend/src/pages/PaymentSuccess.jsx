@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import authService from "../services/authService";
+import React, { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useProfile } from "../contexts/ProfileContext";
 import { stripeService } from "../services/stripeService";
+
 const producTypeMap = {
 	background_check: "com.mixerltd.mixerltd.background_check",
 	quarterly_membership: "com.mixerltd.mixerltd.upgrade",
@@ -10,36 +11,38 @@ const producTypeMap = {
 export default function PaymentSuccess() {
 	const location = useLocation();
 	const navigate = useNavigate();
-	const [userDetails, setUserDetails] = useState();
+	const { profileData, fetchProfile } = useProfile();
 	const params = new URLSearchParams(location.search);
 	const sessionId = params.get("session_id");
 	const productType = params.get("productType");
+	
 	console.log({ sessionId, productType });
+	
 	useEffect(() => {
 		console.log({ sessionId, productType });
-		const getProfile = async () => {
-			const profileCheck = await authService.checkProfileCompletion();
-			console.log({ profileCheck });
-			const userDetails = profileCheck?.profile || {};
-			console.log({ userDetails });
-			setUserDetails(userDetails || {});
-		};
-		if (!userDetails) {
-			getProfile();
+		
+		// Fetch profile if not already loaded
+		if (!profileData) {
+			console.log('⏳ Fetching profile...');
+			fetchProfile(true);
+			return;
 		}
-		const dummyFunction = async () => {
+		
+		const verifyPayment = async () => {
 			const response = await stripeService.verifyPaymentInIAP(
-				userDetails?.id,
+				profileData?.id,
 				producTypeMap[productType],
 				sessionId,
 			);
 			console.log({ response });
 		};
-		if (productType && userDetails) {
-			dummyFunction();
+		
+		if (productType && profileData) {
+			verifyPayment();
 		}
-	}, [userDetails, userDetails]);
-	console.log({ userDetails });
+	}, [profileData, productType, sessionId, fetchProfile]);
+	
+	console.log({ profileData });
 	return (
 		<div className='flex items-center justify-center min-h-screen bg-gray-100'>
 			<div className='bg-white p-8 rounded-xl shadow-lg text-center'>

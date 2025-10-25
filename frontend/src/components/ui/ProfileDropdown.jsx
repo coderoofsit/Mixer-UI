@@ -1,55 +1,23 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import authService from "../../services/authService";
+import { useProfile } from "../../contexts/ProfileContext";
 
 const ProfileDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState(null);
-  const [profileImage, setProfileImage] = useState(null);
+  const { profileData, primaryImage, clearProfile } = useProfile();
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Get user profile from backend
-    const fetchProfile = async () => {
-      try {
-        const profileCheck = await authService.checkProfileCompletion();
-        const userData = profileCheck?.profile || {};
-        
-        // Get Firebase user for fallback data
-        const firebaseUser = authService.getCurrentUser();
-        
-        // Set user data (combine backend + Firebase)
-        setUser({
-          ...firebaseUser,
-          displayName: userData.name || firebaseUser?.displayName,
-          email: userData.email || firebaseUser?.email,
-        });
-        
-        // Set profile image from backend (primary image or first) or Firebase
-        if (userData.images && userData.images.length > 0) {
-          // Find primary image where isPrimary is true
-          const primaryImg = userData.images.find(img => img.isPrimary);
-          setProfileImage(primaryImg?.url || userData.images[0]?.url);
-          console.log('📸 Using backend profile image', primaryImg ? '(primary)' : '(first)');
-        } else if (firebaseUser?.photoURL) {
-          setProfileImage(firebaseUser.photoURL);
-          console.log('📸 Using Firebase profile image');
-        } else {
-          setProfileImage(null);
-          console.log('📸 No profile image, using placeholder');
-        }
-      } catch (error) {
-        console.error('Error fetching profile:', error);
-        // Fallback to Firebase user
-        const firebaseUser = authService.getCurrentUser();
-        setUser(firebaseUser);
-        setProfileImage(firebaseUser?.photoURL || null);
-      }
-    };
-    
-    fetchProfile();
-  }, []);
+    if (profileData) {
+      setUser({
+        displayName: profileData.name,
+        email: profileData.email,
+      });
+    }
+  }, [profileData]);
 
   useEffect(() => {
     // Close dropdown when clicking outside
@@ -71,6 +39,7 @@ const ProfileDropdown = () => {
   const handleLogout = async () => {
     try {
       await authService.signOut();
+      clearProfile();
       setIsOpen(false);
       navigate("/");
     } catch (error) {
@@ -100,9 +69,9 @@ const ProfileDropdown = () => {
         aria-label="User menu"
       >
         <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-gray-200 hover:border-teal-500 transition-colors duration-200">
-          {profileImage ? (
+          {primaryImage ? (
             <img
-              src={profileImage}
+              src={primaryImage}
               alt="Profile"
               className="w-full h-full object-cover"
             />

@@ -23,6 +23,7 @@ import Privacy from "./pages/Privacy"; // Import the NEW component
 import CheckoutWrapper from "./pages/Payment";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { ProfileProvider } from "./contexts/ProfileContext";
 
 function App() {
   useEffect(() => {
@@ -82,8 +83,9 @@ function App() {
             v7_relativeSplatPath: true,
           }}
         >
-          <CustomCursor />
-          <Routes>
+          <ProfileProvider>
+            <CustomCursor />
+            <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/events" element={<UpcomingEvents />} />
             <Route path="/contact" element={<Contact />} />
@@ -117,6 +119,7 @@ function App() {
             {/* <Route path="/onboarding/interests" element={<InterestsValuesScreen />} /> */}
             {/* <Route path="/onboarding/complete" element={<ProfileCompleteScreen />} /> */}
           </Routes>
+          </ProfileProvider>
         </Router>
       </div>
     </ErrorBoundary>

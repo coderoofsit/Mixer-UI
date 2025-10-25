@@ -9,6 +9,7 @@ import DatePicker from "../components/ui/DatePicker";
 import CustomDropdown from "../components/ui/CustomDropdown";
 import { authApi } from "../services/authApi";
 import authService from "../services/authService";
+import { useProfile } from "../contexts/ProfileContext";
 import {
   GENDER_OPTIONS,
   INTERESTED_IN_OPTIONS,
@@ -25,6 +26,7 @@ import {
 } from "../utils/profileOptions";
 
 const Profile = () => {
+  const { updateProfile: updateProfileContext } = useProfile();
   const [loading, setLoading] = useState(false);
   const [fetchingProfile, setFetchingProfile] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -248,6 +250,12 @@ const Profile = () => {
           images: updatedImages,
         }));
 
+        // Update context with new images
+        updateProfileContext({
+          ...profileData,
+          images: updatedImages,
+        });
+
         setPendingFiles([]);
         setSuccessMessage(`${newImages.length} image(s) uploaded successfully!`);
         setTimeout(() => setSuccessMessage(""), 3000);
@@ -286,6 +294,12 @@ const Profile = () => {
           images: updatedImages,
         }));
 
+        // Update context with new images
+        updateProfileContext({
+          ...profileData,
+          images: updatedImages,
+        });
+
         setSuccessMessage("Image deleted successfully!");
         setTimeout(() => setSuccessMessage(""), 3000);
       }
@@ -308,6 +322,12 @@ const Profile = () => {
         ...prev,
         images: updatedImages,
       }));
+
+      // Update context with new images
+      updateProfileContext({
+        ...profileData,
+        images: updatedImages,
+      });
 
       setSuccessMessage("Primary image updated!");
       setTimeout(() => setSuccessMessage(""), 3000);
@@ -404,6 +424,17 @@ const Profile = () => {
       const response = await authApi.updateProfile(updateData);
 
       if (response.success) {
+        // Update the context with new profile data
+        const updatedUserData = response.data?.user || response.data;
+        if (updatedUserData) {
+          // Merge with current profileData to include images
+          const mergedData = {
+            ...updatedUserData,
+            images: profileData.images // Keep current images as they weren't part of this update
+          };
+          updateProfileContext(mergedData);
+        }
+        
         setSuccessMessage("Profile updated successfully!");
         setIsEditMode(false);
         setTimeout(() => setSuccessMessage(""), 3000);

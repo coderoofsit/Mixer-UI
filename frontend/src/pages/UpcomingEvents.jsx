@@ -5,18 +5,21 @@ import Footer from "../components/layout/Footer";
 import RegisterEventModal from "../components/ui/RegisterEventModal";
 import authService from "../services/authService";
 import { stripeService } from "../services/stripeService";
+import { useProfile } from "../contexts/ProfileContext";
 import BackgroundPending from "../components/BackgroundPending";
 import UpgradePlan from "../components/UpgradePlan";
 import BackgroundUnpaid from "../components/BackgroundUnpaid";
 
 const UpcomingEvents = () => {
+	// Get profile data from context (no API call needed!)
+	const { profileData, loading: profileLoading } = useProfile();
+	
 	// Local state for events
 	const [events, setEvents] = useState([]);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState(null);
 	const [selectedEvent, setSelectedEvent] = useState(null);
 	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [userDetails, setUserDetails] = useState();
 
 	const handlePayForVerification = async (productType, amount) => {
 		const response = await stripeService.createCheckoutSession(
@@ -39,64 +42,58 @@ const UpcomingEvents = () => {
 		setSelectedEvent(null);
 	};
 
-	// Fetch events when component mounts
+	// Fetch events when profileData is available and user has a plan
 	useEffect(() => {
-		const initializeData = async () => {
+		const fetchEvents = async () => {
+			// Don't fetch if profile is still loading
+			if (profileLoading) {
+				console.log('⏳ Profile is loading, waiting...');
+				return;
+			}
+
+			// Check if user is authenticated and has profile data
+			const isAuthenticated = authService.isAuthenticated();
+			
+			if (!isAuthenticated || !profileData) {
+				console.log('ℹ️ User not authenticated or no profile data - showing public content');
+				setEvents([]);
+				return;
+			}
+
+			// User is authenticated and has profile data
+			console.log('👤 Profile data from context:', profileData);
+
+			// Check if user has a plan
+			if (!profileData.currentPlan) {
+				console.log('ℹ️ No plan found - skipping events');
+				setEvents([]);
+				return;
+			}
+
+			// User has a plan, fetch events
 			try {
 				setLoading(true);
 				setError(null);
-
-				// Check if user is authenticated
-				const isAuthenticated = authService.isAuthenticated();
 				
-				if (isAuthenticated) {
-					// Step 1: Fetch user profile for authenticated users
-					try {
-						const profileCheck = await authService.checkProfileCompletion();
-						console.log({ profileCheck });
-						const userData = profileCheck?.profile || {};
-						console.log({ userData });
-						setUserDetails(userData);
+				console.log('✅ User has plan:', profileData.currentPlan);
+				const response = await apiClient.get("/api/v1/events");
 
-						// Step 2: Check the fetched userData (not state!) for plan
-						if (userData.currentPlan) {
-							console.log('✅ User has plan:', userData.currentPlan);
-							
-							// Step 3: Fetch events only if plan exists
-							const response = await apiClient.get("/api/v1/events");
-
-							if (response.data.success) {
-								setEvents(response.data.data.events);
-								console.log('✅ Events loaded');
-							} else {
-								setError("Failed to fetch events");
-							}
-						} else {
-							console.log('ℹ️ No plan found - skipping events');
-						}
-					} catch (profileErr) {
-						console.log('⚠️ Profile check failed:', profileErr);
-						// User authentication might have expired, set userDetails to null
-						setUserDetails(null);
-					}
+				if (response.data.success) {
+					setEvents(response.data.data.events);
+					console.log('✅ Events loaded');
 				} else {
-					// User is not authenticated - show public content
-					console.log('ℹ️ User not authenticated - showing public content');
-					setUserDetails(null);
+					setError("Failed to fetch events");
 				}
 			} catch (err) {
-				console.error("Error:", err);
-				// Don't show error for unauthenticated users
-				if (authService.isAuthenticated()) {
-					setError(err.response?.data?.message || "Failed to load data");
-				}
+				console.error("Error fetching events:", err);
+				setError(err.response?.data?.message || "Failed to load events");
 			} finally {
 				setLoading(false);
 			}
 		};
 
-		initializeData();
-	}, []); // Empty dependency array - runs only when component mounts
+		fetchEvents();
+	}, [profileData, profileLoading]); // Re-run when profileData or profileLoading changes
 
 	// Event Feed Component
 	const EventFeed = () => (
@@ -119,7 +116,7 @@ const UpcomingEvents = () => {
 					)
 				)}
 				{/* Show login CTA for non-authenticated users */}
-				{!userDetails && !loading && (
+				{!profileData && !profileLoading && !loading && (
 					<div className='text-center py-12 bg-gradient-to-r from-teal-50 to-blue-50 rounded-lg'>
 						<h3 className='text-2xl font-bold text-gray-900 mb-4'>
 							Ready to Join Our Events?
@@ -143,16 +140,16 @@ const UpcomingEvents = () => {
 						</div>
 					</div>
 				)}
-				{userDetails?.backgroundVerification === "unpaid" && (
+				{profileData?.backgroundVerification === "unpaid" && (
 					<BackgroundUnpaid handlePayForVerification={handlePayForVerification} />
 				)}
-				{userDetails?.backgroundVerification === "pending" && <BackgroundPending />}
-				{userDetails?.backgroundVerification === "approved" &&
-					!userDetails?.currentPlan && (
+				{profileData?.backgroundVerification === "pending" && <BackgroundPending />}
+				{profileData?.backgroundVerification === "approved" &&
+					!profileData?.currentPlan && (
 						<UpgradePlan handlePayForVerification={handlePayForVerification} />
 					)}
-				{userDetails?.backgroundVerification === "approved" &&
-					userDetails?.currentPlan && (
+				{profileData?.backgroundVerification === "approved" &&
+					profileData?.currentPlan && (
 						<div className='space-y-6 md:space-y-8'>
 							{events.map((event) => (
 								<div key={event._id} className='bg-white overflow-hidden rounded-lg shadow-sm'>
