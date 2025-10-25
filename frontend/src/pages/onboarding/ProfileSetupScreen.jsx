@@ -184,11 +184,11 @@ const ProfileSetupScreen = () => {
         title="Mixer Starts with"
         subtitle="Your Personal Touch"
       >
-      <div className="px-6 py-8 space-y-6 lg:px-8">
+      <div className="px-4 sm:px-6 py-6 sm:py-8 space-y-4 sm:space-y-6 lg:px-8">
         {/* Name Field */}
         <div
           ref={nameRef}
-          className="p-6 rounded-2xl shadow-md"
+          className="p-4 sm:p-6 rounded-2xl shadow-md"
           style={{ backgroundColor: "#F8F4F7" }}
         >
           <div className="flex items-center mb-4">
@@ -267,7 +267,7 @@ const ProfileSetupScreen = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-3 gap-1 sm:gap-2">
             <CustomDropdown
               value={formData.month}
               options={months.map(m => m.label)}
@@ -362,7 +362,7 @@ const ProfileSetupScreen = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-1 sm:gap-2">
             <CustomDropdown
               value={formData.heightFeet}
               options={heightFeet}

@@ -3,27 +3,29 @@ import React from "react";
 const Footer = () => {
   return (
     <footer
-      className="text-white py-12 mx-4 sm:mx-6 lg:mx-8"
+      className="text-white py-8 md:py-12 mx-4 sm:mx-6 lg:mx-8"
       style={{ backgroundColor: "#A42831" }}
     >
       <div className="max-w-7xl mx-auto text-center">
-        <p className="text-sm">
-          © Copyright 2025 | Mixer | All Rights Reserved |{" "}
-          <a href="/privacy-policy" className="text-white hover:text-teal-400">
+        <p className="text-xs sm:text-sm leading-relaxed">
+          <span className="block sm:inline">© Copyright 2025 | Mixer | All Rights Reserved</span>
+          <span className="hidden sm:inline"> | </span>
+          <a href="/privacy-policy" className="block sm:inline text-white hover:text-teal-400 my-1 sm:my-0">
             Privacy Policy
-          </a>{" "}
-          |{" "}
+          </a>
+          <span className="hidden sm:inline"> | </span>
           <a
             href="/terms-conditions"
-            className="text-white hover:text-teal-400"
+            className="block sm:inline text-white hover:text-teal-400 my-1 sm:my-0"
           >
             Terms & Conditions
-          </a>{" "}
-          |{" "}
-          <a href="/contact" className="text-white hover:text-teal-400">
+          </a>
+          <span className="hidden sm:inline"> | </span>
+          <a href="/contact" className="block sm:inline text-white hover:text-teal-400 my-1 sm:my-0">
             Contact Support
-          </a>{" "}
-          | Powered by Mountain Air Marketing
+          </a>
+          <span className="hidden sm:inline"> | </span>
+          <span className="block sm:inline mt-2 sm:mt-0">Powered by Mountain Air Marketing</span>
         </p>
       </div>
     </footer>

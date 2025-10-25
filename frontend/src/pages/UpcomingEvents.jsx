@@ -153,26 +153,26 @@ const UpcomingEvents = () => {
 					)}
 				{userDetails?.backgroundVerification === "approved" &&
 					userDetails?.currentPlan && (
-						<div className='space-y-8'>
+						<div className='space-y-6 md:space-y-8'>
 							{events.map((event) => (
-								<div key={event._id} className='bg-white overflow-hidden rounded-lg'>
-									<div className='flex items-center'>
+								<div key={event._id} className='bg-white overflow-hidden rounded-lg shadow-sm'>
+									<div className='flex flex-col md:flex-row md:items-center'>
 										{/* Left Side - Date Only */}
-										<div className='w-24 p-4 flex flex-col justify-start flex-shrink-0'>
-											<div className='text-center'>
-												<div className='text-sm text-blue-800 font-medium mb-1'>
+										<div className='w-full md:w-20 lg:w-24 p-3 md:p-4 flex md:flex-col justify-start flex-shrink-0 border-b md:border-b-0 md:border-r border-gray-100'>
+											<div className='text-center md:text-center'>
+												<div className='text-xs md:text-sm text-blue-800 font-medium mb-0 md:mb-1'>
 													{new Date(event.date)
 														.toLocaleDateString("en-US", { weekday: "short" })
 														.toUpperCase()}
 												</div>
-												<div className='text-2xl font-bold text-blue-800'>
+												<div className='text-xl md:text-2xl font-bold text-blue-800 ml-2 md:ml-0'>
 													{new Date(event.date).getDate()}
 												</div>
 											</div>
 										</div>
 
 										{/* Middle - All Other Content */}
-										<div className='flex-1 p-4 min-w-0'>
+										<div className='flex-1 p-3 md:p-4 min-w-0'>
 											{/* Date and Time */}
 											<div className='text-xs mb-1' style={{ color: "#6f7287" }}>
 												{new Date(event.date)
@@ -186,7 +186,7 @@ const UpcomingEvents = () => {
 											</div>
 
 											{/* Event Title */}
-											<h3 className='text-sm font-bold text-gray-900 mb-1'>
+											<h3 className='text-sm md:text-base font-bold text-gray-900 mb-1'>
 												{event.title}
 											</h3>
 
@@ -196,7 +196,7 @@ const UpcomingEvents = () => {
 												style={{ color: "#6f7287" }}
 											>
 												<svg
-													className='w-4 h-4'
+													className='w-3 h-3 md:w-4 md:h-4 flex-shrink-0'
 													fill='none'
 													stroke='currentColor'
 													viewBox='0 0 24 24'
@@ -214,12 +214,12 @@ const UpcomingEvents = () => {
 														d='M15 11a3 3 0 11-6 0 3 3 0 016 0z'
 													/>
 												</svg>
-												<span className='text-xs'>{event.location}</span>
+												<span className='text-xs truncate'>{event.location}</span>
 											</div>
 
 											{/* Event Description */}
 											<p
-												className='text-xs leading-tight mb-2'
+												className='text-xs leading-tight mb-2 line-clamp-2 md:line-clamp-none'
 												style={{ color: "#6f7287" }}
 											>
 												{event.description}
@@ -227,7 +227,7 @@ const UpcomingEvents = () => {
 
 											{/* Tags */}
 											{event.tags && event.tags.length > 0 && (
-												<div className='flex items-center space-x-1 mb-2'>
+												<div className='flex items-center flex-wrap gap-1 mb-2'>
 													{event.tags.map((tag, index) => (
 														<div
 															key={index}
@@ -242,10 +242,10 @@ const UpcomingEvents = () => {
 											)}
 
 											{/* Action Buttons */}
-											<div className='flex space-x-2 mt-1'>
+											<div className='flex flex-wrap gap-2 mt-2'>
 												<button
 													onClick={() => handleRegisterClick(event)}
-													className='bg-blue-800 text-white px-3 py-1 rounded text-xs font-bold shadow-md hover:bg-blue-900 transition-colors'
+													className='bg-blue-800 text-white px-3 py-1.5 md:py-1 rounded text-xs font-bold shadow-md hover:bg-blue-900 transition-colors'
 												>
 													Register
 												</button>
@@ -253,7 +253,7 @@ const UpcomingEvents = () => {
 													href={event.link}
 													target='_blank'
 													rel='noopener noreferrer'
-													className='bg-white text-blue-600 border border-blue-600 px-3 py-1 rounded text-xs font-bold shadow-md hover:bg-blue-50 transition-colors inline-block'
+													className='bg-white text-blue-600 border border-blue-600 px-3 py-1.5 md:py-1 rounded text-xs font-bold shadow-md hover:bg-blue-50 transition-colors inline-block'
 												>
 													View details
 												</a>
@@ -261,8 +261,8 @@ const UpcomingEvents = () => {
 										</div>
 
 										{/* Right Side - Event Image */}
-										<div className='w-96 flex-shrink-0 p-2 ml-16'>
-											<div className='w-full h-48 relative rounded-2xl shadow-sm border-2 border-transparent overflow-hidden'>
+										<div className='w-full md:w-48 lg:w-96 flex-shrink-0 p-3 md:p-2 md:ml-4 lg:ml-16'>
+											<div className='w-full h-40 md:h-32 lg:h-48 relative rounded-xl md:rounded-2xl shadow-sm border-2 border-transparent overflow-hidden'>
 												{event.imageUrl ? (
 													<img
 														src={event.imageUrl}
@@ -272,7 +272,7 @@ const UpcomingEvents = () => {
 												) : (
 													<div className='bg-gray-100 flex items-center justify-center h-full'>
 														<div className='text-center p-4'>
-															<div className='text-sm text-gray-500 font-medium'>
+															<div className='text-xs md:text-sm text-gray-500 font-medium'>
 																Event Image
 															</div>
 														</div>
@@ -297,23 +297,23 @@ const UpcomingEvents = () => {
 			<LandingHeader />
 
 			{/* Main Content */}
-			<div className='max-w-7xl mx-auto'>
-				<div className='grid lg:grid-cols-5 gap-8 min-h-screen'>
+			<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+				<div className='grid grid-cols-1 lg:grid-cols-5 gap-8 min-h-[400px] lg:min-h-screen'>
 					{/* Left Side - Image (40% width) */}
-					<div className='lg:col-span-2 relative'>
+					<div className='lg:col-span-2 relative h-64 lg:h-auto'>
 						<div
-							className='h-full w-full bg-cover bg-center bg-no-repeat'
+							className='h-full w-full bg-cover bg-center bg-no-repeat rounded-lg lg:rounded-none'
 							style={{
 								backgroundImage:
 									"url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')",
 							}}
 						>
-							<div className='absolute inset-0 bg-black bg-opacity-10'></div>
+							<div className='absolute inset-0 bg-black bg-opacity-10 rounded-lg lg:rounded-none'></div>
 
 							{/* Speech Bubble Overlay */}
 							<div className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'>
-								<div className='bg-white rounded-2xl px-6 py-4 shadow-lg max-w-xs'>
-									<p className='text-gray-800 text-sm font-medium'>
+								<div className='bg-white rounded-2xl px-4 py-3 md:px-6 md:py-4 shadow-lg max-w-xs'>
+									<p className='text-gray-800 text-xs md:text-sm font-medium'>
 										This fall, I'm looking for... <span className='text-red-500'>❤</span>
 									</p>
 								</div>
@@ -322,16 +322,15 @@ const UpcomingEvents = () => {
 					</div>
 
 					{/* Right Side - Content (60% width) */}
-					<div className='lg:col-span-3 bg-white p-8 lg:p-12 flex flex-col justify-center'>
+					<div className='lg:col-span-3 bg-white p-6 md:p-8 lg:p-12 flex flex-col justify-center'>
 						<div className='w-full'>
 							{/* Skip the Swipe */}
-							<p className='text-red-600 font-medium text-sm mb-2'>SKIP THE SWIPE</p>
+							<p className='text-red-600 font-medium text-xs md:text-sm mb-2'>SKIP THE SWIPE</p>
 
 							{/* Main Title */}
 							<h1
-								className='text-gray-900 mb-12 leading-tight'
+								className='text-gray-900 mb-8 md:mb-12 leading-tight text-3xl sm:text-4xl md:text-5xl lg:text-6xl'
 								style={{
-									fontSize: "65px",
 									fontWeight: "600",
 								}}
 							>
@@ -341,13 +340,13 @@ const UpcomingEvents = () => {
 							</h1>
 
 							{/* Steps */}
-							<div className='space-y-10'>
+							<div className='space-y-6 md:space-y-10'>
 								{/* Step 1 */}
 								<div>
-									<h3 className='text-lg font-bold mb-3' style={{ color: "#038386" }}>
+									<h3 className='text-base md:text-lg font-bold mb-2 md:mb-3' style={{ color: "#038386" }}>
 										STEP 1 | WE PICK THE PERFECT LOCAL SPOT
 									</h3>
-									<p className='text-gray-700 leading-relaxed text-sm'>
+									<p className='text-gray-700 leading-relaxed text-xs md:text-sm'>
 										We scout out the best places in town — think cozy lounges, rooftop
 										patios, or that new wine bar everyone's talking about. All you have to
 										do is show up ready to mingle (and maybe fall for someone unexpected).
@@ -356,10 +355,10 @@ const UpcomingEvents = () => {
 
 								{/* Step 2 */}
 								<div>
-									<h3 className='text-lg font-bold mb-3' style={{ color: "#A42831" }}>
+									<h3 className='text-base md:text-lg font-bold mb-2 md:mb-3' style={{ color: "#A42831" }}>
 										STEP 2 | GET BACKGROUND CHECKED AND BECOME A MEMBER
 									</h3>
-									<p className='text-gray-700 leading-relaxed text-sm'>
+									<p className='text-gray-700 leading-relaxed text-xs md:text-sm'>
 										No catfish. No creeps. Just real people looking for real connections.
 										Before joining the fun, every member goes through a quick background
 										check to keep our community safe, classy, and ick-free.
@@ -368,10 +367,10 @@ const UpcomingEvents = () => {
 
 								{/* Step 3 */}
 								<div>
-									<h3 className='text-lg font-bold mb-3' style={{ color: "#D59331" }}>
+									<h3 className='text-base md:text-lg font-bold mb-2 md:mb-3' style={{ color: "#D59331" }}>
 										STEP 3 | YOU ENJOY CURATED EVENT
 									</h3>
-									<p className='text-gray-700 leading-relaxed text-sm'>
+									<p className='text-gray-700 leading-relaxed text-xs md:text-sm'>
 										Sip, laugh, and spark something new. Each Mixer is designed to take
 										the pressure off — no awkward setups, just organic connections in a
 										fun, relaxed atmosphere. You never know who you'll meet next.

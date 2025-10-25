@@ -12,9 +12,9 @@ const ProfileCard = ({
   const { name, age, bio, interests, photos, distance } = profile;
 
   return (
-    <Card className="overflow-hidden max-w-sm mx-auto">
+    <Card className="overflow-hidden max-w-sm w-full mx-auto">
       {/* Photo */}
-      <div className="relative h-80 bg-gray-200">
+      <div className="relative h-64 sm:h-80 bg-gray-200">
         {photos && photos.length > 0 ? (
           <img
             src={photos[0]}

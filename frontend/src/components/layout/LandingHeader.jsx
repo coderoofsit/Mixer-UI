@@ -44,22 +44,22 @@ const LandingHeader = () => {
                 <img
                   src="/assets/mixerlogo.png"
                   alt="Mixer Logo"
-                  className="w-60 h-25"
+                  className="w-40 h-auto sm:w-48 md:w-60"
                 />
               </div>
             </Link>
           </div>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-8">
+          {/* Desktop/Tablet Navigation */}
+          <nav className="hidden md:flex space-x-2 lg:space-x-4 xl:space-x-8">
             <Link
               to="/"
-              className={`relative font-medium transition-all duration-500 ${
+              className={`relative font-medium transition-all duration-500 whitespace-nowrap ${
                 location.pathname === "/"
                   ? "text-black"
                   : "text-gray-700 hover:text-black"
               }`}
-              style={{ fontSize: "16px" }}
+              style={{ fontSize: "13px" }}
             >
               Home
               <span
@@ -70,12 +70,12 @@ const LandingHeader = () => {
             </Link>
             <Link
               to="/events"
-              className={`relative font-medium transition-all duration-500 ${
+              className={`relative font-medium transition-all duration-500 whitespace-nowrap ${
                 location.pathname === "/events"
                   ? "text-black"
                   : "text-gray-700 hover:text-black"
               }`}
-              style={{ fontSize: "16px" }}
+              style={{ fontSize: "13px" }}
             >
               Upcoming Events
               <span
@@ -86,12 +86,12 @@ const LandingHeader = () => {
             </Link>
             <Link
               to="/blind-mixers"
-              className={`relative font-medium transition-all duration-500 ${
+              className={`relative font-medium transition-all duration-500 whitespace-nowrap ${
                 location.pathname === "/blind-mixers"
                   ? "text-black"
                   : "text-gray-700 hover:text-black"
               }`}
-              style={{ fontSize: "16px" }}
+              style={{ fontSize: "13px" }}
             >
               Blind Mixers
               <span
@@ -102,12 +102,12 @@ const LandingHeader = () => {
             </Link>
             <Link
               to="/contact"
-              className={`relative font-medium transition-all duration-500 ${
+              className={`relative font-medium transition-all duration-500 whitespace-nowrap ${
                 location.pathname === "/contact"
                   ? "text-black"
                   : "text-gray-700 hover:text-black"
               }`}
-              style={{ fontSize: "16px" }}
+              style={{ fontSize: "13px" }}
             >
               Contact
               <span
@@ -118,23 +118,21 @@ const LandingHeader = () => {
             </Link>
           </nav>
 
-          {/* Auth Buttons / Profile - Desktop */}
-          <div className="hidden md:flex items-center space-x-4">
+          {/* Auth Buttons / Profile - Desktop/Tablet */}
+          <div className="hidden md:flex items-center space-x-1.5 lg:space-x-3 xl:space-x-4">
             {isAuthenticated ? (
               <ProfileDropdown />
             ) : !isAuthPage ? (
               <>
                 <Link
                   to="/login"
-                  className="text-gray-700 hover:text-teal-600 transition-colors font-medium px-4 py-2 rounded-lg hover:bg-teal-50"
-                  style={{ fontSize: "16px" }}
+                  className="text-gray-700 hover:text-teal-600 transition-colors font-medium px-2 lg:px-3 xl:px-4 py-2 rounded-lg hover:bg-teal-50 whitespace-nowrap text-xs lg:text-sm xl:text-base"
                 >
                   Login
                 </Link>
                 <Link
                   to="/signup"
-                  className="bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white font-medium py-2 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
-                  style={{ fontSize: "16px" }}
+                  className="bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white font-medium py-2 px-3 lg:px-4 xl:px-6 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg whitespace-nowrap text-xs lg:text-sm xl:text-base"
                 >
                   Sign Up
                 </Link>
@@ -177,8 +175,8 @@ const LandingHeader = () => {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden pb-4">
-            <nav className="flex flex-col space-y-4">
+          <div className="md:hidden pb-4 border-t border-gray-100 mt-2">
+            <nav className="flex flex-col space-y-3 pt-4">
               <Link
                 to="/"
                 className={`relative font-medium transition-all duration-500 ${
