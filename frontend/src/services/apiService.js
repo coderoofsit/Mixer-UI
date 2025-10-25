@@ -14,6 +14,9 @@ const apiClient = axios.create({
 	},
 });
 
+// Token refresh lock to prevent race conditions
+let tokenRefreshPromise = null;
+
 // Request interceptor to add Firebase token
 apiClient.interceptors.request.use(
   async (config) => {
@@ -28,20 +31,31 @@ apiClient.interceptors.request.use(
         const fiftyFiveMinutes = 55 * 60 * 1000;
         
         if (tokenAge >= fiftyFiveMinutes) {
-          // Token expired, get fresh token from Firebase
-          console.log('🔄 Token expired, fetching fresh token...');
-          const user = auth.currentUser;
-          if (user) {
-            token = await user.getIdToken(true);
-            const refreshToken = user.refreshToken;
-            
-            // Update localStorage with new tokens
-            localStorage.setItem('firebaseIdToken', token);
-            localStorage.setItem('firebaseRefreshToken', refreshToken);
-            localStorage.setItem('tokenTimestamp', Date.now().toString());
+          // Token expired, get fresh token with locking mechanism
+          if (!tokenRefreshPromise) {
+            tokenRefreshPromise = (async () => {
+              try {
+                const user = auth.currentUser;
+                if (user) {
+                  const newToken = await user.getIdToken(true);
+                  const refreshToken = user.refreshToken;
+                  
+                  // Update localStorage with new tokens
+                  localStorage.setItem('firebaseIdToken', newToken);
+                  localStorage.setItem('firebaseRefreshToken', refreshToken);
+                  localStorage.setItem('tokenTimestamp', Date.now().toString());
+                  
+                  return newToken;
+                }
+                return null;
+              } finally {
+                tokenRefreshPromise = null; // Release lock
+              }
+            })();
           }
-        } else {
-          console.log('🔑 Using cached token from localStorage');
+          
+          // Wait for token refresh to complete
+          token = await tokenRefreshPromise;
         }
       } else {
         // No token in localStorage, get from Firebase
@@ -78,6 +92,22 @@ apiClient.interceptors.response.use(
 			// Server responded with error
 			console.error("API Error Response:", error.response.data);
 			console.error("Status:", error.response.status);
+			
+			// Handle 401/403 - Unauthorized/Forbidden
+			if (error.response.status === 401 || error.response.status === 403) {
+				console.warn('🔒 Unauthorized access - clearing tokens and redirecting to login');
+				
+				// Clear all auth data
+				localStorage.removeItem('user');
+				localStorage.removeItem('firebaseIdToken');
+				localStorage.removeItem('firebaseRefreshToken');
+				localStorage.removeItem('tokenTimestamp');
+				localStorage.removeItem('userId');
+				localStorage.removeItem('isAnonymous');
+				
+				// Redirect to login page
+				window.location.href = '/login';
+			}
 		} else if (error.request) {
 			// Request made but no response
 			console.error("API Error: No response from server");

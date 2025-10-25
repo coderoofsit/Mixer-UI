@@ -25,8 +25,26 @@ const Login = () => {
 		setIsLoading(true);
 		setError("");
 
+		// Validation: Email format
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		if (!emailRegex.test(formData.email.trim())) {
+			setError("Please enter a valid email address.");
+			setIsLoading(false);
+			return;
+		}
+
+		// Validation: Password not empty
+		if (!formData.password || formData.password.length < 6) {
+			setError("Password must be at least 6 characters long.");
+			setIsLoading(false);
+			return;
+		}
+
 		try {
-			await authService.signInWithEmail(formData.email, formData.password);
+			// Sanitize email before sending
+			const sanitizedEmail = formData.email.trim().toLowerCase();
+			
+			await authService.signInWithEmail(sanitizedEmail, formData.password);
 
 			// Always redirect to home page after successful login
 			navigate("/");

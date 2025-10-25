@@ -40,8 +40,6 @@ class AuthService {
           localStorage.setItem('firebaseIdToken', idToken);
           localStorage.setItem('firebaseRefreshToken', refreshToken);
           localStorage.setItem('tokenTimestamp', Date.now().toString());
-          
-          console.log('🔑 Tokens stored in localStorage');
         } catch (error) {
           console.error('Error storing tokens:', error);
         }
@@ -61,8 +59,7 @@ class AuthService {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      console.log({user});
-      localStorage.setItem('accessToken', user?.accessToken);
+      
       return {
         uid: user.uid,
         email: user.email,
@@ -71,8 +68,7 @@ class AuthService {
         emailVerified: user.emailVerified
       };
     } catch (error) {
-      console.error('Sign in error:', error);
-      // Always pass Firebase errors through handleAuthError
+      // Don't log full error object which may contain sensitive data
       throw this.handleAuthError(error);
     }
   }
@@ -85,8 +81,6 @@ class AuthService {
       // Step 1: Create Firebase user
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      console.log({user});
-      localStorage.setItem('accessToken', user?.accessToken);
 
       // Update profile with display name
       if (fullName) {
@@ -99,14 +93,12 @@ class AuthService {
       const idToken = await user.getIdToken(true);
 
       // Step 3: Register with backend
-      console.log('🔄 Registering user with backend...');
       try {
         const registrationResult = await authApi.registerUser(email, idToken);
 
         if (registrationResult.success) {
           // Store userId in localStorage
           localStorage.setItem('userId', registrationResult.userId);
-          console.log('✅ Registration successful! User ID:', registrationResult.userId);
           
           return {
             uid: user.uid,
@@ -122,12 +114,22 @@ class AuthService {
         }
       } catch (backendError) {
         // Backend registration failed - delete the Firebase user and throw error
-        console.error('❌ Backend registration failed, cleaning up Firebase user...');
-        await user.delete();
+        
+        // Cleanup Firebase user with retry mechanism
+        try {
+          await user.delete();
+        } catch (deleteError) {
+          // Try signing out as fallback
+          try {
+            await firebaseSignOut(auth);
+          } catch (signOutError) {
+            console.error('⚠️ Cleanup failed - manual intervention may be required');
+          }
+        }
+        
         throw backendError;
       }
     } catch (error) {
-      console.error('Sign up error:', error);
       // Check if it's a Firebase error (has a 'code' property like 'auth/email-already-in-use')
       if (error?.code && error.code.startsWith('auth/')) {
         throw this.handleAuthError(error);
@@ -154,18 +156,24 @@ class AuthService {
       if (isNewUser) {
         try {
           const idToken = await user.getIdToken(true);
-          console.log('🔄 Registering new Google user with backend...');
           const registrationResult = await authApi.registerUser(user.email, idToken);
           
           if (registrationResult.success) {
             localStorage.setItem('userId', registrationResult.userId);
-            console.log('✅ Google user registration successful! User ID:', registrationResult.userId);
           }
         } catch (error) {
-          console.error('❌ Backend registration failed for Google user:', error);
-          // Delete Firebase user and throw error
-          await user.delete();
-          await firebaseSignOut(auth);
+          // Cleanup Firebase user with retry mechanism
+          try {
+            await user.delete();
+          } catch (deleteError) {
+            // Try signing out as fallback
+            try {
+              await firebaseSignOut(auth);
+            } catch (signOutError) {
+              console.error('⚠️ Cleanup failed - manual intervention may be required');
+            }
+          }
+          
           throw error;
         }
       }
@@ -179,7 +187,6 @@ class AuthService {
         isNewUser
       };
     } catch (error) {
-      console.error('Google sign in error:', error);
       // Check if it's a Firebase error (has a 'code' property like 'auth/...')
       if (error?.code && error.code.startsWith('auth/')) {
         throw this.handleAuthError(error);
@@ -202,18 +209,24 @@ class AuthService {
       if (isNewUser) {
         try {
           const idToken = await user.getIdToken(true);
-          console.log('🔄 Registering new Apple user with backend...');
           const registrationResult = await authApi.registerUser(user.email, idToken);
           
           if (registrationResult.success) {
             localStorage.setItem('userId', registrationResult.userId);
-            console.log('✅ Apple user registration successful! User ID:', registrationResult.userId);
           }
         } catch (error) {
-          console.error('❌ Backend registration failed for Apple user:', error);
-          // Delete Firebase user and throw error
-          await user.delete();
-          await firebaseSignOut(auth);
+          // Cleanup Firebase user with retry mechanism
+          try {
+            await user.delete();
+          } catch (deleteError) {
+            // Try signing out as fallback
+            try {
+              await firebaseSignOut(auth);
+            } catch (signOutError) {
+              console.error('⚠️ Cleanup failed - manual intervention may be required');
+            }
+          }
+          
           throw error;
         }
       }
@@ -227,7 +240,6 @@ class AuthService {
         isNewUser
       };
     } catch (error) {
-      console.error('Apple sign in error:', error);
       // Check if it's a Firebase error (has a 'code' property like 'auth/...')
       if (error?.code && error.code.startsWith('auth/')) {
         throw this.handleAuthError(error);
@@ -253,7 +265,6 @@ class AuthService {
         isAnonymous: true
       };
     } catch (error) {
-      console.error('Anonymous sign in error:', error);
       throw this.handleAuthError(error);
     }
   }
@@ -262,6 +273,7 @@ class AuthService {
   async signOut() {
     try {
       await firebaseSignOut(auth);
+      // Clear all auth data from localStorage
       localStorage.removeItem('user');
       localStorage.removeItem('authToken');
       localStorage.removeItem('isAnonymous');
@@ -269,9 +281,8 @@ class AuthService {
       localStorage.removeItem('firebaseRefreshToken');
       localStorage.removeItem('tokenTimestamp');
       localStorage.removeItem('userId');
-      console.log('🚪 User signed out and tokens cleared');
     } catch (error) {
-      console.error('Sign out error:', error);
+      console.error('Sign out error');
       throw error;
     }
   }
@@ -280,13 +291,11 @@ class AuthService {
   async resetPassword(email) {
     try {
       await sendPasswordResetEmail(auth, email);
-      console.log('Password reset email sent to:', email);
       return {
         success: true,
         message: 'Password reset email sent successfully'
       };
     } catch (error) {
-      console.error('Password reset error:', error);
       throw this.handleAuthError(error);
     }
   }
@@ -321,10 +330,7 @@ class AuthService {
           const fiftyFiveMinutes = 55 * 60 * 1000;
           
           if (tokenAge < fiftyFiveMinutes) {
-            console.log('🔑 Using cached token from localStorage');
             return storedToken;
-          } else {
-            console.log('🔄 Token expired, refreshing...');
           }
         }
       }
@@ -340,7 +346,6 @@ class AuthService {
         localStorage.setItem('firebaseRefreshToken', refreshToken);
         localStorage.setItem('tokenTimestamp', Date.now().toString());
         
-        console.log('🔑 Fresh token retrieved and stored');
         return token;
       }
       return null;
@@ -374,14 +379,10 @@ class AuthService {
   // Check if user profile is complete
   async checkProfileCompletion() {
     try {
-      console.log('🔍 Checking profile completion...');
       const response = await authApi.getUserProfile();
-      
-      console.log('📋 Profile response:', response);
 
       // Get the actual profile data from the response (nested under data.user)
       const profileData = response?.data?.user || response?.data || response;
-      console.log('📊 Profile data object:', profileData);
 
       // Check if required fields are present
       const hasName = profileData.name && profileData.name.trim() !== '';
@@ -389,11 +390,6 @@ class AuthService {
       const hasGender = profileData.gender && profileData.gender.trim() !== '';
 
       const isComplete = hasName && hasDOB && hasGender;
-
-      console.log(`✅ Profile completion check: ${isComplete ? 'COMPLETE ✓' : 'INCOMPLETE ✗'}`);
-      console.log(`   - Name: ${hasName ? '✓' : '✗'} (${profileData.name || 'missing'})`);
-      console.log(`   - DOB: ${hasDOB ? '✓' : '✗'} (${profileData.dateOfBirth || 'missing'})`);
-      console.log(`   - Gender: ${hasGender ? '✓' : '✗'} (${profileData.gender || 'missing'})`);
 
       return {
         isComplete,
@@ -405,7 +401,6 @@ class AuthService {
         }
       };
     } catch (error) {
-      console.error('❌ Error checking profile completion:', error);
       // If profile fetch fails, assume incomplete and send to onboarding
       return {
         isComplete: false,
@@ -419,8 +414,38 @@ class AuthService {
     }
   }
 
+  // Format Firebase REST API error messages
+  // Converts "INVALID_LOGIN_CREDENTIALS" to "Invalid Login Credentials"
+  formatFirebaseMessage(message) {
+    if (!message || typeof message !== 'string') {
+      return 'Authentication Failed. Please Try Again';
+    }
+    
+    // Replace underscores with spaces and convert to title case
+    return message
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+  }
+
   // Handle authentication errors - return simple, user-friendly messages
   handleAuthError(error) {
+    // Handle Firebase REST API errors with format: { error: { code: 400, message: "INVALID_LOGIN_CREDENTIALS" } }
+    if (error?.error?.message) {
+      const formattedMessage = this.formatFirebaseMessage(error.error.message);
+      return new Error(formattedMessage);
+    }
+
+    // Handle Firebase REST API errors that might be nested differently
+    if (error?.message && typeof error.message === 'string' && error.message.includes('_')) {
+      // Check if it looks like a Firebase error code (all caps with underscores)
+      if (error.message === error.message.toUpperCase() && error.message.includes('_')) {
+        const formattedMessage = this.formatFirebaseMessage(error.message);
+        return new Error(formattedMessage);
+      }
+    }
+
+    // Handle standard Firebase SDK errors (auth/error-code format)
     switch (error.code) {
       case 'auth/email-already-in-use':
         return new Error('Email Already Exists. Please Login');
@@ -436,6 +461,8 @@ class AuthService {
         return new Error('Account Not Found');
       case 'auth/wrong-password':
         return new Error('Incorrect Password');
+      case 'auth/invalid-credential':
+        return new Error('Invalid Login Credentials');
       case 'auth/too-many-requests':
         return new Error('Too Many Attempts. Try Again Later');
       case 'auth/popup-closed-by-user':

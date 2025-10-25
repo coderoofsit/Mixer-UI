@@ -5,13 +5,48 @@ import authService from "../../services/authService";
 const ProfileDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const [profileImage, setProfileImage] = useState(null);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Get current user
-    const currentUser = authService.getCurrentUser();
-    setUser(currentUser);
+    // Get user profile from backend
+    const fetchProfile = async () => {
+      try {
+        const profileCheck = await authService.checkProfileCompletion();
+        const userData = profileCheck?.profile || {};
+        
+        // Get Firebase user for fallback data
+        const firebaseUser = authService.getCurrentUser();
+        
+        // Set user data (combine backend + Firebase)
+        setUser({
+          ...firebaseUser,
+          displayName: userData.name || firebaseUser?.displayName,
+          email: userData.email || firebaseUser?.email,
+        });
+        
+        // Set profile image from backend (first image in array) or Firebase
+        if (userData.images && userData.images.length > 0) {
+          setProfileImage(userData.images[0]);
+          console.log('📸 Using backend profile image');
+        } else if (firebaseUser?.photoURL) {
+          setProfileImage(firebaseUser.photoURL);
+          console.log('📸 Using Firebase profile image');
+        } else {
+          setProfileImage(null);
+          console.log('📸 No profile image, using placeholder');
+        }
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+        // Fallback to Firebase user
+        const firebaseUser = authService.getCurrentUser();
+        setUser(firebaseUser);
+        setProfileImage(firebaseUser?.photoURL || null);
+      }
+    };
+    
+    fetchProfile();
   }, []);
 
   useEffect(() => {
@@ -41,14 +76,6 @@ const ProfileDropdown = () => {
     }
   };
 
-  const getProfileImage = () => {
-    if (user?.photoURL) {
-      return user.photoURL;
-    }
-    // Default avatar - using initials or generic icon
-    return null;
-  };
-
   const getInitials = () => {
     if (user?.displayName) {
       const names = user.displayName.split(" ");
@@ -61,8 +88,6 @@ const ProfileDropdown = () => {
     }
     return "U";
   };
-
-  const profileImage = getProfileImage();
 
   return (
     <div className="relative" ref={dropdownRef}>

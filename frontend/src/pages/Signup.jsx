@@ -30,30 +30,61 @@ const Signup = () => {
     setIsLoading(true);
     setError("");
 
-    // Validation
+    // Validation: Full Name
+    // if (!formData.fullName || formData.fullName.trim().length < 2) {
+    //   setError("Please enter your full name (at least 2 characters).");
+    //   setIsLoading(false);
+    //   return;
+    // }
+
+    // Validation: Name should not contain special characters
+    // const nameRegex = /^[a-zA-Z\s'-]+$/;
+    // if (!nameRegex.test(formData.fullName.trim())) {
+    //   setError("Name can only contain letters, spaces, hyphens and apostrophes.");
+    //   setIsLoading(false);
+    //   return;
+    // }
+
+    // Validation: Email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email.trim())) {
+      setError("Please enter a valid email address.");
+      setIsLoading(false);
+      return;
+    }
+
+    // Validation: Password minimum length
+    if (formData.password.length < 8) {
+      setError("Password must be at least 8 characters long.");
+      setIsLoading(false);
+      return;
+    }
+
+    // Validation: Password strength (at least one uppercase, one lowercase, one number)
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/;
+    if (!passwordRegex.test(formData.password)) {
+      setError("Password must contain at least one uppercase letter, one lowercase letter, and one number.");
+      setIsLoading(false);
+      return;
+    }
+
+    // Validation: Passwords match
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match.");
       setIsLoading(false);
       return;
     }
 
-    if (formData.password.length < 8) {
-      setError("Password must be at least 8 characters long.");
-      setIsLoading(false);
-      return;
-    }
-    
-    // NOTE: Removed the check for formData.agreeToTerms as the checkbox is now removed.
-    /*
-    if (!formData.agreeToTerms) {
-      setError("Please agree to the Terms of Service and Privacy Policy.");
-      setIsLoading(false);
-      return;
-    }
-    */
-
     try {
-      await authService.signUpWithEmail(formData);
+      // Sanitize inputs before sending
+      const sanitizedData = {
+        fullName: formData.fullName.trim(),
+        email: formData.email.trim().toLowerCase(),
+        password: formData.password,
+        confirmPassword: formData.confirmPassword
+      };
+
+      await authService.signUpWithEmail(sanitizedData);
       // Redirect new users to onboarding to complete their profile
       navigate("/onboarding/profile-setup");
     } catch (err) {
