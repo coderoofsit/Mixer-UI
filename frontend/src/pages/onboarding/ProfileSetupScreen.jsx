@@ -150,7 +150,19 @@ const ProfileSetupScreen = () => {
 
       if (result.success) {
         console.log('✅ Profile updated successfully');
-        navigate("/");
+        
+        // Check if there's a return URL stored from signup
+        const returnTo = localStorage.getItem('returnToAfterOnboarding');
+        
+        if (returnTo) {
+          // Clear the stored URL
+          localStorage.removeItem('returnToAfterOnboarding');
+          console.log('🔄 Redirecting to stored URL:', returnTo);
+          navigate(returnTo, { replace: true });
+        } else {
+          // Default to home page
+          navigate("/");
+        }
       } else {
         setErrors({ submit: 'Profile Update Failed' });
       }

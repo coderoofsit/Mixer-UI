@@ -119,20 +119,22 @@ const Contact = () => {
           {/* Social Icons from screenshot */}
           <div className="flex justify-center space-x-3 mb-8">
             <a 
-              href="https://facebook.com" 
+              href="https://www.facebook.com/people/Mixer-Dating-Colorado-Springs/61578765920982/?mibextid=wwXIfr&rdid=WBF8TUSfFr8R9D6I&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1A2XjtV26m%2F%3Fmibextid%3DwwXIfr" 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="w-10 h-10 rounded-md flex items-center justify-center text-white transition-colors"
+              className="w-10 h-10 rounded-md flex items-center justify-center text-white transition-colors hover:opacity-90"
               style={{ backgroundColor: "#A42831" }}
+              aria-label="Follow us on Facebook"
             >
               <FaFacebookF size={20} />
             </a>
             <a 
-              href="https://instagram.com" 
+              href="https://www.instagram.com/mixerdatingco/" 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="w-10 h-10 rounded-md flex items-center justify-center text-white transition-colors"
+              className="w-10 h-10 rounded-md flex items-center justify-center text-white transition-colors hover:opacity-90"
               style={{ backgroundColor: "#A42831" }}
+              aria-label="Follow us on Instagram"
             >
               <FaInstagram size={20} />
             </a>

@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import apiClient from "../services/apiService";
 import LandingHeader from "../components/layout/LandingHeader";
 import Footer from "../components/layout/Footer";
-import RegisterEventModal from "../components/ui/RegisterEventModal";
 import { useProfile } from "../contexts/ProfileContext";
 
 const UpcomingEvents = () => {
@@ -15,18 +14,6 @@ const UpcomingEvents = () => {
 	const [events, setEvents] = useState([]);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState(null);
-	const [selectedEvent, setSelectedEvent] = useState(null);
-	const [isModalOpen, setIsModalOpen] = useState(false);
-
-	const handleRegisterClick = (event) => {
-		setSelectedEvent(event);
-		setIsModalOpen(true);
-	};
-
-	const handleCloseModal = () => {
-		setIsModalOpen(false);
-		setSelectedEvent(null);
-	};
 
 	// Fetch events for all users (authenticated or not)
 	useEffect(() => {
@@ -184,26 +171,17 @@ const UpcomingEvents = () => {
 										{/* Action Buttons */}
 										<div className='flex flex-wrap gap-2 mt-2'>
 											{profileData ? (
-												<>
-													{/* Register Button - for authenticated users */}
-													<button
-														onClick={() => handleRegisterClick(event)}
-														className='bg-blue-800 text-white px-3 py-1.5 md:py-1 rounded text-xs font-bold shadow-md hover:bg-blue-900 transition-colors'
-													>
-														Register
-													</button>
-													{/* View Details Button - for authenticated users */}
-													<a
-														href={event.link}
-														target='_blank'
-														rel='noopener noreferrer'
-														className='bg-white text-blue-600 border border-blue-600 px-3 py-1.5 md:py-1 rounded text-xs font-bold shadow-md hover:bg-blue-50 transition-colors inline-block'
-													>
-														View details
-													</a>
-												</>
+												/* Buy Tickets Button - for authenticated users */
+												<a
+													href={event.link}
+													target='_blank'
+													rel='noopener noreferrer'
+													className='bg-blue-800 text-white px-3 py-1.5 md:py-1 rounded text-xs font-bold shadow-md hover:bg-blue-900 transition-colors inline-block'
+												>
+													Buy Tickets
+												</a>
 											) : (
-												/* Join Us Button - for non-authenticated users (replaces both buttons) */
+												/* Join Us Button - for non-authenticated users */
 												<button
 													onClick={() => navigate('/login', { state: { from: '/upcoming-events' } })}
 													className='bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg text-sm whitespace-nowrap'
@@ -343,15 +321,6 @@ const UpcomingEvents = () => {
 			<div className='py-8'></div>
 
 			<Footer />
-
-			{/* Register Event Modal */}
-			{selectedEvent && (
-				<RegisterEventModal
-					isOpen={isModalOpen}
-					onClose={handleCloseModal}
-					event={selectedEvent}
-				/>
-			)}
 		</div>
 	);
 };
