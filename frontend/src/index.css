@@ -2,11 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800;900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap');
 
 @layer base {
   html {
-    font-family: 'Montserrat', system-ui, sans-serif;
+    font-family: 'Rubik', 'Montserrat', system-ui, sans-serif;
   }
   
   body {

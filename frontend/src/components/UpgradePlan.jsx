@@ -6,12 +6,11 @@ export default function UpgradePlan({ handlePayForVerification }) {
 					className='w-full py-8 text-center'
 					style={{ backgroundColor: "#038386" }}
 				>
-					<h3
-						className='text-2xl font-bold text-white uppercase tracking-wide'
-						style={{ fontFamily: "sans-serif" }}
-					>
-						Memberships
-					</h3>
+				<h3
+					className='text-2xl font-bold text-white uppercase tracking-wide'
+				>
+					Memberships
+				</h3>
 				</div>
 
 				{/* Content */}

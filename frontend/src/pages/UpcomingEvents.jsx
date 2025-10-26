@@ -289,7 +289,6 @@ const UpcomingEvents = () => {
 	return (
 		<div
 			className='min-h-screen bg-white'
-			style={{ fontFamily: "'Times New Roman', serif" }}
 		>
 			<LandingHeader />
 

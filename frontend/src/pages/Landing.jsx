@@ -23,7 +23,6 @@ const Landing = () => {
               <div className="text-white w-full lg:w-[60%] xl:w-[55%] flex flex-col justify-center">
                 <h1
                   className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-bold mb-4 sm:mb-6 lg:mb-8 leading-tight break-words"
-                  style={{ fontFamily: "Rubik, sans-serif" }}
                 >
                   <div className="max-w-full">
                     Stop Swiping,{" "}
@@ -37,7 +36,6 @@ const Landing = () => {
                       onClick={() => (window.location.href = "/contact")}
                       className="w-full sm:w-auto inline-block text-white font-bold py-2.5 sm:py-3 lg:py-4 px-5 sm:px-6 lg:px-8 rounded-full transition-colors duration-200 text-sm sm:text-base lg:text-lg cursor-pointer whitespace-nowrap"
                       style={{
-                        fontFamily: "Rubik, sans-serif",
                         color: "#FFFFFF",
                         background: "linear-gradient(135deg, #A42831, #A42831)",
                         boxShadow:
@@ -95,7 +93,6 @@ const Landing = () => {
               `}</style>
               <h2
                 className="text-2xl md:text-4xl font-bold mb-4 md:mb-6"
-                style={{ fontFamily: "Rubik, sans-serif" }}
               >
                 Meet with Mixer
               </h2>
@@ -247,7 +244,6 @@ const Landing = () => {
               >
                 <h3
                   className="text-xl md:text-2xl font-bold text-white uppercase tracking-wide"
-                  style={{ fontFamily: "sans-serif" }}
                 >
                   Memberships
                 </h3>
@@ -284,7 +280,6 @@ const Landing = () => {
               >
                 <h3
                   className="text-xl md:text-2xl font-bold text-white uppercase tracking-wide"
-                  style={{ fontFamily: "serif" }}
                 >
                   Background Check
                 </h3>
@@ -336,7 +331,7 @@ const Landing = () => {
               <div className="w-20 md:w-85 h-px bg-teal-600 mb-4 md:mb-6"></div>
               <h4
                 className="text-2xl md:text-4xl font-semibold"
-                style={{ fontFamily: "Rubik, sans-serif", color: "#5E1053" }}
+                style={{ color: "#5E1053" }}
               >
                 How It Started
               </h4>
@@ -344,14 +339,12 @@ const Landing = () => {
 
             {/* Right div - Content */}
             <div
-              className="w-full md:w-3/5 text-gray-700"
+              className="w-full md:w-3/5 text-gray-700 md:text-base md:leading-loose"
               style={{
-                fontFamily: "Montserrat, sans-serif",
                 fontSize: "14px",
                 fontWeight: "400",
                 lineHeight: "1.8em",
               }}
-              className="md:text-base md:leading-loose"
             >
               <p className="mb-4">
                 At Mixer, we're not just changing how people date—we're changing
@@ -415,9 +408,6 @@ const Landing = () => {
                 <div className="w-full md:w-1/2 md:pr-8 md:pl-16 text-center md:text-right">
                   <h2
                     className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-4 md:mb-6 leading-tight"
-                    style={{
-                      fontFamily: "Rubik, sans-serif",
-                    }}
                   >
                     READY TO MEET
                     <br />
@@ -447,7 +437,6 @@ const Landing = () => {
                   className="inline-block text-white font-bold py-2 md:py-3 px-6 md:px-8 rounded-full transition-colors duration-200 text-base md:text-lg cursor-pointer"
                   style={{
                     backgroundColor: "#D59331",
-                    fontFamily: "Rubik, sans-serif",
                   }}
                 >
                   Contact Mixer

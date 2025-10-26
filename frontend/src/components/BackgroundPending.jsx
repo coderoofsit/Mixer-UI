@@ -5,12 +5,11 @@ export default function BackgroundPending({ handlePayForVerification }) {
 				className='w-full py-8 text-center'
 				style={{ backgroundColor: "#F97316" }}
 			>
-				<h3
-					className='text-2xl font-bold text-white uppercase tracking-wide'
-					style={{ fontFamily: "serif" }}
-				>
-					Background Check is Pending
-				</h3>
+			<h3
+				className='text-2xl font-bold text-white uppercase tracking-wide'
+			>
+				Background Check is Pending
+			</h3>
 			</div>
 		</div>
 	);

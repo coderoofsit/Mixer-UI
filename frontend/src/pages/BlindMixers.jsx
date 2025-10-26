@@ -13,7 +13,6 @@ const BlindMixers = () => {
   return (
     <div
       className="min-h-screen bg-white"
-      style={{ fontFamily: "Times New Roman, serif" }}
     >
       <LandingHeader />
 
@@ -50,7 +49,6 @@ const BlindMixers = () => {
                   fontWeight: "600",
                   textTransform: "uppercase",
                   letterSpacing: "2px",
-                  fontFamily: "Arial, sans-serif",
                 }}
               >
                 LET'S GET STARTED
@@ -65,7 +63,6 @@ const BlindMixers = () => {
         <button
           className="text-white px-6 md:px-10 py-3 md:py-5 rounded-full font-semibold text-xs md:text-base uppercase tracking-wide transition-colors duration-200"
           style={{
-            fontFamily: "Arial, sans-serif",
             backgroundColor: "#038386",
             hover: { backgroundColor: "#027373" },
           }}
