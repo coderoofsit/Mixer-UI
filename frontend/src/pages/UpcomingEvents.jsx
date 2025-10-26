@@ -84,7 +84,7 @@ const UpcomingEvents = () => {
 									Sign up or log in to register for upcoming mixer events.
 								</p>
 								<button
-									onClick={() => navigate('/login')}
+									onClick={() => navigate('/login', { state: { from: '/upcoming-events' } })}
 									className='bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white font-medium py-3 px-8 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg'
 								>
 									Join Us
@@ -205,7 +205,7 @@ const UpcomingEvents = () => {
 											) : (
 												/* Join Us Button - for non-authenticated users (replaces both buttons) */
 												<button
-													onClick={() => navigate('/login')}
+													onClick={() => navigate('/login', { state: { from: '/upcoming-events' } })}
 													className='bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg text-sm whitespace-nowrap'
 												>
 													Join Us

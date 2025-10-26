@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import authService from "../services/authService";
 import { useProfile } from "../contexts/ProfileContext";
 import LandingHeader from "../components/layout/LandingHeader";
@@ -14,7 +14,11 @@ const Login = () => {
 	const [error, setError] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
 	const navigate = useNavigate();
+	const location = useLocation();
 	const { fetchProfile } = useProfile();
+	
+	// Get the page user came from (or default to home)
+	const from = location.state?.from || "/";
 
 	const handleChange = (e) => {
 		setFormData({
@@ -53,8 +57,9 @@ const Login = () => {
 			console.log('✅ Login successful, fetching profile...');
 			await fetchProfile(true); // Force fetch to ensure fresh data
 
-			// Always redirect to home page after successful login
-			navigate("/");
+			// Redirect to the page user came from, or home
+			console.log('🔄 Redirecting to:', from);
+			navigate(from, { replace: true });
 		} catch (err) {
 			console.error('Login error:', err);
 			// Extract only the message, not the full error object
@@ -86,8 +91,9 @@ const Login = () => {
 			console.log('✅ Google login successful, fetching profile...');
 			await fetchProfile(true); // Force fetch to ensure fresh data
 
-			// Always redirect to home page after successful login
-			navigate("/");
+			// Redirect to the page user came from, or home
+			console.log('🔄 Redirecting to:', from);
+			navigate(from, { replace: true });
 		} catch (err) {
 			console.error('Google login error:', err);
 			// Extract only the message, not the full error object
@@ -115,8 +121,9 @@ const Login = () => {
 		try {
 			await authService.signInWithApple();
 
-			// Always redirect to home page after successful login
-			navigate("/");
+			// Redirect to the page user came from, or home
+			console.log('🔄 Redirecting to:', from);
+			navigate(from, { replace: true });
 		} catch (err) {
 			console.error('Apple login error:', err);
 			// Extract only the message, not the full error object

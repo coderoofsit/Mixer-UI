@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import authService from "../../services/authService";
 import ProfileDropdown from "../ui/ProfileDropdown";
 
@@ -7,6 +7,7 @@ const LandingHeader = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Check authentication status
@@ -124,18 +125,18 @@ const LandingHeader = () => {
               <ProfileDropdown />
             ) : !isAuthPage ? (
               <>
-                <Link
-                  to="/login"
+                <button
+                  onClick={() => navigate('/login', { state: { from: location.pathname } })}
                   className="text-gray-700 hover:text-teal-600 transition-colors font-medium px-2 lg:px-3 xl:px-4 py-2 rounded-lg hover:bg-teal-50 whitespace-nowrap text-xs lg:text-sm xl:text-base"
                 >
                   Login
-                </Link>
-                <Link
-                  to="/signup"
+                </button>
+                <button
+                  onClick={() => navigate('/signup', { state: { from: location.pathname } })}
                   className="bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white font-medium py-2 px-3 lg:px-4 xl:px-6 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg whitespace-nowrap text-xs lg:text-sm xl:text-base"
                 >
                   Sign Up
-                </Link>
+                </button>
               </>
             ) : null}
           </div>
@@ -272,20 +273,24 @@ const LandingHeader = () => {
                   </>
                 ) : !isAuthPage ? (
                   <>
-                    <Link
-                      to="/login"
-                      className="block text-gray-700 hover:text-teal-600 transition-colors font-medium py-2"
-                      onClick={() => setIsMenuOpen(false)}
+                    <button
+                      onClick={() => {
+                        navigate('/login', { state: { from: location.pathname } });
+                        setIsMenuOpen(false);
+                      }}
+                      className="block w-full text-left text-gray-700 hover:text-teal-600 transition-colors font-medium py-2"
                     >
                       Login
-                    </Link>
-                    <Link
-                      to="/signup"
-                      className="block bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg mt-2 text-center"
-                      onClick={() => setIsMenuOpen(false)}
+                    </button>
+                    <button
+                      onClick={() => {
+                        navigate('/signup', { state: { from: location.pathname } });
+                        setIsMenuOpen(false);
+                      }}
+                      className="block w-full bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg mt-2 text-center"
                     >
                       Sign Up
-                    </Link>
+                    </button>
                   </>
                 ) : null}
               </div>

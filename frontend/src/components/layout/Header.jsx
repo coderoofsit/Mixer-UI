@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import Logo from "../ui/Logo";
 import authService from "../../services/authService";
 import { useProfile } from "../../contexts/ProfileContext";
@@ -8,6 +8,7 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { profileData, primaryImage, clearProfile, loading } = useProfile();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Check authentication based on authService AND profileData
   const isAuthenticated = authService.isAuthenticated() || profileData !== null;
@@ -90,18 +91,18 @@ const Header = () => {
               </div>
             ) : (
               <>
-                <Link
-                  to="/login"
+                <button
+                  onClick={() => navigate('/login', { state: { from: location.pathname } })}
                   className="text-gray-700 hover:text-primary-600 transition-colors font-medium px-2 lg:px-3 xl:px-4 py-2 rounded-lg hover:bg-primary-50 text-xs lg:text-sm whitespace-nowrap"
                 >
                   Login
-                </Link>
-                <Link
-                  to="/signup"
+                </button>
+                <button
+                  onClick={() => navigate('/signup', { state: { from: location.pathname } })}
                   className="bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-3 lg:px-4 xl:px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 text-xs lg:text-sm whitespace-nowrap"
                 >
                   Sign Up
-                </Link>
+                </button>
               </>
             )}
           </div>
@@ -199,20 +200,24 @@ const Header = () => {
                   </>
                 ) : (
                   <>
-                    <Link
-                      to="/login"
-                      className="block text-center text-gray-700 hover:text-primary-600 transition-colors font-medium py-2.5 px-4 rounded-lg hover:bg-gray-50"
-                      onClick={() => setIsMenuOpen(false)}
+                    <button
+                      onClick={() => {
+                        navigate('/login', { state: { from: location.pathname } });
+                        setIsMenuOpen(false);
+                      }}
+                      className="block w-full text-center text-gray-700 hover:text-primary-600 transition-colors font-medium py-2.5 px-4 rounded-lg hover:bg-gray-50"
                     >
                       Login
-                    </Link>
-                    <Link
-                      to="/signup"
-                      className="block text-center bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 px-4 rounded-lg transition-colors duration-200 shadow-sm"
-                      onClick={() => setIsMenuOpen(false)}
+                    </button>
+                    <button
+                      onClick={() => {
+                        navigate('/signup', { state: { from: location.pathname } });
+                        setIsMenuOpen(false);
+                      }}
+                      className="block w-full text-center bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 px-4 rounded-lg transition-colors duration-200 shadow-sm"
                     >
                       Sign Up
-                    </Link>
+                    </button>
                   </>
                 )}
               </div>

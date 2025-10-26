@@ -1,6 +1,6 @@
 // src/pages/Signup.jsx
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import authService from "../services/authService";
 import { useProfile } from "../contexts/ProfileContext";
 import LandingHeader from "../components/layout/LandingHeader";
@@ -19,7 +19,11 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { fetchProfile } = useProfile();
+  
+  // Get the page user came from (or default to home)
+  const from = location.state?.from || "/";
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -94,6 +98,11 @@ const Signup = () => {
       console.log('✅ Signup successful, fetching profile...');
       await fetchProfile(true); // Force fetch to ensure fresh data
       
+      // Store the return URL for after onboarding
+      if (from !== "/") {
+        localStorage.setItem('returnToAfterOnboarding', from);
+      }
+      
       // Redirect new users to onboarding to complete their profile
       navigate("/onboarding/profile-setup");
     } catch (err) {
@@ -126,6 +135,11 @@ const Signup = () => {
       // Fetch profile immediately after successful signup
       console.log('✅ Google signup successful, fetching profile...');
       await fetchProfile(true); // Force fetch to ensure fresh data
+      
+      // Store the return URL for after onboarding
+      if (from !== "/") {
+        localStorage.setItem('returnToAfterOnboarding', from);
+      }
       
       // Redirect new users to onboarding to complete their profile
       navigate("/onboarding/profile-setup");
