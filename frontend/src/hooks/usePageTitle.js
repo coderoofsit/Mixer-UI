@@ -13,47 +13,47 @@ const usePageTitle = () => {
       switch (path) {
         case '':
         case '/':
-          return 'Home';
+          return 'Mixer Dating App - Connecting Colorado Springs Singles';
         case '/dashboard':
-          return 'Dashboard on Mixer';
+          return 'Dashboard - Mixer Dating App';
         case '/profile':
-          return 'Profile on Mixer';
+          return 'Profile - Mixer Dating App';
         case '/matches':
-          return 'Matches on Mixer';
+          return 'Matches - Mixer Dating App';
         case '/upcoming-events':
         case '/events':
-          return 'Upcoming Events on Mixer';
+          return 'Upcoming Mixer Events - Mixer Dating App';
         case '/blind-mixers':
-          return 'Blind Date on Mixer';
+          return 'Blind Mixers - Mixer Dating App';
         case '/contact':
-          return 'Contact';
+          return 'Contact - Mixer Dating App';
         case '/login':
-          return 'Login on Mixer';
+          return 'Login - Welcome Back - Mixer Dating App';
         case '/signup':
-          return 'Sign Up on Mixer';
+          return 'Signup - Welcome - Mixer Dating App';
         case '/forgot-password':
-          return 'Forgot Password on Mixer';
+          return 'Forgot Password - Mixer Dating App';
         case '/payment':
-          return 'Payment on Mixer';
+          return 'Payment - Mixer Dating App';
         case '/payment-success':
         case '/payment/success':
-          return 'Payment Success on Mixer';
+          return 'Payment Success - Mixer Dating App';
         case '/privacy':
         case '/privacy-policy':
-          return 'Privacy Policy on Mixer';
+          return 'Privacy Policy - Mixer Dating App';
         case '/terms':
         case '/terms-conditions':
-          return 'Terms of Service on Mixer';
+          return 'Terms of Service - Mixer Dating App';
         case '/onboarding/profile-setup':
-          return 'Profile Setup on Mixer';
+          return 'Profile Setup - Mixer Dating App';
         case '/onboarding/photos':
-          return 'Add Photos on Mixer';
+          return 'Add Photos - Mixer Dating App';
         case '/onboarding/interests':
-          return 'Interests & Values on Mixer';
+          return 'Interests & Values - Mixer Dating App';
         case '/onboarding/complete':
-          return 'Welcome to Mixer';
+          return 'Welcome to Mixer - Mixer Dating App';
         default:
-          return 'Mixer';
+          return 'Mixer Dating App';
       }
     };
 
