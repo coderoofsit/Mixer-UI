@@ -24,6 +24,70 @@ import CheckoutWrapper from "./pages/Payment";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { ProfileProvider } from "./contexts/ProfileContext";
+import usePageTitle from "./hooks/usePageTitle";
+
+function AppContent() {
+  // Dynamic page title based on route
+  usePageTitle();
+
+  return (
+    <ProfileProvider>
+      <CustomCursor />
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/blind-mixers" element={<BlindMixers />} />
+        <Route path="/upcoming-events" element={<UpcomingEvents />} />
+        <Route path="/events" element={<UpcomingEvents />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/onboarding/profile-setup" element={<ProfileSetupScreen />} />
+        <Route path="/onboarding/photos" element={<PhotoGalleryScreen />} />
+        <Route path="/onboarding/interests" element={<InterestsValuesScreen />} />
+        <Route path="/onboarding/complete" element={<ProfileCompleteScreen />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/terms-conditions" element={<Terms />} />
+        <Route path="/privacy-policy" element={<Privacy />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/matches"
+          element={
+            <ProtectedRoute>
+              <Matches />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/payment"
+          element={
+            <ProtectedRoute>
+              <CheckoutWrapper />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/payment/success" element={<PaymentSuccess />} />
+      </Routes>
+    </ProfileProvider>
+  );
+}
 
 function App() {
   useEffect(() => {
@@ -83,43 +147,7 @@ function App() {
             v7_relativeSplatPath: true,
           }}
         >
-          <ProfileProvider>
-            <CustomCursor />
-            <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/events" element={<UpcomingEvents />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/blind-mixers" element={<BlindMixers />} />
-            
-            {/* Auth Routes - Accessible to all users */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            
-            {/* Protected Routes - Require authentication */}
-            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-            <Route path="/matches" element={<ProtectedRoute><Matches /></ProtectedRoute>} />
-            <Route path="/payment" element={<ProtectedRoute><CheckoutWrapper /></ProtectedRoute>} />
-            
-            {/* Legal Routes - Updated to use Privacy component */}
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/terms-conditions" element={<Terms />} />
-            <Route path="/privacy-policy" element={<Privacy />} />
-
-            {/* Onboarding Routes - Accessible to all users */}
-            <Route path="/onboarding/profile-setup" element={<ProfileSetupScreen />} />
-            <Route path="/onboarding/photos" element={<PhotoGalleryScreen />} />
-            <Route path="/onboarding/interests" element={<InterestsValuesScreen />} />
-            <Route path="/onboarding/complete" element={<ProfileCompleteScreen />} />
-            <Route path="/payment/success" element={<PaymentSuccess />} />
-            {/* Commented out - Only using first step for now */}
-            {/* <Route path="/onboarding/photos" element={<PhotoGalleryScreen />} /> */}
-            {/* <Route path="/onboarding/interests" element={<InterestsValuesScreen />} /> */}
-            {/* <Route path="/onboarding/complete" element={<ProfileCompleteScreen />} /> */}
-          </Routes>
-          </ProfileProvider>
+          <AppContent />
         </Router>
       </div>
     </ErrorBoundary>

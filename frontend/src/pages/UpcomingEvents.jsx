@@ -1,18 +1,15 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import apiClient from "../services/apiService";
 import LandingHeader from "../components/layout/LandingHeader";
 import Footer from "../components/layout/Footer";
 import RegisterEventModal from "../components/ui/RegisterEventModal";
-import authService from "../services/authService";
-import { stripeService } from "../services/stripeService";
 import { useProfile } from "../contexts/ProfileContext";
-import BackgroundPending from "../components/BackgroundPending";
-import UpgradePlan from "../components/UpgradePlan";
-import BackgroundUnpaid from "../components/BackgroundUnpaid";
 
 const UpcomingEvents = () => {
 	// Get profile data from context (no API call needed!)
-	const { profileData, loading: profileLoading } = useProfile();
+	const { profileData } = useProfile();
+	const navigate = useNavigate();
 	
 	// Local state for events
 	const [events, setEvents] = useState([]);
@@ -20,17 +17,6 @@ const UpcomingEvents = () => {
 	const [error, setError] = useState(null);
 	const [selectedEvent, setSelectedEvent] = useState(null);
 	const [isModalOpen, setIsModalOpen] = useState(false);
-
-	const handlePayForVerification = async (productType, amount) => {
-		const response = await stripeService.createCheckoutSession(
-			amount,
-			"usd",
-			"ORD_001",
-			productType,
-		);
-		console.log({ response });
-		window.location.href = response?.sessionUrl;
-	};
 
 	const handleRegisterClick = (event) => {
 		setSelectedEvent(event);
@@ -42,40 +28,14 @@ const UpcomingEvents = () => {
 		setSelectedEvent(null);
 	};
 
-	// Fetch events when profileData is available and user has a plan
+	// Fetch events for all users (authenticated or not)
 	useEffect(() => {
 		const fetchEvents = async () => {
-			// Don't fetch if profile is still loading
-			if (profileLoading) {
-				console.log('⏳ Profile is loading, waiting...');
-				return;
-			}
-
-			// Check if user is authenticated and has profile data
-			const isAuthenticated = authService.isAuthenticated();
-			
-			if (!isAuthenticated || !profileData) {
-				console.log('ℹ️ User not authenticated or no profile data - showing public content');
-				setEvents([]);
-				return;
-			}
-
-			// User is authenticated and has profile data
-			console.log('👤 Profile data from context:', profileData);
-
-			// Check if user has a plan
-			if (!profileData.currentPlan) {
-				console.log('ℹ️ No plan found - skipping events');
-				setEvents([]);
-				return;
-			}
-
-			// User has a plan, fetch events
 			try {
 				setLoading(true);
 				setError(null);
 				
-				console.log('✅ User has plan:', profileData.currentPlan);
+				console.log('🔄 Fetching events for all users...');
 				const response = await apiClient.get("/api/v1/events");
 
 				if (response.data.success) {
@@ -93,7 +53,7 @@ const UpcomingEvents = () => {
 		};
 
 		fetchEvents();
-	}, [profileData, profileLoading]); // Re-run when profileData or profileLoading changes
+	}, []); // Only fetch once on mount
 
 	// Event Feed Component
 	const EventFeed = () => (
@@ -108,48 +68,31 @@ const UpcomingEvents = () => {
 					<div className='flex justify-center items-center py-12'>
 						<div className='animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600'></div>
 					</div>
-				) : (
-					error && (
-						<div className='text-center py-12'>
-							<p className='text-red-600'>{error}</p>
-						</div>
-					)
-				)}
-				{/* Show login CTA for non-authenticated users */}
-				{!profileData && !profileLoading && !loading && (
-					<div className='text-center py-12 bg-gradient-to-r from-teal-50 to-blue-50 rounded-lg'>
-						<h3 className='text-2xl font-bold text-gray-900 mb-4'>
-							Ready to Join Our Events?
-						</h3>
-						<p className='text-gray-700 mb-6'>
-							Sign up or log in to register for upcoming mixer events and start making meaningful connections.
-						</p>
-						<div className='flex justify-center space-x-4'>
-							<a
-								href='/signup'
-								className='bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white font-medium py-3 px-8 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg'
-							>
-								Sign Up
-							</a>
-							<a
-								href='/login'
-								className='bg-white text-teal-600 border-2 border-teal-600 font-medium py-3 px-8 rounded-lg hover:bg-teal-50 transition-colors'
-							>
-								Log In
-							</a>
-						</div>
+				) : error ? (
+					<div className='text-center py-12'>
+						<p className='text-red-600'>{error}</p>
 					</div>
-				)}
-				{profileData?.backgroundVerification === "unpaid" && (
-					<BackgroundUnpaid handlePayForVerification={handlePayForVerification} />
-				)}
-				{profileData?.backgroundVerification === "pending" && <BackgroundPending />}
-				{profileData?.backgroundVerification === "approved" &&
-					!profileData?.currentPlan && (
-						<UpgradePlan handlePayForVerification={handlePayForVerification} />
-					)}
-				{profileData?.backgroundVerification === "approved" &&
-					profileData?.currentPlan && (
+				) : (
+					<>
+						{/* Show Join Us banner for non-authenticated users */}
+						{!profileData && (
+							<div className='mb-8 text-center py-8 bg-gradient-to-r from-teal-50 to-blue-50 rounded-lg'>
+								<h3 className='text-2xl font-bold text-gray-900 mb-4'>
+									Ready to Join Our Events?
+								</h3>
+								<p className='text-gray-700 mb-6'>
+									Sign up or log in to register for upcoming mixer events.
+								</p>
+								<button
+									onClick={() => navigate('/login')}
+									className='bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white font-medium py-3 px-8 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg'
+								>
+									Join Us
+								</button>
+							</div>
+						)}
+
+						{/* Events List - Always visible */}
 						<div className='space-y-6 md:space-y-8'>
 							{events.map((event) => (
 								<div key={event._id} className='bg-white overflow-hidden rounded-lg shadow-sm'>
@@ -238,23 +181,37 @@ const UpcomingEvents = () => {
 												</div>
 											)}
 
-											{/* Action Buttons */}
-											<div className='flex flex-wrap gap-2 mt-2'>
+										{/* Action Buttons */}
+										<div className='flex flex-wrap gap-2 mt-2'>
+											{profileData ? (
+												<>
+													{/* Register Button - for authenticated users */}
+													<button
+														onClick={() => handleRegisterClick(event)}
+														className='bg-blue-800 text-white px-3 py-1.5 md:py-1 rounded text-xs font-bold shadow-md hover:bg-blue-900 transition-colors'
+													>
+														Register
+													</button>
+													{/* View Details Button - for authenticated users */}
+													<a
+														href={event.link}
+														target='_blank'
+														rel='noopener noreferrer'
+														className='bg-white text-blue-600 border border-blue-600 px-3 py-1.5 md:py-1 rounded text-xs font-bold shadow-md hover:bg-blue-50 transition-colors inline-block'
+													>
+														View details
+													</a>
+												</>
+											) : (
+												/* Join Us Button - for non-authenticated users (replaces both buttons) */
 												<button
-													onClick={() => handleRegisterClick(event)}
-													className='bg-blue-800 text-white px-3 py-1.5 md:py-1 rounded text-xs font-bold shadow-md hover:bg-blue-900 transition-colors'
+													onClick={() => navigate('/login')}
+													className='bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg text-sm whitespace-nowrap'
 												>
-													Register
+													Join Us
 												</button>
-												<a
-													href={event.link}
-													target='_blank'
-													rel='noopener noreferrer'
-													className='bg-white text-blue-600 border border-blue-600 px-3 py-1.5 md:py-1 rounded text-xs font-bold shadow-md hover:bg-blue-50 transition-colors inline-block'
-												>
-													View details
-												</a>
-											</div>
+											)}
+										</div>
 										</div>
 
 										{/* Right Side - Event Image */}
@@ -281,7 +238,8 @@ const UpcomingEvents = () => {
 								</div>
 							))}
 						</div>
-					)}
+					</>
+				)}
 			</div>
 		</div>
 	);
