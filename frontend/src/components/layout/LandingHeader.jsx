@@ -43,7 +43,7 @@ const LandingHeader = () => {
               <div className="flex items-center">
                 {/* Logo from assets */}
                 <img
-                  src="/assets/mixerlogo.png"
+                  src={`${process.env.PUBLIC_URL}/assets/mixerlogo.png`}
                   alt="Mixer Logo"
                   className="w-40 h-auto sm:w-48 md:w-60"
                 />

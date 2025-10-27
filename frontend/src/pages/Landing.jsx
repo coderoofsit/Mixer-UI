@@ -106,7 +106,7 @@ const Landing = () => {
                 approach to dating that blends technology with personal touch.
               </p>
               <a
-                href="/upcoming-events"
+                href="/events"
                 className="inline-block bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 md:py-3 px-6 md:px-8 rounded-full transition-colors duration-200 text-sm md:text-base"
               >
                 Upcoming Events
