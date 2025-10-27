@@ -106,62 +106,82 @@ const Landing = () => {
 				</div>
 			</section>
 
-			{/* Meet with Mixer Section */}
-			<section
-				className='pt-0 pb-10 md:pb-20 px-4 sm:px-6 lg:px-8'
-				style={{ backgroundColor: "#F5F5F5" }}
-			>
-				<div className='max-w-7xl mx-auto'>
-					<div
-						className='rounded-3xl shadow-2xl w-full max-w-3xl mx-auto'
-						style={{
-							backgroundColor: "#A42831",
-							margin: "10px auto 30px auto",
-							padding: "32px 24px 24px 24px",
-						}}
-					>
-						<div className='text-white'>
-							<style jsx>{`
-								p a {
-									color: #020101;
-								}
-							`}</style>
-							<h2 className='text-2xl md:text-4xl font-bold mb-4 md:mb-6'>
-								Meet with Mixer
-							</h2>
-							<p className='text-sm md:text-lg mb-6 md:mb-8 leading-relaxed'>
-								We're not your average dating service. Our events are thoughtfully
-								curated to bring singles together in a safe, inclusive, and enjoyable
-								environment. Every participant is background-checked and every gathering
-								is designed to foster genuine interaction. Whether you're looking for a
-								new connection or just want to get out and enjoy life, we offer a unique
-								approach to dating that blends technology with personal touch.
-							</p>
-							<a
-								href='/upcoming-events'
-								className='inline-block bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 md:py-3 px-6 md:px-8 rounded-full transition-colors duration-200 text-sm md:text-base'
-							>
-								Upcoming Events
-							</a>
-						</div>
-					</div>
-				</div>
-			</section>
+      {/* Meet with Mixer Section */}
+      <section
+        className="pt-6 md:pt-6 pb-10 md:pb-20 px-4 sm:px-6 lg:px-8"
+        style={{ backgroundColor: "#F5F5F5" }}
+      >
+        <div className="max-w-7xl mx-auto">
+          <div className="relative flex items-center">
+            {/* Red Container on the Left */}
+            <div
+              className="rounded-3xl shadow-2xl w-full lg:w-[55%] relative z-10"
+              style={{
+                backgroundColor: "#A42831",
+                margin: "10px 0 30px 0",
+                padding: "32px 24px 24px 24px",
+              }}
+            >
+              <div className="text-white">
+                <style jsx>{`
+                  p a {
+                    color: #020101;
+                  }
+                `}</style>
+                <h2
+                  className="text-2xl md:text-4xl font-bold mb-4 md:mb-6"
+                >
+                  Meet with Mixer
+                </h2>
+                <p className="text-sm md:text-lg mb-6 md:mb-8 leading-relaxed">
+                  We're not your average dating service. Our events are
+                  thoughtfully curated to bring singles together in a safe,
+                  inclusive, and enjoyable environment. Every participant is
+                  background-checked and every gathering is designed to foster
+                  genuine interaction. Whether you're looking for a new connection
+                  or just want to get out and enjoy life, we offer a unique
+                  approach to dating that blends technology with personal touch.
+                </p>
+                <a
+                  href="/events"
+                  className="inline-block bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 md:py-3 px-6 md:px-8 rounded-full transition-colors duration-200 text-sm md:text-base"
+                >
+                  Upcoming Events
+                </a>
+              </div>
+            </div>
 
-			{/* Full Screen Fluid Background Section */}
-			<div className='bg-fluid-gradient w-full min-h-screen py-12 md:py-0 flex items-center justify-center px-4 sm:px-6 lg:px-8'>
-				<div className='max-w-7xl mx-auto'>
-					<div className='grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12'>
-						{/* Column 1 - Two Paragraphs */}
-						<div className='flex flex-col items-center justify-center p-4 md:p-8'>
-							<h3 className='text-xl md:text-2xl font-bold text-black mb-3 md:mb-4 text-center'>
-								BACKGROUND CHECKS
-							</h3>
-							<p className='text-sm md:text-base text-black leading-relaxed text-center mb-6 md:mb-8'>
-								All participants undergo a thorough background check to ensure a safe
-								and trustworthy community. Your peace of mind is our priority, so you
-								can focus on making genuine connections.
-							</p>
+            {/* Image overlapping on the Right */}
+            <div className="hidden lg:block absolute right-24 top-[20%] transform -translate-y-1/2 w-[30%] z-20">
+              <img
+                src="/assets/mixer-image.png"
+                alt="Dining experience"
+                className="w-full h-auto shadow-2xl"
+                style={{
+                  maxHeight: "650px",
+                  objectFit: "cover",
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Full Screen Fluid Background Section */}
+      <div className="ui-fluid-gradient-wrapper ui-e-fluid-canvas w-full min-h-screen py-12 md:py-0">
+        <div className="ui-fluid-gradient"></div>
+        <div className="max-w-7xl mx-auto relative z-10 px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
+            {/* Column 1 - Two Paragraphs */}
+            <div className="flex flex-col items-center justify-center p-4 md:p-8">
+              <h3 className="text-xl md:text-2xl font-bold text-black mb-3 md:mb-4 text-center">
+                BACKGROUND CHECKS
+              </h3>
+              <p className="text-sm md:text-base text-black leading-relaxed text-center mb-6 md:mb-8">
+                All participants undergo a thorough background check to ensure a
+                safe and trustworthy community. Your peace of mind is our
+                priority, so you can focus on making genuine connections.
+              </p>
 
 							<h3 className='text-xl md:text-2xl font-bold text-black mb-3 md:mb-4 text-center'>
 								CURATED MIXERS
@@ -174,10 +194,23 @@ const Landing = () => {
 							</p>
 						</div>
 
-						{/* Column 2 - Empty for Pictures */}
-						<div className='hidden lg:flex items-center justify-center'>
-							<span className='text-black text-center'>Images will go here</span>
-						</div>
+            {/* Column 2 - Images */}
+            <div className="hidden lg:flex flex-col items-center justify-center gap-8">
+              <div className="w-full flex items-center justify-center">
+                <img
+                  src="/assets/coffe.png"
+                  alt="Coffee date"
+                  className="w-full h-auto max-w-sm object-cover"
+                />
+              </div>
+              <div className="w-full flex items-center justify-center">
+                <img
+                  src="/assets/candle.png"
+                  alt="Romantic dinner"
+                  className="w-full h-auto max-w-sm object-cover"
+                />
+              </div>
+            </div>
 
 						{/* Column 3 - Two Paragraphs */}
 						<div className='flex flex-col items-center justify-center p-4 md:p-8'>
