@@ -85,21 +85,29 @@ const ImageUpload = ({
       const image = images[index];
       return (
         <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden group">
+          {/* Blurred background */}
+          <img
+            src={image.url}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover blur-xl scale-110"
+            aria-hidden="true"
+          />
+          {/* Main image */}
           <img
             src={image.url}
             alt={`Profile ${index + 1}`}
-            className="w-full h-full object-cover"
+            className="relative w-full h-full object-contain"
           />
           
           {/* Primary Badge */}
           {image.isPrimary && (
-            <div className="absolute top-2 left-2 bg-teal-600 text-white text-xs font-bold px-2 py-1 rounded">
+            <div className="absolute top-2 left-2 bg-teal-600 text-white text-xs font-bold px-2 py-1 rounded z-10">
               PRIMARY
             </div>
           )}
 
           {/* Hover Actions */}
-          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-200 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-200 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 z-10">
             {!image.isPrimary && (
               <button
                 type="button"
@@ -129,19 +137,27 @@ const ImageUpload = ({
       
       return (
         <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden group">
+          {/* Blurred background */}
+          <img
+            src={previewUrl}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover blur-xl scale-110"
+            aria-hidden="true"
+          />
+          {/* Main image */}
           <img
             src={previewUrl}
             alt={`Pending ${pendingIndex + 1}`}
-            className="w-full h-full object-cover"
+            className="relative w-full h-full object-contain"
           />
           
           {/* Pending Badge */}
-          <div className="absolute top-2 left-2 bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded">
+          <div className="absolute top-2 left-2 bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded z-10">
             PENDING
           </div>
 
           {/* Remove Pending */}
-          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
+          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100 z-10">
             <button
               type="button"
               onClick={() => handleRemovePending(pendingIndex)}

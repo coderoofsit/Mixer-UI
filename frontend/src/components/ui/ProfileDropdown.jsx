@@ -68,13 +68,23 @@ const ProfileDropdown = () => {
         className="flex items-center space-x-2 focus:outline-none"
         aria-label="User menu"
       >
-        <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-gray-200 hover:border-teal-500 transition-colors duration-200">
+        <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-gray-200 hover:border-teal-500 transition-colors duration-200 relative">
           {primaryImage ? (
-            <img
-              src={primaryImage}
-              alt="Profile"
-              className="w-full h-full object-cover"
-            />
+            <>
+              {/* Blurred background */}
+              <img
+                src={primaryImage}
+                alt=""
+                className="absolute inset-0 w-full h-full object-cover blur-md scale-110"
+                aria-hidden="true"
+              />
+              {/* Main image */}
+              <img
+                src={primaryImage}
+                alt="Profile"
+                className="relative w-full h-full object-contain"
+              />
+            </>
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center text-white font-semibold text-sm">
               {getInitials()}

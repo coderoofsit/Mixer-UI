@@ -149,14 +149,22 @@ const Matches = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredMatches.map((match) => (
               <Card key={match.id} className="overflow-hidden">
-                <div className="relative">
+                <div className="relative h-48 overflow-hidden bg-gray-200">
+                  {/* Blurred background */}
+                  <img
+                    src={match.photos[0]}
+                    alt=""
+                    className="absolute inset-0 w-full h-full object-cover blur-xl scale-110"
+                    aria-hidden="true"
+                  />
+                  {/* Main image */}
                   <img
                     src={match.photos[0]}
                     alt={match.name}
-                    className="w-full h-48 object-cover"
+                    className="relative w-full h-full object-contain"
                   />
                   {match.isNew && (
-                    <div className="absolute top-2 right-2">
+                    <div className="absolute top-2 right-2 z-10">
                       <span className="bg-accent-500 text-white text-xs font-medium px-2 py-1 rounded-full">
                         New
                       </span>

@@ -14,13 +14,23 @@ const ProfileCard = ({
   return (
     <Card className="overflow-hidden max-w-sm w-full mx-auto">
       {/* Photo */}
-      <div className="relative h-64 sm:h-80 bg-gray-200">
+      <div className="relative h-64 sm:h-80 bg-gray-200 overflow-hidden">
         {photos && photos.length > 0 ? (
-          <img
-            src={photos[0]}
-            alt={name}
-            className="w-full h-full object-cover"
-          />
+          <>
+            {/* Blurred background */}
+            <img
+              src={photos[0]}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover blur-xl scale-110"
+              aria-hidden="true"
+            />
+            {/* Main image */}
+            <img
+              src={photos[0]}
+              alt={name}
+              className="relative w-full h-full object-contain"
+            />
+          </>
         ) : (
           <div className="w-full h-full flex items-center justify-center">
             <div className="text-center text-gray-400">

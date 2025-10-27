@@ -578,13 +578,21 @@ const Profile = () => {
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                       {profileData.images.map((image, index) => (
                         <div key={index} className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                          {/* Blurred background */}
+                          <img
+                            src={image.url}
+                            alt=""
+                            className="absolute inset-0 w-full h-full object-cover blur-xl scale-110"
+                            aria-hidden="true"
+                          />
+                          {/* Main image */}
                           <img
                             src={image.url}
                             alt={`Profile ${index + 1}`}
-                            className="w-full h-full object-cover"
+                            className="relative w-full h-full object-contain"
                           />
                           {image.isPrimary && (
-                            <div className="absolute top-2 left-2 bg-teal-600 text-white text-xs font-bold px-2 py-1 rounded">
+                            <div className="absolute top-2 left-2 bg-teal-600 text-white text-xs font-bold px-2 py-1 rounded z-10">
                               PRIMARY
                             </div>
                           )}

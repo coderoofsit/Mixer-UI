@@ -368,31 +368,18 @@ const Contact = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Phone <span className="text-red-600">*</span>
                 </label>
-                <div className="flex gap-2">
-                  {/* Country Code Dropdown */}
-                  <div className="w-36">
-                    <CustomDropdown
-                      value={formData.countryCode}
-                      options={countryCodeOptions}
-                      placeholder="🇺🇸 +1"
-                      onChange={(value) => handleDropdownChange("countryCode", value)}
-                      maxHeight="200px"
-                      enableScroll={true}
-                    />
-                  </div>
-                  {/* Phone Number Input */}
-                  <div className="flex-1">
-                    <input
-                      name="phone"
-                      type="tel"
-                      value={formData.phone}
-                      onChange={handleChange}
-                      placeholder="(201) 555-0123"
-                      maxLength={20}
-                      required
-                      className="w-full h-[56px] px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200 bg-white"
-                    />
-                  </div>
+                <div>
+                  {/* Phone Number Input - Country code hidden but still submitted */}
+                  <input
+                    name="phone"
+                    type="tel"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    placeholder="(201) 555-0123"
+                    maxLength={20}
+                    required
+                    className="w-full h-[56px] px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200 bg-white"
+                  />
                 </div>
                 {errors.phone && (
                   <p className="mt-1 text-sm text-red-600">{errors.phone}</p>

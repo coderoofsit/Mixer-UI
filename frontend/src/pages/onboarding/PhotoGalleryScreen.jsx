@@ -125,14 +125,22 @@ const PhotoGalleryScreen = () => {
               >
                 {photo ? (
                   <div className="relative w-full h-full">
+                    {/* Blurred background */}
+                    <img
+                      src={photo}
+                      alt=""
+                      className="absolute inset-0 w-full h-full object-cover rounded-2xl blur-xl scale-110"
+                      aria-hidden="true"
+                    />
+                    {/* Main image */}
                     <img
                       src={photo}
                       alt={`Upload ${index + 1}`}
-                      className="w-full h-full object-cover rounded-2xl"
+                      className="relative w-full h-full object-contain rounded-2xl"
                     />
                     {index === 0 && (
                       <div
-                        className="absolute top-2 left-2 px-2 py-1 rounded text-xs font-semibold text-white"
+                        className="absolute top-2 left-2 px-2 py-1 rounded text-xs font-semibold text-white z-10"
                         style={{ backgroundColor: "#5D1751" }}
                       >
                         Main
@@ -143,7 +151,7 @@ const PhotoGalleryScreen = () => {
                         e.preventDefault();
                         removePhoto(index);
                       }}
-                      className="absolute top-2 right-2 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-red-50 transition-colors duration-200"
+                      className="absolute top-2 right-2 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-red-50 transition-colors duration-200 z-10"
                     >
                       <svg
                         className="w-5 h-5 text-red-500"

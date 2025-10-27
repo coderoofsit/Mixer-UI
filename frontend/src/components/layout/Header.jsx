@@ -71,11 +71,21 @@ const Header = () => {
               <div className="flex items-center space-x-3">
                 <Link to="/profile" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
                   {primaryImage ? (
-                    <img
-                      src={primaryImage}
-                      alt={profileData?.name || "User"}
-                      className="w-10 h-10 rounded-full object-cover border-2 border-primary-600"
-                    />
+                    <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-600 relative">
+                      {/* Blurred background */}
+                      <img
+                        src={primaryImage}
+                        alt=""
+                        className="absolute inset-0 w-full h-full object-cover blur-md scale-110"
+                        aria-hidden="true"
+                      />
+                      {/* Main image */}
+                      <img
+                        src={primaryImage}
+                        alt={profileData?.name || "User"}
+                        className="relative w-full h-full object-contain"
+                      />
+                    </div>
                   ) : (
                     <div className="w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center text-white font-semibold border-2 border-primary-600">
                       {profileData?.name?.charAt(0).toUpperCase() || "U"}
@@ -176,11 +186,21 @@ const Header = () => {
                       onClick={() => setIsMenuOpen(false)}
                     >
                       {primaryImage ? (
-                        <img
-                          src={primaryImage}
-                          alt={profileData?.name || "User"}
-                          className="w-10 h-10 rounded-full object-cover border-2 border-primary-600"
-                        />
+                        <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-600 relative">
+                          {/* Blurred background */}
+                          <img
+                            src={primaryImage}
+                            alt=""
+                            className="absolute inset-0 w-full h-full object-cover blur-md scale-110"
+                            aria-hidden="true"
+                          />
+                          {/* Main image */}
+                          <img
+                            src={primaryImage}
+                            alt={profileData?.name || "User"}
+                            className="relative w-full h-full object-contain"
+                          />
+                        </div>
                       ) : (
                         <div className="w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center text-white font-semibold border-2 border-primary-600">
                           {profileData?.name?.charAt(0).toUpperCase() || "U"}

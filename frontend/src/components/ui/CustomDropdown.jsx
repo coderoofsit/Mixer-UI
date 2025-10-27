@@ -120,7 +120,7 @@ const CustomDropdown = ({
         {/* Dropdown Menu */}
         {isExpanded && !disabled && (
           <div
-            className={`relative z-50 w-full bg-white border border-gray-300 rounded-2xl shadow-lg mt-1 ${enableScroll ? 'overflow-y-auto' : ''}`}
+            className={`absolute z-50 w-full bg-white border border-gray-300 rounded-2xl shadow-lg mt-1 ${enableScroll ? 'overflow-y-auto' : ''}`}
             style={{ 
               maxHeight: enableScroll ? maxHeight : "auto",
               overflow: enableScroll ? undefined : "hidden"
