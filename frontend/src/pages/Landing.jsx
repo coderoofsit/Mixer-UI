@@ -6,13 +6,15 @@ import { stripeService } from "../services/stripeService";
 import authService from "../services/authService";
 import { useProfile } from "../contexts/ProfileContext";
 import { useNavigate } from "react-router-dom";
-
+import BackgroundUnpaid from "../components/BackgroundUnpaid";
+import BackgroundPending from "../components/BackgroundPending";
 const Landing = () => {
 	const [userDetails, setUserDetails] = useState();
 	const [paymentIsLoading, setPaymentIsLoading] = useState(false);
 	const [isMemberPaymentLoading, setIsMemberPaymentLoading] = useState(false);
 	const { profileData } = useProfile();
 	const isAuthenticated = authService.isAuthenticated() || profileData !== null;
+	console.log({ profileData });
 	const navigate = useNavigate();
 	const handlePayForVerification = async (productType) => {
 		if (!isAuthenticated) return navigate("/login");
@@ -298,10 +300,10 @@ const Landing = () => {
 					</div>
 
 					{/* Pricing Sections */}
-					<div className='grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 max-w-5xl mx-auto'>
+					{/* <div className='grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 max-w-5xl mx-auto'> */}
+					<div className='max-w-lg mx-auto'>
 						{/* Memberships Section */}
-						<div className='bg-white overflow-hidden border border-black'>
-							{/* Header Banner */}
+						{/* <div className='bg-white overflow-hidden border border-black'>
 							<div
 								className='w-full py-6 md:py-8 text-center'
 								style={{ backgroundColor: "#038386" }}
@@ -310,8 +312,6 @@ const Landing = () => {
 									Memberships
 								</h3>
 							</div>
-
-							{/* Content */}
 							<div className='p-6 md:p-12 text-center'>
 								<div className='mb-8 md:mb-10 flex items-baseline justify-center'>
 									<span className='text-2xl md:text-4xl font-bold text-gray-900'>$</span>
@@ -325,8 +325,6 @@ const Landing = () => {
 										Month
 									</span>
 								</div>
-
-								{/* Button */}
 								<button
 									className='w-full md:w-auto py-3 md:py-4 px-8 md:px-10 font-semibold text-xs transition-colors duration-200 mt-8 md:mt-16'
 									style={{
@@ -336,14 +334,25 @@ const Landing = () => {
 									disabled={isMemberPaymentLoading}
 									onClick={() => handlePayForVerification("quarterly_membership")}
 								>
-									{paymentIsLoading ? "Loading" : "START MIXER"}
+									{isMemberPaymentLoading ? "Loading" : "START MIXER"}
 								</button>
 							</div>
-						</div>
+						</div> */}
 
 						{/* Background Check Section */}
-						<div className='bg-white overflow-hidden border border-black'>
-							{/* Header Banner */}
+						{profileData?.backgroundVerification === "unpaid" && (
+							<BackgroundUnpaid
+								handlePayForVerification={handlePayForVerification}
+								isLoading={paymentIsLoading}
+							/>
+						)}
+						{profileData?.backgroundVerification === "pending" && (
+							<BackgroundPending
+								handlePayForVerification={handlePayForVerification}
+								isLoading={paymentIsLoading}
+							/>
+						)}
+						{/* <div className='bg-white overflow-hidden border border-black'>
 							<div
 								className='w-full py-6 md:py-8 text-center'
 								style={{ backgroundColor: "#F97316" }}
@@ -353,7 +362,6 @@ const Landing = () => {
 								</h3>
 							</div>
 
-							{/* Content */}
 							<div className='p-6 md:p-12 text-center'>
 								<div className='mb-8 md:mb-10 flex items-baseline justify-center'>
 									<span className='text-2xl md:text-4xl font-bold text-gray-900'>$</span>
@@ -365,8 +373,6 @@ const Landing = () => {
 										One Time Payment
 									</span>
 								</div>
-
-								{/* Button */}
 								<button
 									className='w-full md:w-auto py-3 md:py-4 px-8 md:px-10 font-semibold text-xs transition-colors duration-200 mt-8 md:mt-16'
 									style={{
@@ -379,7 +385,7 @@ const Landing = () => {
 									{paymentIsLoading ? "loading" : "APPLY NOW"}
 								</button>
 							</div>
-						</div>
+						</div> */}
 					</div>
 				</div>
 			</section>

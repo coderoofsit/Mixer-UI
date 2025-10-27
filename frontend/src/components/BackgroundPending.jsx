@@ -11,6 +11,9 @@ export default function BackgroundPending({ handlePayForVerification }) {
 				Background Check is Pending
 			</h3>
 			</div>
+			<div className="p-12 text-center bg-white">
+				We are currently processing your background check. Please check back later.
+			</div>
 		</div>
 	);
 }
