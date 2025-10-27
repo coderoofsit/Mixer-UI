@@ -121,14 +121,14 @@ const ProfileSetupScreen = () => {
       const dateOfBirth = convertToISODate(formData.dateOfBirth);
       const height = formData.heightFeet && formData.heightInches
         ? `${formData.heightFeet.replace(' ft', '')}'${formData.heightInches.replace(' in', '')}"`
-        : null;
+        : "";
 
       const frontendData = {
         name: formData.name.trim(),
         dateOfBirth,
         selectedGender: formData.gender,
         heightController: height,
-        aboutMe: formData.vibe.trim() || null,
+        aboutMe: formData.vibe.trim() || "",
         notificationPermissionGranted: true,
       };
 

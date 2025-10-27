@@ -11,27 +11,50 @@
 export const mapProfileFieldsToBackend = (frontendData) => {
   const backendData = {};
 
-  // Direct mappings (include with fallback to preserve empty values)
-  backendData.name = frontendData.name !== undefined ? frontendData.name : null;
-  backendData.dateOfBirth = frontendData.dateOfBirth !== undefined ? frontendData.dateOfBirth : null;
-  backendData.aboutMe = frontendData.aboutMe !== undefined ? frontendData.aboutMe : null;
+  // Mapping object for field transformations
+  const fieldMappings = {
+    // Direct mappings
+    name: 'name',
+    dateOfBirth: 'dateOfBirth',
+    aboutMe: 'aboutMe',
+    // Field name transformations (remove "selected" prefix)
+    selectedGender: 'gender',
+    heightController: 'height',
+    selectedEthnicity: 'ethnicity',
+    selectedFamilyPlans: 'familyPlans',
+    selectedDrinking: 'drinking',
+    selectedSmoking: 'smoking',
+    selectedMarijuana: 'marijuanas', // Note: plural in backend
+    selectedReligion: 'religion',
+    selectedPolitics: 'politics',
+    selectedThingsILike: 'thingsILike',
+    selectedValues: 'values',
+    notificationPermissionGranted: 'notificationPermission',
+    locationPermissionGranted: 'locationPermission',
+  };
 
-  // Field name transformations (remove "selected" prefix, include with fallback)
-  backendData.gender = frontendData.selectedGender !== undefined ? frontendData.selectedGender : null;
-  backendData.height = frontendData.heightController !== undefined ? frontendData.heightController : null;
-  backendData.ethnicity = frontendData.selectedEthnicity !== undefined ? frontendData.selectedEthnicity : null;
-  backendData.familyPlans = frontendData.selectedFamilyPlans !== undefined ? frontendData.selectedFamilyPlans : null;
-  backendData.drinking = frontendData.selectedDrinking !== undefined ? frontendData.selectedDrinking : null;
-  backendData.smoking = frontendData.selectedSmoking !== undefined ? frontendData.selectedSmoking : null;
-  backendData.marijuanas = frontendData.selectedMarijuana !== undefined ? frontendData.selectedMarijuana : null; // Note: plural in backend
-  backendData.religion = frontendData.selectedReligion !== undefined ? frontendData.selectedReligion : null;
-  backendData.politics = frontendData.selectedPolitics !== undefined ? frontendData.selectedPolitics : null;
-  backendData.thingsILike = frontendData.selectedThingsILike !== undefined ? frontendData.selectedThingsILike : null;
-  backendData.values = frontendData.selectedValues !== undefined ? frontendData.selectedValues : null;
-  backendData.notificationPermission = frontendData.notificationPermissionGranted !== undefined ? frontendData.notificationPermissionGranted : null;
-  backendData.locationPermission = frontendData.locationPermissionGranted !== undefined ? frontendData.locationPermissionGranted : null;
+  // Map and filter out null/empty values
+  Object.keys(fieldMappings).forEach(frontendKey => {
+    const backendKey = fieldMappings[frontendKey];
+    const value = frontendData[frontendKey];
+    
+    // Only include if value exists and is not null/empty
+    if (value !== undefined && value !== null && value !== '') {
+      // For arrays, only include if not empty
+      if (Array.isArray(value)) {
+        if (value.length > 0) {
+          backendData[backendKey] = value;
+        }
+      } else {
+        backendData[backendKey] = value;
+      }
+    }
+  });
 
-  // Include all fields even if empty/null - backend will handle appropriately
+  // Handle special fields that might be passed directly (like location)
+  if (frontendData.location !== undefined && frontendData.location !== null) {
+    backendData.location = frontendData.location;
+  }
 
   return backendData;
 };

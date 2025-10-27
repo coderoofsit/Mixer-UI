@@ -122,18 +122,18 @@ const InterestsValuesScreen = () => {
 
     try {
       const frontendData = {
-        selectedEthnicity: formData.ethnicity || null,
-        selectedFamilyPlans: formData.familyPlans || null,
-        selectedDrinking: formData.drinking || null,
-        selectedSmoking: formData.smoking || null,
-        selectedMarijuana: formData.marijuana || null,
-        selectedReligion: formData.religiousBeliefs || null,
-        selectedPolitics: formData.politicalViews || null,
-        selectedThingsILike: formData.interests.length > 0 ? formData.interests : null,
-        selectedValues: formData.values.length > 0 ? formData.values : null,
+        selectedEthnicity: formData.ethnicity || "",
+        selectedFamilyPlans: formData.familyPlans || "",
+        selectedDrinking: formData.drinking || "",
+        selectedSmoking: formData.smoking || "",
+        selectedMarijuana: formData.marijuana || "",
+        selectedReligion: formData.religiousBeliefs || "",
+        selectedPolitics: formData.politicalViews || "",
+        selectedThingsILike: formData.interests.length > 0 ? formData.interests : [],
+        selectedValues: formData.values.length > 0 ? formData.values : [],
       };
 
-      // Transform to backend field names
+      // Transform to backend field names (will automatically filter out empty values)
       const profileData = mapProfileFieldsToBackend(frontendData);
 
       console.log('📤 Sending interests/values data to backend:', profileData);

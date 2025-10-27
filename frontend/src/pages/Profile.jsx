@@ -154,7 +154,7 @@ const Profile = () => {
           interestedInValue = userData.interestedIn;
         }
 
-        setProfileData({
+        const updatedProfile = {
           name: userData.name || "",
           email: userData.email || "",
           lookingFor: userData.lookingFor || "",
@@ -176,7 +176,12 @@ const Profile = () => {
           politics: userData.politics || "",
           thingsILike: userData.thingsILike || [],
           values: userData.values || [],
-        });
+        };
+
+        setProfileData(updatedProfile);
+        
+        // Update context with the raw user data (not the formatted version)
+        updateProfileContext(userData);
         }
       } catch (error) {
       console.error('Failed to fetch profile:', error);
@@ -443,21 +448,26 @@ const Profile = () => {
         values: profileData.values || [],
       };
 
-      // Include all fields even if empty - no deletion of empty fields
+      // Filter out empty fields (empty strings, empty arrays, null, undefined)
+      const filteredUpdateData = Object.entries(updateData).reduce((acc, [key, value]) => {
+        if (value !== "" && value !== null && value !== undefined) {
+          // For arrays, only include if not empty
+          if (Array.isArray(value)) {
+            if (value.length > 0) {
+              acc[key] = value;
+            }
+          } else {
+            acc[key] = value;
+          }
+        }
+        return acc;
+      }, {});
 
-      const response = await authApi.updateProfile(updateData);
+      const response = await authApi.updateProfile(filteredUpdateData);
 
       if (response.success) {
-        // Update the context with new profile data
-        const updatedUserData = response.data?.user || response.data;
-        if (updatedUserData) {
-          // Merge with current profileData to include images
-          const mergedData = {
-            ...updatedUserData,
-            images: profileData.images // Keep current images as they weren't part of this update
-          };
-          updateProfileContext(mergedData);
-        }
+        // Refetch the complete profile to ensure all fields are up to date
+        await fetchProfile();
         
         setSuccessMessage("Profile updated successfully!");
         setIsEditMode(false);
