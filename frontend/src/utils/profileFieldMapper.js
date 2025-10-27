@@ -11,64 +11,27 @@
 export const mapProfileFieldsToBackend = (frontendData) => {
   const backendData = {};
 
-  // Direct mappings (no transformation needed)
-  if (frontendData.name !== undefined) {
-    backendData.name = frontendData.name;
-  }
-  if (frontendData.dateOfBirth !== undefined) {
-    backendData.dateOfBirth = frontendData.dateOfBirth;
-  }
-  if (frontendData.aboutMe !== undefined) {
-    backendData.aboutMe = frontendData.aboutMe;
-  }
+  // Direct mappings (include with fallback to preserve empty values)
+  backendData.name = frontendData.name !== undefined ? frontendData.name : null;
+  backendData.dateOfBirth = frontendData.dateOfBirth !== undefined ? frontendData.dateOfBirth : null;
+  backendData.aboutMe = frontendData.aboutMe !== undefined ? frontendData.aboutMe : null;
 
-  // Field name transformations (remove "selected" prefix)
-  if (frontendData.selectedGender !== undefined) {
-    backendData.gender = frontendData.selectedGender;
-  }
-  if (frontendData.heightController !== undefined) {
-    backendData.height = frontendData.heightController;
-  }
-  if (frontendData.selectedEthnicity !== undefined) {
-    backendData.ethnicity = frontendData.selectedEthnicity;
-  }
-  if (frontendData.selectedFamilyPlans !== undefined) {
-    backendData.familyPlans = frontendData.selectedFamilyPlans;
-  }
-  if (frontendData.selectedDrinking !== undefined) {
-    backendData.drinking = frontendData.selectedDrinking;
-  }
-  if (frontendData.selectedSmoking !== undefined) {
-    backendData.smoking = frontendData.selectedSmoking;
-  }
-  if (frontendData.selectedMarijuana !== undefined) {
-    backendData.marijuanas = frontendData.selectedMarijuana; // Note: plural in backend
-  }
-  if (frontendData.selectedReligion !== undefined) {
-    backendData.religion = frontendData.selectedReligion;
-  }
-  if (frontendData.selectedPolitics !== undefined) {
-    backendData.politics = frontendData.selectedPolitics;
-  }
-  if (frontendData.selectedThingsILike !== undefined) {
-    backendData.thingsILike = frontendData.selectedThingsILike;
-  }
-  if (frontendData.selectedValues !== undefined) {
-    backendData.values = frontendData.selectedValues;
-  }
-  if (frontendData.notificationPermissionGranted !== undefined) {
-    backendData.notificationPermission = frontendData.notificationPermissionGranted;
-  }
-  if (frontendData.locationPermissionGranted !== undefined) {
-    backendData.locationPermission = frontendData.locationPermissionGranted;
-  }
+  // Field name transformations (remove "selected" prefix, include with fallback)
+  backendData.gender = frontendData.selectedGender !== undefined ? frontendData.selectedGender : null;
+  backendData.height = frontendData.heightController !== undefined ? frontendData.heightController : null;
+  backendData.ethnicity = frontendData.selectedEthnicity !== undefined ? frontendData.selectedEthnicity : null;
+  backendData.familyPlans = frontendData.selectedFamilyPlans !== undefined ? frontendData.selectedFamilyPlans : null;
+  backendData.drinking = frontendData.selectedDrinking !== undefined ? frontendData.selectedDrinking : null;
+  backendData.smoking = frontendData.selectedSmoking !== undefined ? frontendData.selectedSmoking : null;
+  backendData.marijuanas = frontendData.selectedMarijuana !== undefined ? frontendData.selectedMarijuana : null; // Note: plural in backend
+  backendData.religion = frontendData.selectedReligion !== undefined ? frontendData.selectedReligion : null;
+  backendData.politics = frontendData.selectedPolitics !== undefined ? frontendData.selectedPolitics : null;
+  backendData.thingsILike = frontendData.selectedThingsILike !== undefined ? frontendData.selectedThingsILike : null;
+  backendData.values = frontendData.selectedValues !== undefined ? frontendData.selectedValues : null;
+  backendData.notificationPermission = frontendData.notificationPermissionGranted !== undefined ? frontendData.notificationPermissionGranted : null;
+  backendData.locationPermission = frontendData.locationPermissionGranted !== undefined ? frontendData.locationPermissionGranted : null;
 
-  // Remove null/undefined values
-  Object.keys(backendData).forEach(key => {
-    if (backendData[key] === null || backendData[key] === undefined) {
-      delete backendData[key];
-    }
-  });
+  // Include all fields even if empty/null - backend will handle appropriately
 
   return backendData;
 };

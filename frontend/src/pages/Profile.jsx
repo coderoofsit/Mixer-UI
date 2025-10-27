@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
 import LandingHeader from "../components/layout/LandingHeader";
@@ -58,6 +58,11 @@ const Profile = () => {
 
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState("");
+
+  // Refs for scrolling to error fields
+  const nameRef = useRef(null);
+  const genderRef = useRef(null);
+  const dateOfBirthRef = useRef(null);
 
   // Helper function to format date to MM-DD-YYYY for display
   const formatDate = (dateString) => {
@@ -124,17 +129,17 @@ const Profile = () => {
   };
 
   // Fetch profile data on component mount
-  const fetchProfile = async () => {
-    try {
-      setFetchingProfile(true);
-      const response = await authApi.getUserProfile();
-      
-      if (response.success && response.data) {
-        const userData = response.data.user || response.data;
+    const fetchProfile = async () => {
+      try {
+        setFetchingProfile(true);
+        const response = await authApi.getUserProfile();
         
+        if (response.success && response.data) {
+          const userData = response.data.user || response.data;
+          
         // Format dateOfBirth for date input (YYYY-MM-DD)
         let formattedDOB = "";
-        if (userData.dateOfBirth) {
+          if (userData.dateOfBirth) {
           const date = new Date(userData.dateOfBirth);
           formattedDOB = date.toISOString().split('T')[0];
         }
@@ -172,14 +177,14 @@ const Profile = () => {
           thingsILike: userData.thingsILike || [],
           values: userData.values || [],
         });
-      }
-    } catch (error) {
+        }
+      } catch (error) {
       console.error('Failed to fetch profile:', error);
       setErrors({ fetch: error.message });
-    } finally {
-      setFetchingProfile(false);
-    }
-  };
+      } finally {
+        setFetchingProfile(false);
+      }
+    };
 
   useEffect(() => {
     fetchProfile();
@@ -350,8 +355,15 @@ const Profile = () => {
   const validateForm = () => {
     const newErrors = {};
 
-    // Validate date format and age
-    if (profileData.displayDateOfBirth) {
+    // Required fields validation
+    if (!profileData.name || !profileData.name.trim()) {
+      newErrors.name = "Name is required";
+    }
+
+    if (!profileData.dateOfBirth || !profileData.displayDateOfBirth) {
+      newErrors.dateOfBirth = "Date of birth is required";
+    } else {
+      // Validate date format and age
       const dateRegex = /^(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])-(\d{4})$/;
       if (!dateRegex.test(profileData.displayDateOfBirth)) {
         newErrors.dateOfBirth = "Invalid date format. Use MM-DD-YYYY (e.g., 01-15-1990)";
@@ -369,11 +381,28 @@ const Profile = () => {
       }
     }
 
+    if (!profileData.gender) {
+      newErrors.gender = "Gender is required";
+    }
+
+    // Optional fields validation
     if (profileData.lookingFor && profileData.lookingFor.length > 500) {
       newErrors.lookingFor = "Maximum 500 characters allowed";
     }
 
     setErrors(newErrors);
+
+    // Scroll to first error field
+    if (Object.keys(newErrors).length > 0) {
+      if (newErrors.name && nameRef.current) {
+        nameRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else if (newErrors.gender && genderRef.current) {
+        genderRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else if (newErrors.dateOfBirth && dateOfBirthRef.current) {
+        dateOfBirthRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
     return Object.keys(newErrors).length === 0;
   };
 
@@ -396,30 +425,25 @@ const Profile = () => {
       const interestedInArray = profileData.interestedIn ? [profileData.interestedIn] : [];
 
       const updateData = {
-        name: profileData.name,
-        lookingFor: profileData.lookingFor,
-        gender: profileData.gender,
-        dateOfBirth: profileData.dateOfBirth,
-        height: combinedHeight,
+        name: profileData.name || "",
+        lookingFor: profileData.lookingFor || "",
+        gender: profileData.gender || "",
+        dateOfBirth: profileData.dateOfBirth || "",
+        height: combinedHeight || "",
         interestedIn: interestedInArray,
-        sexuality: profileData.sexuality,
-        relationshipType: profileData.relationshipType,
-        ethnicity: profileData.ethnicity,
-        familyPlans: profileData.familyPlans,
-        drinking: profileData.drinking,
-        smoking: profileData.smoking,
-        religion: profileData.religion,
-        politics: profileData.politics,
-        thingsILike: profileData.thingsILike,
-        values: profileData.values,
+        sexuality: profileData.sexuality || "",
+        relationshipType: profileData.relationshipType || "",
+        ethnicity: profileData.ethnicity || "",
+        familyPlans: profileData.familyPlans || "",
+        drinking: profileData.drinking || "",
+        smoking: profileData.smoking || "",
+        religion: profileData.religion || "",
+        politics: profileData.politics || "",
+        thingsILike: profileData.thingsILike || [],
+        values: profileData.values || [],
       };
 
-      Object.keys(updateData).forEach(key => {
-        if (updateData[key] === "" || updateData[key] === null || 
-            (Array.isArray(updateData[key]) && updateData[key].length === 0)) {
-          delete updateData[key];
-        }
-      });
+      // Include all fields even if empty - no deletion of empty fields
 
       const response = await authApi.updateProfile(updateData);
 
@@ -506,17 +530,17 @@ const Profile = () => {
       {uploading && <LoadingOverlay message="Uploading images..." />}
 
       <div className="min-h-screen bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-8 flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                Your Profile
-              </h1>
-              <p className="text-gray-600">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Your Profile
+          </h1>
+          <p className="text-gray-600">
                 {isEditMode ? "Edit your profile information" : "View your profile"}
-              </p>
-            </div>
-            
+          </p>
+        </div>
+
             {!isEditMode && (
               <Button
                 onClick={handleEditClick}
@@ -527,19 +551,19 @@ const Profile = () => {
             )}
           </div>
 
-          {/* Success Message */}
-          {successMessage && (
+            {/* Success Message */}
+            {successMessage && (
             <div className="mb-6 bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded-lg">
-              {successMessage}
-            </div>
-          )}
+                {successMessage}
+              </div>
+            )}
 
-          {/* Error Message */}
-          {errors.submit && (
+            {/* Error Message */}
+            {errors.submit && (
             <div className="mb-6 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
-              {errors.submit}
-            </div>
-          )}
+                {errors.submit}
+              </div>
+            )}
 
           {/* VIEW MODE */}
           {!isEditMode && (
@@ -741,53 +765,59 @@ const Profile = () => {
               </Card>
 
               {/* Basic Details */}
-              <Card>
-                <Card.Header>
+            <Card>
+            <Card.Header>
                   <Card.Title>Basic Details</Card.Title>
                   <Card.Description>Tell us about yourself</Card.Description>
-                </Card.Header>
-                <Card.Content className="space-y-6">
+            </Card.Header>
+            <Card.Content className="space-y-6">
                   {/* Name */}
-                  <div>
+                  <div ref={nameRef}>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Name
+                      Name <span className="text-red-600">*</span>
                     </label>
                     <input
                       type="text"
-                      name="name"
+                  name="name"
                       value={profileData.name}
-                      onChange={handleChange}
-                      placeholder="Enter your full name"
+                  onChange={handleChange}
+                  placeholder="Enter your full name"
                       maxLength={50}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors duration-200"
-                    />
-                  </div>
+                />
+                    {errors.name && (
+                      <p className="mt-1 text-sm text-red-600">{errors.name}</p>
+                    )}
+              </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Gender */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Gender
-                      </label>
-                      <select
-                        name="gender"
+                <div ref={genderRef}>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Gender <span className="text-red-600">*</span>
+                  </label>
+                  <select
+                    name="gender"
                         value={profileData.gender}
-                        onChange={handleChange}
+                    onChange={handleChange}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors duration-200"
-                      >
-                        <option value="">Select gender</option>
+                  >
+                    <option value="">Select gender</option>
                         {GENDER_OPTIONS.map((option) => (
                           <option key={option} value={option}>
                             {option}
                           </option>
                         ))}
                       </select>
+                      {errors.gender && (
+                        <p className="mt-1 text-sm text-red-600">{errors.gender}</p>
+                      )}
                     </div>
 
                     {/* Birthday */}
-                    <div>
+                    <div ref={dateOfBirthRef}>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Birthday
+                        Birthday <span className="text-red-600">*</span>
                       </label>
                       <DatePicker
                         value={profileData.displayDateOfBirth}
@@ -959,18 +989,18 @@ const Profile = () => {
                             {option}
                           </option>
                         ))}
-                      </select>
-                    </div>
-                  </div>
-                </Card.Content>
-              </Card>
+                  </select>
+                </div>
+              </div>
+            </Card.Content>
+          </Card>
 
               {/* Lifestyle Habits */}
-              <Card>
-                <Card.Header>
+          <Card>
+            <Card.Header>
                   <Card.Title>Lifestyle Habits</Card.Title>
                   <Card.Description>Share your lifestyle preferences</Card.Description>
-                </Card.Header>
+            </Card.Header>
                 <Card.Content className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Drinking */}
@@ -1034,14 +1064,14 @@ const Profile = () => {
                     </div>
 
                     {/* Politics */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                         Politics
-                      </label>
+                </label>
                       <select
                         name="politics"
                         value={profileData.politics}
-                        onChange={handleChange}
+                  onChange={handleChange}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors duration-200"
                       >
                         <option value="">Select option</option>
@@ -1052,23 +1082,23 @@ const Profile = () => {
                         ))}
                       </select>
                     </div>
-                  </div>
-                </Card.Content>
-              </Card>
+              </div>
+            </Card.Content>
+          </Card>
 
               {/* Interests & Hobbies */}
-              <Card>
-                <Card.Header>
+          <Card>
+            <Card.Header>
                   <Card.Title>Interests & Hobbies</Card.Title>
-                  <Card.Description>
-                    Select your interests to help us find better matches
-                  </Card.Description>
-                </Card.Header>
-                <Card.Content>
+              <Card.Description>
+                Select your interests to help us find better matches
+              </Card.Description>
+            </Card.Header>
+            <Card.Content>
                   <div className="flex flex-wrap gap-2">
                     {INTERESTS_OPTIONS.map((interest) => (
                       <button
-                        key={interest}
+                    key={interest}
                         type="button"
                         onClick={() => handleChipToggle('thingsILike', interest)}
                         className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
@@ -1077,25 +1107,25 @@ const Profile = () => {
                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                         }`}
                       >
-                        {interest}
+                      {interest}
                         {profileData.thingsILike.includes(interest) && (
                           <span className="ml-2">✓</span>
                         )}
                       </button>
-                    ))}
-                  </div>
-                </Card.Content>
-              </Card>
+                ))}
+              </div>
+            </Card.Content>
+          </Card>
 
               {/* Values & Lifestyle */}
-              <Card>
-                <Card.Header>
+          <Card>
+            <Card.Header>
                   <Card.Title>Values & Lifestyle</Card.Title>
-                  <Card.Description>
+              <Card.Description>
                     Select the values that are important to you
-                  </Card.Description>
-                </Card.Header>
-                <Card.Content>
+              </Card.Description>
+            </Card.Header>
+            <Card.Content>
                   <div className="flex flex-wrap gap-2">
                     {VALUES_OPTIONS.map((value) => (
                       <button
@@ -1113,12 +1143,12 @@ const Profile = () => {
                           <span className="ml-2">✓</span>
                         )}
                       </button>
-                    ))}
-                  </div>
-                </Card.Content>
-              </Card>
+                ))}
+              </div>
+            </Card.Content>
+          </Card>
 
-              {/* Save Button */}
+          {/* Save Button */}
               <div className="flex justify-end gap-4">
                 <Button
                   type="button"
@@ -1127,19 +1157,19 @@ const Profile = () => {
                 >
                   Cancel
                 </Button>
-                <Button
-                  type="submit"
-                  disabled={loading}
+            <Button
+              type="submit"
+              disabled={loading}
                   className="bg-teal-600 hover:bg-teal-700"
                 >
                   Save Changes
-                </Button>
-              </div>
-            </form>
-          )}
-        </div>
+            </Button>
+          </div>
+        </form>
+        )}
       </div>
-      <Footer />
+    </div>
+    <Footer />
     </>
   );
 };
