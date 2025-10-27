@@ -3,15 +3,13 @@ import LandingHeader from "../components/layout/LandingHeader";
 import Footer from "../components/layout/Footer";
 import Input from "../components/ui/Input";
 import CustomDropdown from "../components/ui/CustomDropdown";
+import DatePicker from "../components/ui/DatePicker";
 import Button from "../components/ui/Button";
 import { FaFacebookF, FaInstagram } from "react-icons/fa";
+import apiClient from "../services/apiService";
 
-// Options for dropdowns, similar to ProfileSetupScreen
-const monthOptions = [
-  "January", "February", "March", "April", "May", "June", 
-  "July", "August", "September", "October", "November", "December"
-];
-const genderOptions = ["Male", "Female", "Non-binary", "Other", "Prefer not to say"];
+// Options for dropdowns
+const genderOptions = ["Male", "Female", "Other Gender"];
 
 // Country codes with flags
 const countryCodes = [
@@ -43,13 +41,14 @@ const Contact = () => {
     phone: "",
     countryCode: "🇺🇸 +1",
     location: "",
-    dobDay: "",
-    dobMonth: "",
-    dobYear: "",
+    dateOfBirth: "", // Store as MM-DD-YYYY string
     gender: "",
+    message: "", // Optional message field
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [showForm, setShowForm] = useState(true);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -79,8 +78,25 @@ const Contact = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleDateChange = (dateString) => {
+    setFormData((prev) => ({
+      ...prev,
+      dateOfBirth: dateString,
+    }));
+    if (errors.dateOfBirth) {
+      setErrors((prev) => ({
+        ...prev,
+        dateOfBirth: null,
+      }));
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Clear previous messages
+    setSuccessMessage("");
+    
     // Basic validation
     let newErrors = {};
     if (!formData.firstName) newErrors.firstName = "First name is required";
@@ -88,21 +104,92 @@ const Contact = () => {
     if (!formData.email) newErrors.email = "Email is required";
     if (!formData.phone) newErrors.phone = "Phone is required";
     if (!formData.location) newErrors.location = "Location is required";
-    if (!formData.dobDay || !formData.dobMonth || !formData.dobYear) {
-      newErrors.dob = "Full date of birth is required";
+    if (!formData.dateOfBirth) {
+      newErrors.dateOfBirth = "Date of birth is required";
     }
     if (!formData.gender) newErrors.gender = "Gender is required";
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (formData.email && !emailRegex.test(formData.email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+
+    // Phone number validation (10-15 digits)
+    if (formData.phone) {
+      const digitsOnly = formData.phone.replace(/\D/g, '');
+      if (digitsOnly.length < 10) {
+        newErrors.phone = "Phone number must be at least 10 digits";
+      } else if (digitsOnly.length > 15) {
+        newErrors.phone = "Phone number must not exceed 15 digits";
+      }
+    }
 
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
       setIsLoading(true);
-      console.log("Form submitted:", formData);
-      // Simulate API call
-      setTimeout(() => {
+      
+      try {
+        // Format the date of birth from MM-DD-YYYY to YYYY-MM-DD
+        const [month, day, year] = formData.dateOfBirth.split('-');
+        const formattedDOB = `${year}-${month}-${day}`;
+        
+        // Extract country code from the selected option (e.g., "🇺🇸 +1" -> "+1")
+        const countryCode = formData.countryCode.split(' ')[1] || "+1";
+        
+        // Prepare data for API
+        const contactData = {
+          firstName: formData.firstName.trim(),
+          lastName: formData.lastName.trim(),
+          email: formData.email.trim().toLowerCase(),
+          phone: formData.phone.trim(),
+          countryCode: countryCode,
+          location: formData.location.trim(),
+          dateOfBirth: formattedDOB,
+          gender: formData.gender,
+          message: formData.message.trim() // Optional message
+        };
+
+        console.log("📤 Sending contact form data:", contactData);
+
+        // Make API call
+        const response = await apiClient.post("/api/v1/contactus", contactData);
+
+        console.log("✅ Contact form submitted successfully:", response.data);
+
+        // Hide form and show success message
+        setShowForm(false);
+        setSuccessMessage("Thank you for contacting us! We'll get back to you soon.");
+
+        // Reset form data immediately (hidden from user)
+        setFormData({
+          firstName: "",
+          lastName: "",
+          email: "",
+          phone: "",
+          countryCode: "🇺🇸 +1",
+          location: "",
+          dateOfBirth: "",
+          gender: "",
+          message: "",
+        });
+
+        // After 5 seconds, hide success message and show form again
+        setTimeout(() => {
+          setSuccessMessage("");
+          setShowForm(true);
+        }, 5000);
+
+      } catch (error) {
+        console.error("❌ Failed to submit contact form:", error);
+        
+        // Handle error response
+        const errorMessage = error.response?.data?.message || "Failed to submit form. Please try again.";
+        setErrors({ submit: errorMessage });
+      } finally {
         setIsLoading(false);
-        // Reset form or show success message
-      }, 1500);
+      }
     }
   };
 
@@ -147,11 +234,51 @@ const Contact = () => {
 
           {/* Form Container */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 max-w-2xl mx-auto text-left relative" style={{ overflow: "visible" }}>
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
-              General Information
-            </h2>
+            
+            {/* Success Message - Replaces Form */}
+            {!showForm && successMessage ? (
+              <div className="text-center py-16 animate-fade-in">
+                {/* Success Icon */}
+                <div className="flex justify-center mb-6">
+                  <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center animate-bounce">
+                    <svg className="w-10 h-10 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                </div>
+                
+                {/* Success Message */}
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                  Message Sent Successfully!
+                </h2>
+                <p className="text-lg text-gray-700 mb-2">
+                  {successMessage}
+                </p>
+                <p className="text-sm text-gray-500">
+                  We typically respond within 24-48 hours.
+                </p>
+                
+                {/* Progress indicator */}
+                <div className="mt-8 flex justify-center">
+                  <div className="w-48 h-1 bg-gray-200 rounded-full overflow-hidden">
+                    <div className="h-full bg-green-600 rounded-full animate-progress"></div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                  General Information
+                </h2>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Error Message */}
+                {errors.submit && (
+                  <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-red-800 text-sm font-medium">{errors.submit}</p>
+                  </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="space-y-6">
               {/* First Name and Last Name */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Input
@@ -208,6 +335,7 @@ const Contact = () => {
                       value={formData.phone}
                       onChange={handleChange}
                       placeholder="(201) 555-0123"
+                      maxLength={20}
                       required
                       className="w-full h-[56px] px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200 bg-white"
                     />
@@ -232,34 +360,17 @@ const Contact = () => {
               {/* Birthdate */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Birthdate <span className="text-red-600">*</span>
+                  Date of Birth <span className="text-red-600">*</span>
                 </label>
-                <div className="grid grid-cols-3 gap-3 items-start">
-                  <Input
-                    name="dobDay"
-                    value={formData.dobDay}
-                    onChange={handleChange}
-                    placeholder="DD"
-                    required
-                  />
-                  <CustomDropdown
-                    value={formData.dobMonth}
-                    options={monthOptions}
-                    placeholder="Month"
-                    onChange={(value) => handleDropdownChange("dobMonth", value)}
-                    maxHeight="180px"
-                    enableScroll={true}
-                  />
-                  <Input
-                    name="dobYear"
-                    value={formData.dobYear}
-                    onChange={handleChange}
-                    placeholder="YYYY"
-                    required
-                  />
-                </div>
-                {errors.dob && (
-                  <p className="mt-1 text-sm text-red-600">{errors.dob}</p>
+                <DatePicker
+                  value={formData.dateOfBirth}
+                  onChange={handleDateChange}
+                  placeholder="MM-DD-YYYY"
+                  minAge={null}
+                  className="w-full"
+                />
+                {errors.dateOfBirth && (
+                  <p className="mt-1 text-sm text-red-600">{errors.dateOfBirth}</p>
                 )}
               </div>
 
@@ -279,6 +390,27 @@ const Contact = () => {
                 )}
               </div>
 
+              {/* Message (Optional) */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Message <span className="text-gray-500 text-xs">(Optional)</span>
+                </label>
+                <textarea
+                  name="message"
+                  value={formData.message}
+                  onChange={handleChange}
+                  rows={5}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200 bg-white resize-none"
+                  placeholder="Tell us more about your inquiry or how we can help you..."
+                  maxLength={1000}
+                />
+                <div className="flex justify-end mt-1">
+                  <p className="text-xs text-gray-500">
+                    {formData.message.length}/1000 characters
+                  </p>
+                </div>
+              </div>
+
               {/* Submit Button */}
               <Button
                 type="submit"
@@ -290,6 +422,8 @@ const Contact = () => {
                 {isLoading ? "Submitting..." : "Submit"}
               </Button>
             </form>
+              </>
+            )}
           </div>
         </div>
       </div>
