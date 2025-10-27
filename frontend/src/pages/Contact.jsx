@@ -7,6 +7,8 @@ import DatePicker from "../components/ui/DatePicker";
 import Button from "../components/ui/Button";
 import { FaFacebookF, FaInstagram } from "react-icons/fa";
 import apiClient from "../services/apiService";
+import { useProfile } from "../contexts/ProfileContext";
+import authService from "../services/authService";
 
 // Options for dropdowns
 const genderOptions = ["Male", "Female", "Other Gender"];
@@ -34,7 +36,9 @@ const countryCodes = [
 const countryCodeOptions = countryCodes.map(c => `${c.flag} ${c.code}`);
 
 const Contact = () => {
-  const { profileData, fetchProfile } = useProfile();
+  const { profileData } = useProfile();
+  const isAuthenticated = authService.isAuthenticated();
+  
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -50,6 +54,54 @@ const Contact = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [showForm, setShowForm] = useState(true);
+  const [prefilledFields, setPrefilledFields] = useState({
+    firstName: false,
+    lastName: false,
+    email: false,
+    gender: false,
+    dateOfBirth: false,
+  });
+
+  // Prefill form with user data if logged in
+  useEffect(() => {
+    if (isAuthenticated && profileData) {
+      // Split full name into first and last name
+      const nameParts = profileData.name ? profileData.name.trim().split(' ') : [];
+      const firstName = nameParts[0] || "";
+      const lastName = nameParts.slice(1).join(' ') || "";
+
+      // Format date to MM-DD-YYYY if available
+      let formattedDate = "";
+      if (profileData.dateOfBirth) {
+        const date = new Date(profileData.dateOfBirth);
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const year = date.getFullYear();
+        formattedDate = `${month}-${day}-${year}`;
+      }
+
+      // Update form data
+      setFormData(prev => ({
+        ...prev,
+        firstName: firstName,
+        lastName: lastName,
+        email: profileData.email || "",
+        gender: profileData.gender || "",
+        dateOfBirth: formattedDate,
+        // Location is not in profile, keep empty
+        // Phone is not in profile, keep empty
+      }));
+
+      // Track which fields were prefilled
+      setPrefilledFields({
+        firstName: !!firstName,
+        lastName: !!lastName,
+        email: !!profileData.email,
+        gender: !!profileData.gender,
+        dateOfBirth: !!formattedDate,
+      });
+    }
+  }, [isAuthenticated, profileData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -204,19 +256,6 @@ const Contact = () => {
             Contact Mixer
           </h1>
 
-          {/* Success/Error Message */}
-          {submitMessage.text && (
-            <div 
-              className={`mb-6 p-4 rounded-lg border ${
-                submitMessage.type === 'success' 
-                  ? 'bg-green-50 border-green-200 text-green-800' 
-                  : 'bg-red-50 border-red-200 text-red-800'
-              }`}
-            >
-              <p className="text-sm font-medium">{submitMessage.text}</p>
-            </div>
-          )}
-          
           {/* Social Icons from screenshot */}
           <div className="flex justify-center space-x-3 mb-8">
             <a 
@@ -302,7 +341,6 @@ const Contact = () => {
                   onChange={handleChange}
                   error={errors.firstName}
                   required
-                  disabled={isAuthenticated && prefilledFields.firstName}
                 />
                 <Input
                   label="Last Name *"
@@ -311,7 +349,6 @@ const Contact = () => {
                   onChange={handleChange}
                   error={errors.lastName}
                   required
-                  disabled={isAuthenticated && prefilledFields.lastName}
                 />
               </div>
 
@@ -324,7 +361,6 @@ const Contact = () => {
                 onChange={handleChange}
                 error={errors.email}
                 required
-                disabled={isAuthenticated && prefilledFields.email}
               />
 
               {/* Phone */}
@@ -372,7 +408,6 @@ const Contact = () => {
                 error={errors.location}
                 placeholder="Colorado Springs"
                 required
-                disabled={isAuthenticated && prefilledFields.location}
               />
 
               {/* Birthdate */}
@@ -402,7 +437,6 @@ const Contact = () => {
                   onChange={(value) => handleDropdownChange("gender", value)}
                   error={errors.gender}
                   enableScroll={false}
-                  disabled={isAuthenticated && prefilledFields.gender}
                 />
                 {errors.gender && (
                   <p className="mt-1 text-sm text-red-600">{errors.gender}</p>
