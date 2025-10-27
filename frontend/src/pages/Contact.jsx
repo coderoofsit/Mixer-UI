@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import LandingHeader from "../components/layout/LandingHeader";
 import Footer from "../components/layout/Footer";
 import Input from "../components/ui/Input";
 import CustomDropdown from "../components/ui/CustomDropdown";
 import Button from "../components/ui/Button";
 import { FaFacebookF, FaInstagram } from "react-icons/fa";
+import { useProfile } from "../contexts/ProfileContext";
+import authService from "../services/authService";
 
 // Options for dropdowns, similar to ProfileSetupScreen
 const monthOptions = [
@@ -36,6 +38,7 @@ const countryCodes = [
 const countryCodeOptions = countryCodes.map(c => `${c.flag} ${c.code}`);
 
 const Contact = () => {
+  const { profileData, fetchProfile } = useProfile();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -50,6 +53,74 @@ const Contact = () => {
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Helper function to parse date of birth
+  const parseDateOfBirth = (dob) => {
+    if (!dob) return { day: "", month: "", year: "" };
+    
+    // Handle various date formats
+    const date = new Date(dob);
+    if (isNaN(date.getTime())) return { day: "", month: "", year: "" };
+    
+    const day = date.getDate().toString().padStart(2, '0');
+    const monthIndex = date.getMonth();
+    const month = monthOptions[monthIndex];
+    const year = date.getFullYear().toString();
+    
+    return { day, month, year };
+  };
+
+  // Auto-populate form when user is logged in
+  useEffect(() => {
+    const loadUserData = async () => {
+      // Check if user is authenticated
+      const authenticated = authService.isAuthenticated();
+      setIsAuthenticated(authenticated);
+      
+      if (authenticated) {
+        // Fetch profile if not already loaded
+        if (!profileData) {
+          await fetchProfile();
+        }
+      }
+    };
+    
+    loadUserData();
+  }, []);
+
+  // Populate form data when profile data is available
+  useEffect(() => {
+    if (profileData) {
+      console.log('📋 Populating contact form with profile data:', profileData);
+      
+      // Parse name
+      const fullName = profileData.name || "";
+      const nameParts = fullName.trim().split(" ");
+      const firstName = nameParts[0] || "";
+      const lastName = nameParts.slice(1).join(" ") || "";
+      
+      // Parse date of birth
+      const { day, month, year } = parseDateOfBirth(profileData.dateOfBirth);
+      
+      // Get email from Firebase user or profile
+      const user = authService.getCurrentUser();
+      const email = profileData.email || user?.email || "";
+      
+      setFormData({
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        phone: profileData.phone || "",
+        countryCode: "🇺🇸 +1", // Default, could be parsed from phone if available
+        location: profileData.location || "",
+        dobDay: day,
+        dobMonth: month,
+        dobYear: year,
+        gender: profileData.gender || "",
+      });
+    }
+  }, [profileData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -161,6 +232,7 @@ const Contact = () => {
                   onChange={handleChange}
                   error={errors.firstName}
                   required
+                  disabled={isAuthenticated && formData.firstName}
                 />
                 <Input
                   label="Last Name *"
@@ -169,6 +241,7 @@ const Contact = () => {
                   onChange={handleChange}
                   error={errors.lastName}
                   required
+                  disabled={isAuthenticated && formData.lastName}
                 />
               </div>
 
@@ -181,6 +254,7 @@ const Contact = () => {
                 onChange={handleChange}
                 error={errors.email}
                 required
+                disabled={isAuthenticated && formData.email}
               />
 
               {/* Phone */}
@@ -198,6 +272,7 @@ const Contact = () => {
                       onChange={(value) => handleDropdownChange("countryCode", value)}
                       maxHeight="200px"
                       enableScroll={true}
+                      disabled={isAuthenticated && formData.phone}
                     />
                   </div>
                   {/* Phone Number Input */}
@@ -209,7 +284,8 @@ const Contact = () => {
                       onChange={handleChange}
                       placeholder="(201) 555-0123"
                       required
-                      className="w-full h-[56px] px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200 bg-white"
+                      disabled={isAuthenticated && formData.phone}
+                      className="w-full h-[56px] px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200 bg-white disabled:bg-gray-100 disabled:cursor-not-allowed"
                     />
                   </div>
                 </div>
@@ -227,6 +303,7 @@ const Contact = () => {
                 error={errors.location}
                 placeholder="City/Town*"
                 required
+                disabled={isAuthenticated && formData.location}
               />
 
               {/* Birthdate */}
@@ -241,6 +318,7 @@ const Contact = () => {
                     onChange={handleChange}
                     placeholder="DD"
                     required
+                    disabled={isAuthenticated && formData.dobDay}
                   />
                   <CustomDropdown
                     value={formData.dobMonth}
@@ -249,6 +327,7 @@ const Contact = () => {
                     onChange={(value) => handleDropdownChange("dobMonth", value)}
                     maxHeight="180px"
                     enableScroll={true}
+                    disabled={isAuthenticated && formData.dobMonth}
                   />
                   <Input
                     name="dobYear"
@@ -256,6 +335,7 @@ const Contact = () => {
                     onChange={handleChange}
                     placeholder="YYYY"
                     required
+                    disabled={isAuthenticated && formData.dobYear}
                   />
                 </div>
                 {errors.dob && (
@@ -273,6 +353,7 @@ const Contact = () => {
                   onChange={(value) => handleDropdownChange("gender", value)}
                   error={errors.gender}
                   enableScroll={false}
+                  disabled={isAuthenticated && formData.gender}
                 />
                 {errors.gender && (
                   <p className="mt-1 text-sm text-red-600">{errors.gender}</p>
