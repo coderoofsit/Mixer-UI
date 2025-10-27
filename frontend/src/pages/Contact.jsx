@@ -45,7 +45,7 @@ const Contact = () => {
     email: "",
     phone: "",
     countryCode: "🇺🇸 +1",
-    location: "",
+    location: "Colorado Springs",
     dobDay: "",
     dobMonth: "",
     dobYear: "",
@@ -54,6 +54,8 @@ const Contact = () => {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState({ type: '', text: '' });
+  const [prefilledFields, setPrefilledFields] = useState({});
 
   // Helper function to parse date of birth
   const parseDateOfBirth = (dob) => {
@@ -107,13 +109,26 @@ const Contact = () => {
       const user = authService.getCurrentUser();
       const email = profileData.email || user?.email || "";
       
+      // Track which fields were actually prefilled from profile
+      setPrefilledFields({
+        firstName: !!firstName,
+        lastName: !!lastName,
+        email: !!email,
+        phone: !!profileData.phone,
+        location: false, // Always allow location to be editable
+        dobDay: !!day,
+        dobMonth: !!month,
+        dobYear: !!year,
+        gender: !!profileData.gender,
+      });
+      
       setFormData({
         firstName: firstName,
         lastName: lastName,
         email: email,
         phone: profileData.phone || "",
         countryCode: "🇺🇸 +1", // Default, could be parsed from phone if available
-        location: profileData.location || "",
+        location: "Colorado Springs", // Static location for now
         dobDay: day,
         dobMonth: month,
         dobYear: year,
@@ -152,6 +167,9 @@ const Contact = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    // Clear previous messages
+    setSubmitMessage({ type: '', text: '' });
+    
     // Basic validation
     let newErrors = {};
     if (!formData.firstName) newErrors.firstName = "First name is required";
@@ -172,7 +190,30 @@ const Contact = () => {
       // Simulate API call
       setTimeout(() => {
         setIsLoading(false);
-        // Reset form or show success message
+        // Show success message
+        setSubmitMessage({ 
+          type: 'success', 
+          text: 'Thank you for contacting us! We will get back to you soon.' 
+        });
+        
+        // Scroll to top to show the message
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+        // Reset form if user is not authenticated
+        if (!isAuthenticated) {
+          setFormData({
+            firstName: "",
+            lastName: "",
+            email: "",
+            phone: "",
+            countryCode: "🇺🇸 +1",
+            location: "Colorado Springs",
+            dobDay: "",
+            dobMonth: "",
+            dobYear: "",
+            gender: "",
+          });
+        }
       }, 1500);
     }
   };
@@ -186,6 +227,19 @@ const Contact = () => {
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
             Contact Mixer
           </h1>
+
+          {/* Success/Error Message */}
+          {submitMessage.text && (
+            <div 
+              className={`mb-6 p-4 rounded-lg border ${
+                submitMessage.type === 'success' 
+                  ? 'bg-green-50 border-green-200 text-green-800' 
+                  : 'bg-red-50 border-red-200 text-red-800'
+              }`}
+            >
+              <p className="text-sm font-medium">{submitMessage.text}</p>
+            </div>
+          )}
           
           {/* Social Icons from screenshot */}
           <div className="flex justify-center space-x-3 mb-8">
@@ -232,7 +286,7 @@ const Contact = () => {
                   onChange={handleChange}
                   error={errors.firstName}
                   required
-                  disabled={isAuthenticated && formData.firstName}
+                  disabled={isAuthenticated && prefilledFields.firstName}
                 />
                 <Input
                   label="Last Name *"
@@ -241,7 +295,7 @@ const Contact = () => {
                   onChange={handleChange}
                   error={errors.lastName}
                   required
-                  disabled={isAuthenticated && formData.lastName}
+                  disabled={isAuthenticated && prefilledFields.lastName}
                 />
               </div>
 
@@ -254,44 +308,41 @@ const Contact = () => {
                 onChange={handleChange}
                 error={errors.email}
                 required
-                disabled={isAuthenticated && formData.email}
+                disabled={isAuthenticated && prefilledFields.email}
               />
 
               {/* Phone */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Phone <span className="text-red-600">*</span>
-                </label>
-                <div className="flex gap-2">
-                  {/* Country Code Dropdown */}
-                  <div className="w-36">
-                    <CustomDropdown
-                      value={formData.countryCode}
-                      options={countryCodeOptions}
-                      placeholder="🇺🇸 +1"
-                      onChange={(value) => handleDropdownChange("countryCode", value)}
-                      maxHeight="200px"
-                      enableScroll={true}
-                      disabled={isAuthenticated && formData.phone}
-                    />
-                  </div>
-                  {/* Phone Number Input */}
-                  <div className="flex-1">
-                    <input
-                      name="phone"
-                      type="tel"
-                      value={formData.phone}
-                      onChange={handleChange}
-                      placeholder="(201) 555-0123"
-                      required
-                      disabled={isAuthenticated && formData.phone}
-                      className="w-full h-[56px] px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200 bg-white disabled:bg-gray-100 disabled:cursor-not-allowed"
-                    />
-                  </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <CustomDropdown
+                    label="Country Code *"
+                    value={formData.countryCode}
+                    options={countryCodeOptions}
+                    placeholder="🇺🇸 +1"
+                    onChange={(value) => handleDropdownChange("countryCode", value)}
+                    maxHeight="200px"
+                    enableScroll={true}
+                    disabled={isAuthenticated && prefilledFields.phone}
+                  />
                 </div>
-                {errors.phone && (
-                  <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
-                )}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Phone Number <span className="text-red-600">*</span>
+                  </label>
+                  <input
+                    name="phone"
+                    type="tel"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    placeholder="(201) 555-0123"
+                    required
+                    disabled={isAuthenticated && prefilledFields.phone}
+                    className="w-full h-[56px] px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200 bg-white disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  />
+                  {errors.phone && (
+                    <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+                  )}
+                </div>
               </div>
 
               {/* Location */}
@@ -301,9 +352,9 @@ const Contact = () => {
                 value={formData.location}
                 onChange={handleChange}
                 error={errors.location}
-                placeholder="City/Town*"
+                placeholder="Colorado Springs"
                 required
-                disabled={isAuthenticated && formData.location}
+                disabled={isAuthenticated && prefilledFields.location}
               />
 
               {/* Birthdate */}
@@ -318,7 +369,7 @@ const Contact = () => {
                     onChange={handleChange}
                     placeholder="DD"
                     required
-                    disabled={isAuthenticated && formData.dobDay}
+                    disabled={isAuthenticated && prefilledFields.dobDay}
                   />
                   <CustomDropdown
                     value={formData.dobMonth}
@@ -327,7 +378,7 @@ const Contact = () => {
                     onChange={(value) => handleDropdownChange("dobMonth", value)}
                     maxHeight="180px"
                     enableScroll={true}
-                    disabled={isAuthenticated && formData.dobMonth}
+                    disabled={isAuthenticated && prefilledFields.dobMonth}
                   />
                   <Input
                     name="dobYear"
@@ -335,7 +386,7 @@ const Contact = () => {
                     onChange={handleChange}
                     placeholder="YYYY"
                     required
-                    disabled={isAuthenticated && formData.dobYear}
+                    disabled={isAuthenticated && prefilledFields.dobYear}
                   />
                 </div>
                 {errors.dob && (
@@ -353,7 +404,7 @@ const Contact = () => {
                   onChange={(value) => handleDropdownChange("gender", value)}
                   error={errors.gender}
                   enableScroll={false}
-                  disabled={isAuthenticated && formData.gender}
+                  disabled={isAuthenticated && prefilledFields.gender}
                 />
                 {errors.gender && (
                   <p className="mt-1 text-sm text-red-600">{errors.gender}</p>
