@@ -11,37 +11,26 @@ const producTypeMap = {
 export default function PaymentSuccess() {
 	const location = useLocation();
 	const navigate = useNavigate();
-	const { profileData, fetchProfile } = useProfile();
+	const { profileData } = useProfile();
 	const params = new URLSearchParams(location.search);
 	const sessionId = params.get("session_id");
 	const productType = params.get("productType");
-	
+
 	console.log({ sessionId, productType });
-	
+
+	const verifyPayment = async (userId, productType, sessionId) => {
+		const response = await stripeService.verifyPaymentInIAP(
+			userId,
+			producTypeMap[productType],
+			sessionId,
+		);
+	};
 	useEffect(() => {
-		console.log({ sessionId, productType });
-		
-		// Fetch profile if not already loaded
-		if (!profileData) {
-			console.log('⏳ Fetching profile...');
-			fetchProfile(true);
-			return;
-		}
-		
-		const verifyPayment = async () => {
-			const response = await stripeService.verifyPaymentInIAP(
-				profileData?.id,
-				producTypeMap[productType],
-				sessionId,
-			);
-			console.log({ response });
-		};
-		
 		if (productType && profileData) {
-			verifyPayment();
+			verifyPayment(profileData?.id, productType, sessionId);
 		}
-	}, [profileData, productType, sessionId, fetchProfile]);
-	
+	}, [profileData, productType, sessionId]);
+
 	console.log({ profileData });
 	return (
 		<div className='flex items-center justify-center min-h-screen bg-gray-100'>

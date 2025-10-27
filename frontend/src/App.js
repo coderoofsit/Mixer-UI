@@ -25,6 +25,7 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { ProfileProvider } from "./contexts/ProfileContext";
 import usePageTitle from "./hooks/usePageTitle";
+import CancelPayment from "./pages/CancelPayment";
 
 function AppContent() {
   // Dynamic page title based on route
@@ -82,8 +83,8 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
-        <Route path="/payment-success" element={<PaymentSuccess />} />
         <Route path="/payment/success" element={<PaymentSuccess />} />
+        <Route path="/payment/cancel" element={<CancelPayment />} />
       </Routes>
     </ProfileProvider>
   );
