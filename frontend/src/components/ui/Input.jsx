@@ -2,7 +2,7 @@ import React, { forwardRef } from "react";
 
 const Input = forwardRef(
   (
-    { label, error, helperText, leftIcon, rightIcon, className = "", ...props },
+    { label, error, helperText, leftIcon, rightIcon, className = "", disabled, ...props },
     ref
   ) => {
     const baseClasses =
@@ -15,8 +15,10 @@ const Input = forwardRef(
     const iconClasses = leftIcon ? "pl-10" : rightIcon ? "pr-10" : "";
     
     const heightClass = "h-[56px]";
+    
+    const disabledClasses = disabled ? "bg-gray-100 cursor-not-allowed text-gray-600" : "bg-white";
 
-    const classes = `${baseClasses} ${errorClasses} ${iconClasses} ${heightClass} ${className}`;
+    const classes = `${baseClasses} ${errorClasses} ${iconClasses} ${heightClass} ${disabledClasses} ${className}`;
 
     // Function to render label with red asterisk
     const renderLabel = () => {
@@ -48,7 +50,7 @@ const Input = forwardRef(
             </div>
           )}
 
-          <input ref={ref} className={classes} {...props} />
+          <input ref={ref} className={classes} disabled={disabled} {...props} />
 
           {rightIcon && (
             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">

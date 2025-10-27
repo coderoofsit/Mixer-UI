@@ -1,15 +1,16 @@
-export default function BackgroundUnpaid({ handlePayForVerification }) {
+export default function BackgroundUnpaid({
+	handlePayForVerification,
+	isLoading,
+}) {
 	return (
 		<div className='bg-white overflow-hidden border border-black'>
 			<div
 				className='w-full py-8 text-center'
 				style={{ backgroundColor: "#F97316" }}
 			>
-			<h3
-				className='text-2xl font-bold text-white uppercase tracking-wide'
-			>
-				Background Check
-			</h3>
+				<h3 className='text-2xl font-bold text-white uppercase tracking-wide'>
+					Background Check
+				</h3>
 			</div>
 			<div className='p-12 text-center'>
 				<div className='mb-10 flex items-baseline justify-center'>
@@ -27,7 +28,7 @@ export default function BackgroundUnpaid({ handlePayForVerification }) {
 						color: "#000000",
 					}}
 				>
-					APPLY NOW
+					{isLoading ? "Loading" : "APPLY NOW"}
 				</button>
 			</div>
 		</div>

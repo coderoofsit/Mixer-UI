@@ -9,6 +9,7 @@ const CustomDropdown = ({
   label,
   maxHeight = "200px",
   enableScroll = true,
+  disabled = false,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const dropdownRef = useRef(null);
@@ -88,11 +89,14 @@ const CustomDropdown = ({
         {/* Trigger */}
         <button
           type="button"
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full px-4 py-3 flex items-center justify-between text-left transition-colors duration-200"
+          onClick={() => !disabled && setIsExpanded(!isExpanded)}
+          disabled={disabled}
+          className={`w-full px-4 py-3 flex items-center justify-between text-left transition-colors duration-200 ${
+            disabled ? 'bg-gray-100 cursor-not-allowed' : ''
+          }`}
           style={{ 
             height: "56px",
-            color: value ? "#000" : "#9CA3AF"
+            color: disabled ? "#9CA3AF" : (value ? "#000" : "#9CA3AF")
           }}
         >
           <span className="text-sm">{displayText()}</span>
@@ -114,7 +118,7 @@ const CustomDropdown = ({
         </button>
 
         {/* Dropdown Menu */}
-        {isExpanded && (
+        {isExpanded && !disabled && (
           <div
             className={`relative z-50 w-full bg-white border border-gray-300 rounded-2xl shadow-lg mt-1 ${enableScroll ? 'overflow-y-auto' : ''}`}
             style={{ 

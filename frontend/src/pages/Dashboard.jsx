@@ -1,87 +1,135 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import authService from "../services/authService";
 import LandingHeader from "../components/layout/LandingHeader";
 import Footer from "../components/layout/Footer";
+import { useProfile } from "../contexts/ProfileContext";
+import { stripeService } from "../services/stripeService";
+import { MdOutlineVerified } from "react-icons/md";
 
 const Dashboard = () => {
-  const user = authService.getCurrentUser();
+	const user = authService.getCurrentUser();
+	const { profileData } = useProfile();
+	const handleSignOut = () => {
+		authService.signOut();
+		window.location.href = "/";
+	};
 
-  const handleSignOut = () => {
-    authService.signOut();
-    window.location.href = "/";
-  };
+	const [isPaymentLoading, setPaymentIsLoading] = useState(false);
+	const handlePayForVerification = async (productType) => {
+		setPaymentIsLoading(true);
 
-  return (
-    <>
-      <LandingHeader />
-      <div className="min-h-screen bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">
-              Welcome to Mixer, {user?.name || user?.given_name || "User"}!
-            </h1>
-            <p className="text-gray-600 mb-8">
-              You're now part of our safe, verified community.
-            </p>
+		const response = await stripeService.createCheckoutSession(
+			1000,
+			"usd",
+			"ORD_001",
+			productType,
+		);
+		console.log({ response });
+		window.location.href = response?.sessionUrl;
+	};
 
-            <div className="grid md:grid-cols-3 gap-6 mb-8">
-              <div className="bg-teal-50 border border-teal-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-teal-800 mb-2">
-                  Complete Your Profile
-                </h3>
-                <p className="text-teal-600 text-sm">
-                  Add photos and details to help others get to know you.
-                </p>
-              </div>
+	return (
+		<>
+			<LandingHeader />
+			<div className='min-h-screen bg-white'>
+				<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12'>
+					<div className='bg-white rounded-2xl shadow-xl p-8'>
+						<div className='text-center'>
+							<h1 className='text-3xl font-bold text-gray-900 mb-4'>
+								Welcome to Mixer, {user?.name || user?.given_name || "User"}!
+							</h1>
+							<p className='text-gray-600 mb-8'>
+								You're now part of our safe, verified community.
+							</p>
 
-              <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-red-800 mb-2">
-                  Background Check
-                </h3>
-                <p className="text-red-600 text-sm">
-                  Complete your background verification for full access.
-                </p>
-              </div>
+							<div className='grid md:grid-cols-3 gap-6 mb-8'>
+								<div className='bg-teal-50 border border-teal-200 rounded-lg p-6'>
+									<h3 className='text-lg font-semibold text-teal-800 mb-2'>
+										Complete Your Profile
+									</h3>
+									<p className='text-teal-600 text-sm'>
+										Add photos and details to help others get to know you.
+									</p>
+								</div>
 
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                  Upcoming Events
-                </h3>
-                <p className="text-gray-600 text-sm">
-                  Check out our next mixer events in Colorado Springs.
-                </p>
-              </div>
-            </div>
+								{profileData?.backgroundVerification === "unpaid" && (
+									<div className='bg-red-50 border border-red-200 rounded-lg p-6'>
+										<h3 className='text-lg font-semibold text-red-800 mb-2'>
+											Background Check
+										</h3>
+										<p className='text-red-600 text-sm'>
+											Complete your background verification for full access.
+										</p>
+										<button
+											className='bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg mt-2'
+											onClick={() => handlePayForVerification("background_check")}
+											disabled={isPaymentLoading}
+										>
+											{isPaymentLoading ? "Loading..." : "Pay Now"}
+										</button>
+									</div>
+								)}
+								{profileData?.backgroundVerification === "pending" && (
+									<div className='bg-yellow-200 border border-red-200 rounded-lg p-6'>
+										<h3 className='text-lg font-semibold text-red-800 mb-2'>
+											Background Check is Pending
+										</h3>
+										<p className='text-red-600 text-sm'>
+											We are currently processing your background check. Please check back
+											later.
+										</p>
+									</div>
+								)}
+								{profileData?.backgroundVerification === "approved" && (
+									<div className='bg-teal-50 border border-teal-200 rounded-lg p-6'>
+										<h3 className='text-lg font-semibold text-teal-800 mb-2 flex items-center gap-2 justify-center'>
+											Background Verification <MdOutlineVerified />
+										</h3>
+										<p className='text-teal-600 text-sm'>
+											Your background check has been approved. You can now start connecting
+											with others.
+										</p>
+									</div>
+								)}
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                to="/profile"
-                className="bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
-              >
-                Complete Profile
-              </Link>
-              <Link
-                to="/events"
-                className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
-              >
-                View Events
-              </Link>
-              <button
-                onClick={handleSignOut}
-                className="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
-              >
-                Sign Out
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <Footer />
-    </>
-  );
+								<div className='bg-gray-50 border border-gray-200 rounded-lg p-6'>
+									<h3 className='text-lg font-semibold text-gray-800 mb-2'>
+										Upcoming Events
+									</h3>
+									<p className='text-gray-600 text-sm'>
+										Check out our next mixer events in Colorado Springs.
+									</p>
+								</div>
+							</div>
+
+							<div className='flex flex-col sm:flex-row gap-4 justify-center'>
+								<Link
+									to='/profile'
+									className='bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg'
+								>
+									Complete Profile
+								</Link>
+								<Link
+									to='/events'
+									className='bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg'
+								>
+									View Events
+								</Link>
+								<button
+									onClick={handleSignOut}
+									className='bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200'
+								>
+									Sign Out
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<Footer />
+		</>
+	);
 };
 
 export default Dashboard;

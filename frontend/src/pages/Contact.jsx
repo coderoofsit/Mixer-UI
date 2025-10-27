@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import LandingHeader from "../components/layout/LandingHeader";
 import Footer from "../components/layout/Footer";
 import Input from "../components/ui/Input";
@@ -34,6 +34,7 @@ const countryCodes = [
 const countryCodeOptions = countryCodes.map(c => `${c.flag} ${c.code}`);
 
 const Contact = () => {
+  const { profileData, fetchProfile } = useProfile();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -202,6 +203,19 @@ const Contact = () => {
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
             Contact Mixer
           </h1>
+
+          {/* Success/Error Message */}
+          {submitMessage.text && (
+            <div 
+              className={`mb-6 p-4 rounded-lg border ${
+                submitMessage.type === 'success' 
+                  ? 'bg-green-50 border-green-200 text-green-800' 
+                  : 'bg-red-50 border-red-200 text-red-800'
+              }`}
+            >
+              <p className="text-sm font-medium">{submitMessage.text}</p>
+            </div>
+          )}
           
           {/* Social Icons from screenshot */}
           <div className="flex justify-center space-x-3 mb-8">
@@ -288,6 +302,7 @@ const Contact = () => {
                   onChange={handleChange}
                   error={errors.firstName}
                   required
+                  disabled={isAuthenticated && prefilledFields.firstName}
                 />
                 <Input
                   label="Last Name *"
@@ -296,6 +311,7 @@ const Contact = () => {
                   onChange={handleChange}
                   error={errors.lastName}
                   required
+                  disabled={isAuthenticated && prefilledFields.lastName}
                 />
               </div>
 
@@ -308,6 +324,7 @@ const Contact = () => {
                 onChange={handleChange}
                 error={errors.email}
                 required
+                disabled={isAuthenticated && prefilledFields.email}
               />
 
               {/* Phone */}
@@ -353,8 +370,9 @@ const Contact = () => {
                 value={formData.location}
                 onChange={handleChange}
                 error={errors.location}
-                placeholder="City/Town*"
+                placeholder="Colorado Springs"
                 required
+                disabled={isAuthenticated && prefilledFields.location}
               />
 
               {/* Birthdate */}
@@ -384,6 +402,7 @@ const Contact = () => {
                   onChange={(value) => handleDropdownChange("gender", value)}
                   error={errors.gender}
                   enableScroll={false}
+                  disabled={isAuthenticated && prefilledFields.gender}
                 />
                 {errors.gender && (
                   <p className="mt-1 text-sm text-red-600">{errors.gender}</p>

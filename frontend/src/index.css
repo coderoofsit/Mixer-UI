@@ -90,12 +90,53 @@
     overflow: hidden;
   }
 
+  .ui-fluid-gradient-wrapper {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+
+  .ui-e-fluid-canvas {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ui-fluid-gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      135deg,
+      #e0c3fc 0%,
+      #a8d8ff 15%,
+      #ffd6a5 30%,
+      #ffb3ba 45%,
+      #bae1ff 60%,
+      #dfc4ff 75%,
+      #ffccb6 90%,
+      #e0c3fc 100%
+    );
+    background-size: 400% 400%;
+    animation: gradientShift 20s ease infinite;
+    z-index: 0;
+  }
+
   @keyframes gradientShift {
     0% {
       background-position: 0% 50%;
     }
+    25% {
+      background-position: 50% 100%;
+    }
     50% {
       background-position: 100% 50%;
+    }
+    75% {
+      background-position: 50% 0%;
     }
     100% {
       background-position: 0% 50%;
