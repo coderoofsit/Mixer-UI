@@ -144,6 +144,41 @@ const Contact = () => {
     }
   };
 
+  const handlePhoneChange = (e) => {
+    const { value } = e.target;
+    // Only allow numbers, spaces, dashes, parentheses, and plus sign
+    const filteredValue = value.replace(/[^0-9\s\-()+-]/g, '');
+    setFormData((prev) => ({
+      ...prev,
+      phone: filteredValue,
+    }));
+    // Clear error if user starts typing
+    if (errors.phone) {
+      setErrors((prev) => ({
+        ...prev,
+        phone: null,
+      }));
+    }
+  };
+
+  const handlePhoneKeyDown = (e) => {
+    // Allow: backspace, delete, tab, escape, enter, arrows
+    if ([8, 9, 27, 13, 46, 37, 38, 39, 40].indexOf(e.keyCode) !== -1 ||
+        // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+        (e.keyCode === 65 && e.ctrlKey === true) ||
+        (e.keyCode === 67 && e.ctrlKey === true) ||
+        (e.keyCode === 86 && e.ctrlKey === true) ||
+        (e.keyCode === 88 && e.ctrlKey === true)) {
+      return;
+    }
+    // Allow: numbers (0-9), numpad numbers, space, dash, parentheses, plus
+    const allowedKeys = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 
+                        ' ', '-', '(', ')', '+'];
+    if (!allowedKeys.includes(e.key)) {
+      e.preventDefault();
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -374,7 +409,8 @@ const Contact = () => {
                     name="phone"
                     type="tel"
                     value={formData.phone}
-                    onChange={handleChange}
+                    onChange={handlePhoneChange}
+                    onKeyDown={handlePhoneKeyDown}
                     placeholder="(201) 555-0123"
                     maxLength={20}
                     required
