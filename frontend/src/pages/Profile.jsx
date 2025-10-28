@@ -229,20 +229,13 @@ const Profile = () => {
     }));
   };
 
-  const handleFilesSelect = (newFiles, replace = false) => {
-    if (replace) {
-      setPendingFiles(newFiles);
-    } else {
-      setPendingFiles((prev) => [...prev, ...newFiles]);
-    }
-  };
+  const handleFilesSelect = async (newFiles, replace = false) => {
+    if (newFiles.length === 0) return;
 
-  const handleUploadAll = async () => {
-    if (pendingFiles.length === 0) return;
-
+    // Automatically upload the selected files
     setUploading(true);
     try {
-      const result = await authApi.uploadProfileImages(pendingFiles);
+      const result = await authApi.uploadProfileImages(newFiles);
       
       if (result.success && result.data && result.data.uploaded) {
         const newImages = result.data.uploaded.map((upload, index) => ({
@@ -266,7 +259,6 @@ const Profile = () => {
           images: updatedImages,
         });
 
-        setPendingFiles([]);
         setSuccessMessage(`${newImages.length} image(s) uploaded successfully!`);
         setTimeout(() => setSuccessMessage(""), 3000);
       }
@@ -276,6 +268,12 @@ const Profile = () => {
     } finally {
       setUploading(false);
     }
+  };
+
+  const handleUploadAll = async () => {
+    // This function is kept for compatibility but is no longer used
+    // Images are now uploaded automatically on selection
+    return;
   };
 
   const handleImageDelete = async (index, isPending) => {

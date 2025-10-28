@@ -217,29 +217,11 @@ const ImageUpload = ({
         ))}
       </div>
       
-      {/* Upload All Button */}
-      {pendingFiles.length > 0 && (
-        <div className="flex justify-center">
-          <button
-            type="button"
-            onClick={onUploadAll}
-            disabled={uploading}
-            className="bg-teal-600 hover:bg-teal-700 disabled:bg-gray-400 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200 flex items-center gap-2"
-          >
-            {uploading ? (
-              <>
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                <span>Uploading {pendingFiles.length} photo{pendingFiles.length > 1 ? 's' : ''}...</span>
-              </>
-            ) : (
-              <>
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                </svg>
-                <span>Upload {pendingFiles.length} Photo{pendingFiles.length > 1 ? 's' : ''}</span>
-              </>
-            )}
-          </button>
+      {/* Upload Progress Indicator */}
+      {uploading && (
+        <div className="flex justify-center items-center gap-2 text-teal-600">
+          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-teal-600"></div>
+          <span className="font-medium">Uploading images...</span>
         </div>
       )}
       
@@ -247,8 +229,8 @@ const ImageUpload = ({
         <p>• Upload up to {maxImages} photos</p>
         <p>• Accepted formats: JPG, PNG, WEBP</p>
         <p>• Maximum file size: 5MB per image</p>
+        <p>• Images are uploaded automatically when you select them</p>
         <p>• Click "Set Primary" to choose your main profile photo</p>
-        <p>• Select images then click "Upload" button to save them</p>
       </div>
     </div>
   );
