@@ -5,7 +5,8 @@ import { stripeService } from "../services/stripeService";
 
 const producTypeMap = {
 	background_check: "com.mixerltd.mixerltd.background_check",
-	quarterly_membership: "com.mixerltd.mixerltd.upgrade",
+	basic_membership: "com.mixerltd.mixerltd.basic",
+	upgrade_membership: "com.mixerltd.mixerltd.upgrade",
 };
 
 export default function PaymentSuccess() {

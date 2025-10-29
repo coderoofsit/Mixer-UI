@@ -18,7 +18,7 @@ const Landing = () => {
 	const navigate = useNavigate();
 	const handlePayForVerification = async (productType) => {
 		if (!isAuthenticated) return navigate("/login");
-		if (productType === "quarterly_membership") {
+		if (productType === "basic_membership" || productType === "upgrade_membership") {
 			setIsMemberPaymentLoading(true);
 		} else {
 			setPaymentIsLoading(true);
@@ -300,16 +300,15 @@ const Landing = () => {
 					</div>
 
 					{/* Pricing Sections */}
-					{/* <div className='grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 max-w-5xl mx-auto'> */}
-					<div className='max-w-lg mx-auto'>
-						{/* Memberships Section */}
-						{/* <div className='bg-white overflow-hidden border border-black'>
+					<div className='grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 max-w-5xl mx-auto'>
+						{/* Basic Plan */}
+						<div className='bg-white overflow-hidden border border-black'>
 							<div
 								className='w-full py-6 md:py-8 text-center'
 								style={{ backgroundColor: "#038386" }}
 							>
 								<h3 className='text-xl md:text-2xl font-bold text-white uppercase tracking-wide'>
-									Memberships
+									Basic Plan
 								</h3>
 							</div>
 							<div className='p-6 md:p-12 text-center'>
@@ -322,7 +321,7 @@ const Landing = () => {
 										.99
 									</span>
 									<span className='text-lg md:text-2xl text-gray-600 ml-2 md:ml-3'>
-										Month
+										/ Month
 									</span>
 								</div>
 								<button
@@ -332,13 +331,52 @@ const Landing = () => {
 										color: "#000000",
 									}}
 									disabled={isMemberPaymentLoading}
-									onClick={() => handlePayForVerification("quarterly_membership")}
+									onClick={() => handlePayForVerification("basic_membership")}
 								>
-									{isMemberPaymentLoading ? "Loading" : "START MIXER"}
+									{isMemberPaymentLoading ? "Loading..." : "GET BASIC"}
 								</button>
 							</div>
-						</div> */}
+						</div>
 
+						{/* Upgrade Plan */}
+						<div className='bg-white overflow-hidden border border-black'>
+							<div
+								className='w-full py-6 md:py-8 text-center'
+								style={{ backgroundColor: "#667eea" }}
+							>
+								<h3 className='text-xl md:text-2xl font-bold text-white uppercase tracking-wide'>
+									Upgrade Plan
+								</h3>
+							</div>
+							<div className='p-6 md:p-12 text-center'>
+								<div className='mb-8 md:mb-10 flex items-baseline justify-center'>
+									<span className='text-2xl md:text-4xl font-bold text-gray-900'>$</span>
+									<span className='text-5xl md:text-7xl font-bold text-gray-900'>
+										34
+									</span>
+									<span className='text-2xl md:text-4xl font-bold text-gray-900'>
+										.99
+									</span>
+									<span className='text-lg md:text-2xl text-gray-600 ml-2 md:ml-3'>
+										/ Month
+									</span>
+								</div>
+								<button
+									className='w-full md:w-auto py-3 md:py-4 px-8 md:px-10 font-semibold text-xs transition-colors duration-200 mt-8 md:mt-16'
+									style={{
+										backgroundColor: "#E9E8E6",
+										color: "#000000",
+									}}
+									disabled={isMemberPaymentLoading}
+									onClick={() => handlePayForVerification("upgrade_membership")}
+								>
+									{isMemberPaymentLoading ? "Loading..." : "GET UPGRADE"}
+								</button>
+							</div>
+						</div>
+					</div>
+
+					<div className='max-w-lg mx-auto mt-8'>
 						{/* Background Check Section */}
 						{profileData?.backgroundVerification === "unpaid" && (
 							<BackgroundUnpaid
