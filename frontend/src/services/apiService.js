@@ -31,6 +31,7 @@ apiClient.interceptors.request.use(
         const fiftyFiveMinutes = 55 * 60 * 1000;
         
         if (tokenAge >= fiftyFiveMinutes) {
+          console.log('🔄 Token expired, refreshing...');
           // Token expired, get fresh token with locking mechanism
           if (!tokenRefreshPromise) {
             tokenRefreshPromise = (async () => {
@@ -45,8 +46,10 @@ apiClient.interceptors.request.use(
                   localStorage.setItem('firebaseRefreshToken', refreshToken);
                   localStorage.setItem('tokenTimestamp', Date.now().toString());
                   
+                  console.log('✅ Token refreshed successfully');
                   return newToken;
                 }
+                console.warn('⚠️ No current user to refresh token');
                 return null;
               } finally {
                 tokenRefreshPromise = null; // Release lock
@@ -58,6 +61,7 @@ apiClient.interceptors.request.use(
           token = await tokenRefreshPromise;
         }
       } else {
+        console.log('🔑 Getting fresh token from Firebase...');
         // No token in localStorage, get from Firebase
         const user = auth.currentUser;
         if (user) {
@@ -68,14 +72,21 @@ apiClient.interceptors.request.use(
           localStorage.setItem('firebaseIdToken', token);
           localStorage.setItem('firebaseRefreshToken', refreshToken);
           localStorage.setItem('tokenTimestamp', Date.now().toString());
+          
+          console.log('✅ Fresh token obtained and stored');
+        } else {
+          console.warn('⚠️ No authenticated user found');
         }
       }
       
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
+        console.log(`📤 Making ${config.method?.toUpperCase()} request to ${config.url} with auth token`);
+      } else {
+        console.warn(`⚠️ Making ${config.method?.toUpperCase()} request to ${config.url} WITHOUT auth token`);
       }
     } catch (error) {
-      console.error('Error getting Firebase token:', error);
+      console.error('❌ Error getting Firebase token:', error);
     }
     return config;
   },
@@ -87,34 +98,69 @@ apiClient.interceptors.request.use(
 // Response interceptor for error handling
 apiClient.interceptors.response.use(
 	(response) => response,
-	(error) => {
+	async (error) => {
 		if (error.response) {
 			// Server responded with error
-			console.error("API Error Response:", error.response.data);
-			console.error("Status:", error.response.status);
+			console.error(`❌ API Error Response (${error.response.status}):`, error.response.data);
+			console.error("Request URL:", error.config?.url);
+			console.error("Request Method:", error.config?.method);
 			
 			// Handle 401/403 - Unauthorized/Forbidden
 			if (error.response.status === 401 || error.response.status === 403) {
-				console.warn('🔒 Unauthorized access - clearing tokens');
+				console.warn('🔒 Unauthorized/Forbidden access detected');
+				console.warn('Error details:', error.response.data);
 				
-				// Clear all auth data but DON'T redirect
-				// Let individual pages handle auth requirements
-				localStorage.removeItem('user');
-				localStorage.removeItem('firebaseIdToken');
-				localStorage.removeItem('firebaseRefreshToken');
-				localStorage.removeItem('tokenTimestamp');
-				localStorage.removeItem('userId');
-				localStorage.removeItem('isAnonymous');
+				const errorData = error.response.data;
+				const errorCode = errorData?.error?.code || '';
+				const errorMessage = JSON.stringify(errorData).toLowerCase();
 				
-				// Note: Removed automatic redirect to /login
-				// Pages that require auth should check and redirect themselves
+				// Check for specific error codes that require logout
+				const shouldLogout = 
+					errorCode === 'USER_INACTIVE' ||
+					errorCode === 'USER_DELETED' ||
+					errorCode === 'ACCOUNT_DISABLED' ||
+					errorMessage.includes('invalid or inactive user') ||
+					errorMessage.includes('user not found') ||
+					errorMessage.includes('account disabled') ||
+					errorMessage.includes('invalid token') || 
+					errorMessage.includes('token expired') ||
+					errorMessage.includes('no token');
+				
+				if (shouldLogout) {
+					console.warn('🔒 User inactive/invalid or token issue - logging out');
+					
+					// Clear all authentication data
+					localStorage.removeItem('user');
+					localStorage.removeItem('firebaseIdToken');
+					localStorage.removeItem('firebaseRefreshToken');
+					localStorage.removeItem('tokenTimestamp');
+					localStorage.removeItem('userId');
+					localStorage.removeItem('isAnonymous');
+					localStorage.removeItem('returnToAfterOnboarding');
+					
+					// Sign out from Firebase
+					try {
+						await auth.signOut();
+						console.log('✅ Signed out from Firebase');
+					} catch (signOutError) {
+						console.error('Error signing out from Firebase:', signOutError);
+					}
+					
+					// Redirect to login page
+					const currentPath = window.location.pathname;
+					if (currentPath !== '/login' && currentPath !== '/signup') {
+						console.log('🔄 Redirecting to login page...');
+						window.location.href = '/login';
+					}
+				}
 			}
 		} else if (error.request) {
 			// Request made but no response
-			console.error("API Error: No response from server");
+			console.error("❌ API Error: No response from server");
+			console.error("Request:", error.request);
 		} else {
 			// Error setting up request
-			console.error("API Error:", error.message);
+			console.error("❌ API Error:", error.message);
 		}
 		return Promise.reject(error);
 	},

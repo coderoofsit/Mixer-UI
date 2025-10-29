@@ -2,11 +2,39 @@ import apiClient from './apiService';
 
 // Map backend errors to user-friendly messages
 const getUserFriendlyMessage = (error, defaultMessage) => {
-  const backendError = error.response?.data?.error || 
-                      error.response?.data?.message || 
-                      error.message || '';
+  // Extract error message and ensure it's a string
+  let backendError = error.response?.data?.error || 
+                     error.response?.data?.message || 
+                     error.message || '';
   
-  const errorLower = backendError.toLowerCase();
+  // Convert to string if it's an object
+  if (typeof backendError === 'object') {
+    backendError = JSON.stringify(backendError);
+  }
+  
+  // Ensure it's a string
+  const errorString = String(backendError);
+  const errorLower = errorString.toLowerCase();
+  
+  // Handle 403 errors specifically
+  if (error.response?.status === 403) {
+    const errorCode = error.response?.data?.error?.code;
+    
+    // Check for specific error codes
+    if (errorCode === 'USER_INACTIVE' || errorCode === 'USER_DELETED' || errorCode === 'ACCOUNT_DISABLED') {
+      return 'Your account is inactive. Please contact support.';
+    }
+    
+    if (errorLower.includes('inactive user') || errorLower.includes('invalid user')) {
+      return 'Your account is inactive. Please contact support.';
+    }
+    
+    if (errorLower.includes('token') || errorLower.includes('unauthorized')) {
+      return 'Session Expired. Please Login Again';
+    }
+    
+    return 'Access Denied. Please Login';
+  }
   
   // Map common backend errors to user-friendly messages
   if (errorLower.includes('email') && errorLower.includes('already')) {
@@ -25,7 +53,7 @@ const getUserFriendlyMessage = (error, defaultMessage) => {
     return 'Invalid Credentials';
   }
   if (errorLower.includes('unauthorized')) {
-    return 'Access Denied';
+    return 'Session Expired. Please Login Again';
   }
   if (errorLower.includes('not found')) {
     return 'User Not Found';

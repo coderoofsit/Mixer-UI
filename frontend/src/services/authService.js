@@ -151,17 +151,27 @@ class AuthService {
 
       // Check if this is a new user
       const isNewUser = result._tokenResponse?.isNewUser || false;
+      
+      console.log('🔍 Google sign-in - isNewUser flag:', isNewUser);
 
-      // Register new users with backend
-      if (isNewUser) {
-        try {
-          const idToken = await user.getIdToken(true);
-          const registrationResult = await authApi.registerUser(user.email, idToken);
-          
-          if (registrationResult.success) {
-            localStorage.setItem('userId', registrationResult.userId);
-          }
-        } catch (error) {
+      // Always attempt to register with backend
+      // The backend will handle existing users gracefully
+      try {
+        const idToken = await user.getIdToken(true);
+        console.log('📤 Registering/verifying user with backend...');
+        const registrationResult = await authApi.registerUser(user.email, idToken);
+        
+        if (registrationResult.success) {
+          localStorage.setItem('userId', registrationResult.userId);
+          console.log('✅ Backend registration successful');
+        }
+      } catch (error) {
+        console.error('❌ Backend registration error:', error);
+        
+        // Only cleanup if this was a new Firebase user
+        // For existing users, backend errors might be acceptable (e.g., already registered)
+        if (isNewUser) {
+          console.log('🧹 New user - cleaning up Firebase user after backend error');
           // Cleanup Firebase user with retry mechanism
           try {
             await user.delete();
@@ -175,6 +185,10 @@ class AuthService {
           }
           
           throw error;
+        } else {
+          // For existing Firebase users, log but don't throw
+          // They might already be registered in backend
+          console.warn('⚠️ Backend registration failed for existing Firebase user - continuing anyway');
         }
       }
 
@@ -204,17 +218,27 @@ class AuthService {
 
       // Check if this is a new user
       const isNewUser = result._tokenResponse?.isNewUser || false;
+      
+      console.log('🔍 Apple sign-in - isNewUser flag:', isNewUser);
 
-      // Register new users with backend
-      if (isNewUser) {
-        try {
-          const idToken = await user.getIdToken(true);
-          const registrationResult = await authApi.registerUser(user.email, idToken);
-          
-          if (registrationResult.success) {
-            localStorage.setItem('userId', registrationResult.userId);
-          }
-        } catch (error) {
+      // Always attempt to register with backend
+      // The backend will handle existing users gracefully
+      try {
+        const idToken = await user.getIdToken(true);
+        console.log('📤 Registering/verifying user with backend...');
+        const registrationResult = await authApi.registerUser(user.email, idToken);
+        
+        if (registrationResult.success) {
+          localStorage.setItem('userId', registrationResult.userId);
+          console.log('✅ Backend registration successful');
+        }
+      } catch (error) {
+        console.error('❌ Backend registration error:', error);
+        
+        // Only cleanup if this was a new Firebase user
+        // For existing users, backend errors might be acceptable (e.g., already registered)
+        if (isNewUser) {
+          console.log('🧹 New user - cleaning up Firebase user after backend error');
           // Cleanup Firebase user with retry mechanism
           try {
             await user.delete();
@@ -228,6 +252,10 @@ class AuthService {
           }
           
           throw error;
+        } else {
+          // For existing Firebase users, log but don't throw
+          // They might already be registered in backend
+          console.warn('⚠️ Backend registration failed for existing Firebase user - continuing anyway');
         }
       }
 
