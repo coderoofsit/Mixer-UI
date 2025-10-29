@@ -31,6 +31,8 @@ const usePageTitle = () => {
           return 'Login - Welcome Back - Mixer Dating App';
         case '/signup':
           return 'Signup - Welcome - Mixer Dating App';
+        case '/welcome':
+          return 'Welcome to Mixer - Mixer Dating App';
         case '/forgot-password':
           return 'Forgot Password - Mixer Dating App';
         case '/payment':

@@ -103,8 +103,11 @@ const Signup = () => {
         localStorage.setItem('returnToAfterOnboarding', from);
       }
       
-      // Redirect new users to onboarding to complete their profile
-      navigate("/onboarding/profile-setup");
+      // Redirect to welcome screen with user's name
+      navigate("/welcome", { 
+        state: { name: formData.fullName },
+        replace: true 
+      });
     } catch (err) {
       console.error('Signup error:', err);
       // Extract only the message, not the full error object
@@ -130,19 +133,25 @@ const Signup = () => {
     setError("");
 
     try {
-      await authService.signInWithGoogle();
+      const result = await authService.signInWithGoogle();
       
       // Fetch profile immediately after successful signup
       console.log('✅ Google signup successful, fetching profile...');
-      await fetchProfile(true); // Force fetch to ensure fresh data
+      const profile = await fetchProfile(true); // Force fetch to ensure fresh data
       
       // Store the return URL for after onboarding
       if (from !== "/") {
         localStorage.setItem('returnToAfterOnboarding', from);
       }
       
-      // Redirect new users to onboarding to complete their profile
-      navigate("/onboarding/profile-setup");
+      // Get user's name from Google or profile
+      const userName = result?.user?.displayName || profile?.name || "there";
+      
+      // Redirect to welcome screen with user's name
+      navigate("/welcome", { 
+        state: { name: userName },
+        replace: true 
+      });
     } catch (err) {
       console.error('Google signup error:', err);
       // Extract only the message, not the full error object

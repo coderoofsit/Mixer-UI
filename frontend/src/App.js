@@ -7,6 +7,7 @@ import BlindMixers from "./pages/BlindMixers";
 import UpcomingEvents from "./pages/UpcomingEvents";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import Welcome from "./pages/Welcome";
 import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
@@ -42,6 +43,7 @@ function AppContent() {
         <Route path="/events" element={<UpcomingEvents />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/welcome" element={<Welcome />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/onboarding/profile-setup" element={<ProfileSetupScreen />} />
         <Route path="/onboarding/photos" element={<PhotoGalleryScreen />} />
