@@ -78,9 +78,8 @@ const UpcomingEvents = () => {
 								</button>
 							</div>
 						)}
-
-						{/* Events List - Always visible */}
-						<div className='space-y-6 md:space-y-8'>
+						{profileData &&(
+							<div className='space-y-6 md:space-y-8'>
 							{events.map((event) => (
 								<div key={event._id} className='bg-white overflow-hidden rounded-lg shadow-sm'>
 									<div className='flex flex-col md:flex-row md:items-center'>
@@ -216,6 +215,10 @@ const UpcomingEvents = () => {
 								</div>
 							))}
 						</div>
+						)}
+
+						
+						
 					</>
 				)}
 			</div>
