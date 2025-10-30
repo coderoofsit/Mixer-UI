@@ -11,18 +11,30 @@ import BackgroundPending from "../components/BackgroundPending";
 const Landing = () => {
 	const [userDetails, setUserDetails] = useState();
 	const [paymentIsLoading, setPaymentIsLoading] = useState(false);
-	const [isMemberPaymentLoading, setIsMemberPaymentLoading] = useState(false);
 	const { profileData } = useProfile();
 	const isAuthenticated = authService.isAuthenticated() || profileData !== null;
 	console.log({ profileData });
 	const navigate = useNavigate();
 	const handlePayForVerification = async (productType) => {
-		if (!isAuthenticated) return navigate("/login");
+		// For membership plans, redirect to app stores
 		if (productType === "basic_membership" || productType === "upgrade_membership") {
-			setIsMemberPaymentLoading(true);
-		} else {
-			setPaymentIsLoading(true);
+			const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+			const isAndroid = /Android/.test(navigator.userAgent);
+			
+			if (isIOS) {
+				window.open('https://apps.apple.com/us/app/mixer-safe-events/id6751273932', '_blank');
+			} else if (isAndroid) {
+				window.open('https://play.google.com/store/apps/details?id=com.event.dating', '_blank');
+			} else {
+				// Default to iOS App Store for desktop/other devices
+				window.open('https://apps.apple.com/us/app/mixer-safe-events/id6751273932', '_blank');
+			}
+			return;
 		}
+
+		// Background check flow remains the same
+		if (!isAuthenticated) return navigate("/login");
+		setPaymentIsLoading(true);
 		const response = await stripeService.createCheckoutSession(
 			1000,
 			"usd",
@@ -330,10 +342,9 @@ const Landing = () => {
 										backgroundColor: "#E9E8E6",
 										color: "#000000",
 									}}
-									disabled={isMemberPaymentLoading}
 									onClick={() => handlePayForVerification("basic_membership")}
 								>
-									{isMemberPaymentLoading ? "Loading..." : "GET BASIC"}
+									GET BASIC
 								</button>
 							</div>
 						</div>
@@ -367,16 +378,16 @@ const Landing = () => {
 										backgroundColor: "#E9E8E6",
 										color: "#000000",
 									}}
-									disabled={isMemberPaymentLoading}
 									onClick={() => handlePayForVerification("upgrade_membership")}
 								>
-									{isMemberPaymentLoading ? "Loading..." : "GET UPGRADE"}
+									GET UPGRADE
 								</button>
 							</div>
 						</div>
 					</div>
 
-					<div className='max-w-lg mx-auto mt-8'>
+					{profileData &&(
+						<div className='max-w-lg mx-auto mt-8'>
 						{/* Background Check Section */}
 						{profileData?.backgroundVerification === "unpaid" && (
 							<BackgroundUnpaid
@@ -425,6 +436,7 @@ const Landing = () => {
 							</div>
 						</div> */}
 					</div>
+					)}
 				</div>
 			</section>
 
